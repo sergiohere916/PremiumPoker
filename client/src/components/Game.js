@@ -23,6 +23,12 @@ function Game({gameData, socket}) {
         setShuffledDeck(deck);
     })
 
+    socket.on('dealing', (data) => {
+        if (gameData["user"] === data["user"]) {
+            console.log(data);
+        }
+    })
+
 
     console.log(shuffledDeck);
     
@@ -53,18 +59,19 @@ function Game({gameData, socket}) {
 
     }
 
-    // function dealPlayerCards() {
-    //     console.log("hi");
-    // }
+    function dealPlayerCards(turn_number) {
+        socket.emit("deal_cards", {room: gameData["room"], turn: turn_number});
+    }
 
     //GAME LOGIC -------------------------------------------------
 
-    // if (gameStarted) {
-    //     dealPlayerCards()
-    //     //Remove player or continue
-    //     dealTableCards()
+    if (gameStarted) {
+        dealPlayerCards(1)
+        // dealFlop()
+        //Remove player or continue
+        // dealTableCards()
 
-    // }
+    }
 
     return (
         <div>

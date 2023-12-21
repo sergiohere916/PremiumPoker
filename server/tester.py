@@ -53,20 +53,93 @@ for player in players:
 
 game = [{"game1": "100"}, {"game2": "200"}]
 
-game1 = [game[key] for key in game]
-# print(game.index("game1"))
-print(game1)
+# game1 = [game[key] for key in game]
+# # print(game.index("game1"))
+# print(game1)
 
 #RESTRUCTURING GAME Setup?
 #These can also be pulled 
-game_rooms = {"id": 12345,
-              "player_list" : {
-                  "Sergio": [],
-                  "James": []
-              },
-              "table_cards": [],
-              "all_cards": [],
-              "last_card_dealt": 0,
-              
-              }
+# game_rooms = [{"id": "GAME1",
+#               "player_list" : [{"Sergio": []}, {"Joe": []}],
+#               "table_cards": [],
+#               "deck": [{"A": "Spade"}, {"2": "Spade"}, {"3": "Spade"}, {"4": "Spade"}, {"5": "Spade"}, {"6": "Spade"}, {"7": "Spade"}, {"8": "Spade"}],
+#               "last_card_dealt": 0,
+#               "player_order": ["Sergio", "Joe"],
+#               "current_turn": "Sergio"
+#               },
+#               {"id": "GAME2",
+#               "player_list" : [{"Steve": []}, {"Jordan": []}],
+#               "table_cards": [],
+#               "deck": [{"A": "Spade"}, {"2": "Spade"}, {"3": "Spade"}, {"4": "Spade"}, {"5": "Spade"}, {"6": "Spade"}, {"7": "Spade"}, {"8": "Spade"}],
+#               "last_card_dealt": 0,
+#               "player_order": ["Steve", "Jordan"],
+#               "current_turn": "Jordan"
+#               },
+#               {"id": "GAME3",
+#               "player_list" : [{"Michael": []}, {"Gabriel": []}],
+#               "table_cards": [],
+#               "deck": [{"A": "Spade"}, {"2": "Spade"}, {"3": "Spade"}, {"4": "Spade"}, {"5": "Spade"}, {"6": "Spade"}, {"7": "Spade"}, {"8": "Spade"}],
+#               "last_card_dealt": 0,
+#               "player_order": ["Michael", "Gabriel"],
+#               "current_turn": "Michael"
+#               }
+#               ]
 
+game_rooms = {
+    "GAME1": {
+        "id": "GAME1",
+        "player_list" : [{"Sergio": []}, {"Joe": []}],
+        "table_cards": [],
+        "deck": [{"A": "Spade"}, {"2": "Spade"}, {"3": "Spade"}, {"4": "Spade"}, {"5": "Spade"}, {"6": "Spade"}, {"7": "Spade"}, {"8": "Spade"}],
+        "last_card_dealt": 0,
+        "player_order": ["Sergio", "Joe"],
+        "current_turn": "Sergio"
+    },
+    "GAME2": {
+        "id": "GAME2",
+        "player_list" : [{"Steve": []}, {"Jordan": []}],
+        "table_cards": [],
+        "deck": [{"A": "Spade"}, {"2": "Spade"}, {"3": "Spade"}, {"4": "Spade"}, {"5": "Spade"}, {"6": "Spade"}, {"7": "Spade"}, {"8": "Spade"}],
+        "last_card_dealt": 0,
+        "player_order": ["Steve", "Jordan"],
+        "current_turn": "Jordan"
+    },
+    "GAME3":  {
+        "id": "GAME3",
+        "player_list" : [{"Michael": []}, {"Gabriel": []}],
+        "table_cards": [],
+        "deck": [{"A": "Spade"}, {"2": "Spade"}, {"3": "Spade"}, {"4": "Spade"}, {"5": "Spade"}, {"6": "Spade"}, {"7": "Spade"}, {"8": "Spade"}],
+        "last_card_dealt": 0,
+        "player_order": ["Michael", "Gabriel"],
+        "current_turn": "Michael"
+    }
+
+}
+room = "GAME3"
+# #FIND BETTER WAY TO SEARCH OUT SPECIFIC DICT IN A LIST WITHOUT FOR LOOP
+# for game in game_rooms:
+#     if game["id"] == room:
+#         for player_dict in game["player_list"]:
+#             for player in player_dict:
+#                 game["current_turn"] = player
+#                 player_dict[player].append(game["deck"][game["last_card_dealt"]])
+#                 player_dict[player].append(game["deck"][game["last_card_dealt"] + 1])
+#                 # if len(game["player_order"]) == 
+#             game["last_card_dealt"] += 2
+#         game["last_card_dealt"] += 1
+#         # game["current_turn"] = game["player_order"][game["player_order"].index(game["current_turn"]) + 1]
+# print(game_rooms[2]["player_list"])
+# print(game_rooms[2]["last_card_dealt"])
+
+
+game = game_rooms.get(room)
+for player_dict in game["player_list"]:
+    for player in player_dict:
+        game["current_turn"] = player
+        player_dict[player].append(game["deck"][game["last_card_dealt"]])
+        player_dict[player].append(game["deck"][game["last_card_dealt"] + 1])
+    game["last_card_dealt"] += 2
+game["last_card_dealt"] += 1
+
+print(game["player_list"])
+print(game["last_card_dealt"])
