@@ -72,7 +72,11 @@ def handle_join_room(room_data):
             "last_card_dealt": 0,
             "player_order": [user],
             "current_turn": user,
-            "turn_number": 0
+            "turn_number": 0,
+            "player_cards_dealt": False,
+            "flop_dealt": False,
+            "turn_dealt": False,
+            "river_dealt": False
         }  
 
     print(game_rooms.get(room))
@@ -100,7 +104,8 @@ def deal_cards(data):
     # cards = data["cards"]
     game = game_rooms.get(room)
     cards = game["deck"]
-    if turn is not game["turn_number"]:
+    cards_dealt = game["player_cards_dealt"]
+    if not cards_dealt:
         for player_dict in game["player_list"]:
             for player in player_dict:
                 game["current_turn"] = player
@@ -109,19 +114,74 @@ def deal_cards(data):
                 socketio.emit("dealing", {"user": player, "cards": player_dict[player]}, room = room)
             game["last_card_dealt"] += 2
         game["last_card_dealt"] += 1
-        game["turn_number"] +=1
+        # game["turn_number"] +=1
+        game["player_cards_dealt"] = True
         print(game["player_list"])
 
+@socketio.on("deal_flop")
+def deal_flop(data):
+    print("dealing the flop...")
+    
+    room = data["room"]
+    turn = int(data["turn"])
+    game = game_rooms.get(room)
+    cards = game["deck"]
+    stored_turn = game["turn_number"]
+    cards_dealt = game["flop_dealt"]
+    print(f"The incoming number for turn in {turn} and the stored turn is {stored_turn}")
+    if not game["flop_dealt"]:
+        print("running flop logic....")
+        game["table_cards"].append(cards[game["last_card_dealt"]])
+        game["last_card_dealt"] += 1
+        game["table_cards"].append(cards[game["last_card_dealt"]])
+        game["last_card_dealt"] += 1
+        game["table_cards"].append(cards[game["last_card_dealt"]])
+        game["last_card_dealt"] += 1
+        game["last_card_dealt"] += 1
+        # game["turn_number"] += 1
+        socketio.emit("dealing_flop", {"table_cards": game["table_cards"]}, room = room)
+        game["flop_dealt"] = True
 
-    # for player_obj in player_list:
-    #     for user_Name in player_obj:
-    #         # game_data["player"] = user_Name
-    #         player_obj[user_Name].append(cards[last_position])
-    #         player_obj[user_Name].append(cards[last_position + 1])
-    #     last_position = last_position + 2
-   
+@socketio.on("deal_turn")
+def deal_turn(data):
+    print("dealing the turn...")
+    room = data["room"]
+    game = game_rooms.get(room)
+    if not game["turn_dealt"]:
+        cards = game["deck"]
+        game["table_cards"].append(cards[game["last_card_dealt"]])
+        game["last_card_dealt"] += 1
+        game["last_card_dealt"] += 1
+        socketio.emit("dealing_turn", {"table_cards": game["table_cards"]}, room = room)
+        game["turn_dealt"] = True
+
+@socketio.on("deal_river")
+def deal_river(data):
+    print("dealing the river...")
+    room = data["room"]
+    game = game_rooms.get(room)
+    if not game["river_dealt"]:
+        cards = game["deck"]
+        game["table_cards"].append(cards[game["last_card_dealt"]])
+        game["last_card_dealt"] += 1
+        socketio.emit("dealing_river", {"table_cards": game["table_cards"]}, room = room)
+        game["river_dealt"] = True
+
+# @socketio.on("check_win")
+# def check_win(data):
+#     room = data["room"]
+#     game = game_rooms.get(room)
+#     winner = {
+#         "winner": {
+
+#         }
+#     }
+#     for player_obj in game["player_list"]:
+#         for player in player_obj:
 
 
+# def check_for_pairs():
+#     pass
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5555)

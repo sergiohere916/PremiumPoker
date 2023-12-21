@@ -29,6 +29,17 @@ function Game({gameData, socket}) {
         }
     })
 
+    socket.on("dealing_flop", (data) => {
+        console.log(data);
+    })
+
+    socket.on("dealing_turn", (data) => {
+        console.log(data)
+    })
+
+    socket.on("dealing_river", (data) => {
+        console.log(data)
+    })
 
     console.log(shuffledDeck);
     
@@ -63,11 +74,31 @@ function Game({gameData, socket}) {
         socket.emit("deal_cards", {room: gameData["room"], turn: turn_number});
     }
 
+
+    function dealFlop(turn_number) {
+        socket.emit("deal_flop", {room: gameData["room"], turn: turn_number} )
+    }
+
+    function dealTurn() {
+        socket.emit("deal_turn", {room: gameData["room"]})
+    }
+
+    function dealRiver() {
+        socket.emit("deal_river", {room: gameData["room"]})
+    }
+
+    function checkWin() {
+        console.log("hi")
+        // socket.emit("check_win", {room: gameData["room"]})
+    }
     //GAME LOGIC -------------------------------------------------
 
     if (gameStarted) {
         dealPlayerCards(1)
-        // dealFlop()
+        dealFlop(2)
+        dealTurn()
+        dealRiver()
+        checkWin()
         //Remove player or continue
         // dealTableCards()
 
