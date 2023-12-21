@@ -5,3 +5,8 @@
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
+#table {
+  height: 500px;
+  width: 500px;
+  border: 2px solid black;
+}
