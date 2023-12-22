@@ -173,11 +173,11 @@ room = "GAME3"
 
 game_rooms = [{
             "id": 12345,
-            "player_list": [{"Sergio": [{"name": "10", "suit": "spades", "value": 10}, {"name": "Q", "suit": "clubs", "value": 12},]}, 
-                            {"Joe": [{"name": "9", "suit": "spades", "value": 9}, {"name": "Q", "suit": "diamonds", "value": 12}]}],
+            "player_list": [{"Sergio": [{"name": "A", "suit": "spades", "value": 1}, {"name": "K", "suit": "clubs", "value": 13},]}, 
+                            {"Joe": [{"name": "K", "suit": "spades", "value": 13}, {"name": "A", "suit": "diamonds", "value": 11}]}],
             "deck": [],
-            "table_cards": [{"name": "10", "suit": "hearts", "value": 10}, {"name": "9", "suit": "clubs", "value": 9},
-                      {"name": "Q", "suit": "spades", "value": 12}, {"name": "3", "suit": "spades", "value": 3},
+            "table_cards": [{"name": "J", "suit": "hearts", "value": 11}, {"name": "Q", "suit": "spades", "value": 12},
+                      {"name": "J", "suit": "spades", "value": 11}, {"name": "10", "suit": "spades", "value": 10},
                       {"name": "4", "suit": "spades", "value": 4}],
             "last_card_dealt": 0,
             "player_order": ["Sergio", "Joe"],
@@ -204,21 +204,66 @@ def is_one_pair(cards):
 def is_two_pair(cards):
         values = [card["value"] for card in cards]
         pairs = [value for value in set(values) if values.count(value) == 2]
+        
         if len(pairs) > 1:
+            # print(pairs)
             return max(pairs)
         # return sum(1 for value in set(values) if values.count(value) == 2) == 2
+def is_three_of_a_kind(cards):
+        values = [card["value"] for card in cards]
+        # return any(values.count(value) == 3 for value in set(values))
+        triples = [value for value in set(values) if values.count(value) == 3]
+        if len(triples) > 0:
+             return max(triples)
+        else:
+             return False
+def is_straight(cards):
+        values = sorted(card["value"] for card in cards)
+        # return any(values[i] + 1 == values[i + 1] for i in range(len(values) - 1))
+        straight = [values[i] for i in range(len(values) - 1) if values[i] + 1 == values[i + 1] ]
+        if len(straight) == 4:
+             return max(straight)
+        else:
+             return False
+def is_flush(cards):
+        values = []
+        suits = []
+
+        for card in cards:
+             suit = card["suit"]
+             value = card["value"]
+             #Accounting for the fact that we added in a possible Ace with 14 value to our combo of cards
+             if value == 1:
+                  pass
+             else:
+                suits.append(suit)
+                values.append(value)
+        # flush = [suit for suit in suits if suits.count(suit) == 5]
+        if suits.count(suit) == 5:
+            print(cards)
+            return max(values)
+        else:
+            return False
+             
+        # return any(suits.count(suit) == 5 for suit in set(suits))
 
 
 hand_evaluations = [
         is_one_pair,
-        is_two_pair
+        is_two_pair,
+        is_three_of_a_kind,
+        is_straight,
+        is_flush,
         # is_one_pair,
         # get_high_card,
     ]
 
 hand_scores = {
      "is_one_pair": 20,
-     "is_two_pair": 30
+     "is_two_pair": 30,
+     "is_three_of_a_kind": 40,
+     "is_straight": 50,
+     "is_flush": 60,
 }
 
 
@@ -227,17 +272,19 @@ winners = {}
 
 def evaluate_hand(player_cards, all_table_cards, player):
     print(f"evaluating hand...")
+    # print(winners)
     all_cards = player_cards + all_table_cards
+    [all_cards.append({"name": "A", "suit": card["suit"], "value": 14}) for card in all_cards if card["value"] == 1]
     all_combinations = list(combinations(all_cards, 5))
     player_card_values = [player_cards[0]["value"], player_cards[1]["value"]]
     max_score = 0
     players_in_winners = list(winners.keys())
     if len(players_in_winners) > 0:
         max_score = winners[players_in_winners[0]]["score"]
-    print(len(all_combinations))
-    for combination in all_combinations:
+    # print(len(all_combinations))
+    for evaluation in hand_evaluations:
         score = 0
-        for evaluation in hand_evaluations:
+        for combination in all_combinations:
             evaluation_result = evaluation(combination)
             if evaluation_result:
                 score = hand_scores[evaluation.__name__]
@@ -248,17 +295,17 @@ def evaluate_hand(player_cards, all_table_cards, player):
                     winners[player] = {"name": player, "score": score, 
                                     "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
                 elif score == max_score: 
-                     winners[player] = {"name": player, "score": score, 
+                        winners[player] = {"name": player, "score": score, 
                                     "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
+        
     #CHECK REAL WINNER NOW
 
 
                     
-current_player = 0              
+             
 for player_dict in game_rooms[0]["player_list"]:
-    current_player +=1
     player = list(player_dict.keys())[0]
-    number_of_players = len(game_rooms[0]["player_list"])
+    # number_of_players = len(game_rooms[0]["player_list"])
     evaluate_hand((player_dict[player]), game_rooms[0]["table_cards"], player)
 # winner_player = max(list(winners.values()), key=lambda x: x['score'])
 if len(list(winners.keys())) == 1:
@@ -293,8 +340,11 @@ else:
             elif curr_player["hand_sum"] == final_winners[winner_name]["hand_sum"] and curr_player["name"] != final_winners[winner_name]["name"]:
                 final_winners[curr_player["name"]] = curr_player
         if len(list(final_winners.keys())) == 1:
+            print("Final run has 1 winner indicated by hand sum")
+            print(final_winners)
             print(list(final_winners.keys()))
         else:
+            print("Multiple Winners")
             print(list(final_winners.keys()))
 
               
