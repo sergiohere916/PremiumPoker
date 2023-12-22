@@ -173,10 +173,10 @@ room = "GAME3"
 
 game_rooms = [{
             "id": 12345,
-            "player_list": [{"Sergio": [{"name": "A", "suit": "spades", "value": 1}, {"name": "A", "suit": "clubs", "value": 1},]}, 
-                            {"Joe": [{"name": "K", "suit": "spades", "value": 13}, {"name": "K", "suit": "diamonds", "value": 13}]}],
+            "player_list": [{"Sergio": [{"name": "10", "suit": "spades", "value": 10}, {"name": "Q", "suit": "clubs", "value": 12},]}, 
+                            {"Joe": [{"name": "9", "suit": "spades", "value": 9}, {"name": "Q", "suit": "diamonds", "value": 12}]}],
             "deck": [],
-            "table_cards": [{"name": "10", "suit": "hearts", "value": 10}, {"name": "J", "suit": "clubs", "value": 11},
+            "table_cards": [{"name": "10", "suit": "hearts", "value": 10}, {"name": "9", "suit": "clubs", "value": 9},
                       {"name": "Q", "suit": "spades", "value": 12}, {"name": "3", "suit": "spades", "value": 3},
                       {"name": "4", "suit": "spades", "value": 4}],
             "last_card_dealt": 0,
@@ -203,29 +203,37 @@ def is_one_pair(cards):
             return False  
 def is_two_pair(cards):
         values = [card["value"] for card in cards]
-        return sum(1 for value in set(values) if values.count(value) == 2) == 2
+        pairs = [value for value in set(values) if values.count(value) == 2]
+        if len(pairs) > 1:
+            return max(pairs)
+        # return sum(1 for value in set(values) if values.count(value) == 2) == 2
 
 
 hand_evaluations = [
-        is_one_pair
-        # is_two_pair,
+        is_one_pair,
+        is_two_pair
         # is_one_pair,
         # get_high_card,
     ]
 
 hand_scores = {
-     "is_one_pair": 20
+     "is_one_pair": 20,
+     "is_two_pair": 30
 }
 
 
 winners = {}
 
+
 def evaluate_hand(player_cards, all_table_cards, player):
-    print("evaluating hand...")
+    print(f"evaluating hand...")
     all_cards = player_cards + all_table_cards
     all_combinations = list(combinations(all_cards, 5))
     player_card_values = [player_cards[0]["value"], player_cards[1]["value"]]
     max_score = 0
+    players_in_winners = list(winners.keys())
+    if len(players_in_winners) > 0:
+        max_score = winners[players_in_winners[0]]["score"]
     print(len(all_combinations))
     for combination in all_combinations:
         score = 0
@@ -233,16 +241,66 @@ def evaluate_hand(player_cards, all_table_cards, player):
             evaluation_result = evaluation(combination)
             if evaluation_result:
                 score = hand_scores[evaluation.__name__]
+                # print(f"This is the score: {score} this is the max {max_score}")
                 if score > max_score:
-                    max_score = score
+                    # max_score = score
+                    winners.clear()
                     winners[player] = {"name": player, "score": score, 
                                     "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
+                elif score == max_score: 
+                     winners[player] = {"name": player, "score": score, 
+                                    "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
     #CHECK REAL WINNER NOW
-    
+
+
                     
-                 
+current_player = 0              
 for player_dict in game_rooms[0]["player_list"]:
+    current_player +=1
     player = list(player_dict.keys())[0]
+    number_of_players = len(game_rooms[0]["player_list"])
     evaluate_hand((player_dict[player]), game_rooms[0]["table_cards"], player)
-winner_player = max(list(winners.values()), key=lambda x: x['score'])
-print(winner_player)
+# winner_player = max(list(winners.values()), key=lambda x: x['score'])
+if len(list(winners.keys())) == 1:
+     print("on first check")
+     print(winners)
+     print(list(winners.keys())[0])
+else:
+    filter_winners_list = {list(winners.keys())[0]: winners[list(winners.keys())[0]]}
+    for player in winners:
+        curr_player = winners[player]
+        curr_name = curr_player["name"]
+        winner_name = filter_winners_list[list(filter_winners_list.keys())[0]]["name"]
+        if curr_player["pair_value"] > filter_winners_list[winner_name]["pair_value"] and curr_player["name"] != filter_winners_list[winner_name]["name"]:
+             filter_winners_list.clear()
+             filter_winners_list[curr_player["name"]] = curr_player
+             print(filter_winners_list[curr_player["name"]])
+        elif curr_player["pair_value"] == filter_winners_list[winner_name]["pair_value"] and curr_player["name"] != filter_winners_list[winner_name]["name"]:
+            filter_winners_list[curr_player["name"]] = curr_player
+    if len(list(filter_winners_list.keys())) == 1:
+        print("We got a winner when comparing the value of the pairs in hand")
+        print(list(filter_winners_list.keys()))
+    else:
+        print("Final Run through")
+        final_winners = {list(filter_winners_list.keys())[0]: filter_winners_list[list(filter_winners_list.keys())[0]]}
+        for player in filter_winners_list:
+            curr_player = filter_winners_list[player]
+            curr_name = curr_player["name"]
+            winner_name = filter_winners_list[list(filter_winners_list.keys())[0]]["name"]
+            if curr_player["hand_sum"] > final_winners[winner_name]["hand_sum"] and curr_player["name"] != final_winners[winner_name]["name"]:
+                final_winners.clear()
+                final_winners[curr_player["name"]] = curr_player
+            elif curr_player["hand_sum"] == final_winners[winner_name]["hand_sum"] and curr_player["name"] != final_winners[winner_name]["name"]:
+                final_winners[curr_player["name"]] = curr_player
+        if len(list(final_winners.keys())) == 1:
+            print(list(final_winners.keys()))
+        else:
+            print(list(final_winners.keys()))
+
+              
+         
+             
+     
+
+
+        
