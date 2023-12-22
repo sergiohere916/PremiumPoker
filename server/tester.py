@@ -173,12 +173,14 @@ room = "GAME3"
 
 game_rooms = [{
             "id": 12345,
-            "player_list": [{"Sergio": [{"name": "A", "suit": "spades", "value": 1}, {"name": "K", "suit": "clubs", "value": 13},]}, 
-                            {"Joe": [{"name": "K", "suit": "spades", "value": 13}, {"name": "A", "suit": "diamonds", "value": 11}]}],
+            "player_list": [{"Sergio": [{"name": "A", "suit": "spades", "value": 1}, {"name": "10", "suit": "clubs", "value": 10},]}, 
+                            {"Joe": [{"name": "K", "suit": "hearts", "value": 13}, {"name": "K", "suit": "diamonds", "value": 13}]},
+                            {"Eman": [{"name": "10", "suit": "hearts", "value": 10}, {"name": "A", "suit": "hearts", "value": 1}]},
+                            ],
             "deck": [],
-            "table_cards": [{"name": "J", "suit": "hearts", "value": 11}, {"name": "Q", "suit": "spades", "value": 12},
-                      {"name": "J", "suit": "spades", "value": 11}, {"name": "10", "suit": "spades", "value": 10},
-                      {"name": "4", "suit": "spades", "value": 4}],
+            "table_cards": [{"name": "2", "suit": "hearts", "value": 2}, {"name": "Q", "suit": "hearts", "value": 12},
+                      {"name": "A", "suit": "diamonds", "value": 1}, {"name": "10", "suit": "spades", "value": 10},
+                      {"name": "4", "suit": "hearts", "value": 4}],
             "last_card_dealt": 0,
             "player_order": ["Sergio", "Joe"],
             "current_turn": "Sergio",
@@ -205,10 +207,13 @@ def is_two_pair(cards):
         values = [card["value"] for card in cards]
         pairs = [value for value in set(values) if values.count(value) == 2]
         
-        if len(pairs) > 1:
-            # print(pairs)
+        #Need to remove Ace that equals 1 and let the function continue to cycle until it find the Ace that's value is 14
+        if len(pairs) > 1 and 1 not in values:
+            # print(values)
             return max(pairs)
         # return sum(1 for value in set(values) if values.count(value) == 2) == 2
+        else:
+            return False
 def is_three_of_a_kind(cards):
         values = [card["value"] for card in cards]
         # return any(values.count(value) == 3 for value in set(values))
