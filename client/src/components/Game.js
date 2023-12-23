@@ -14,6 +14,11 @@ function Game({gameData, socket}) {
     const [tableCards, setTableCards] = useState([])
     const [winners, setWinners] = useState([])
 
+    const [playerCardsDealt, setPlayerCardsDealt] = useState(false)
+    const [flopDealt, setFlopDealt] = useState(false)
+    const [turnDealt, setTurnDealt] = useState(false)
+    const [riverDealt, setRiverDealt] = useState(false)
+
     //SOCKET COMMANDS -----------------------------------------
     
     socket.on('starting', (message) => {
@@ -30,22 +35,27 @@ function Game({gameData, socket}) {
         if (gameData["user"] === data["user"]) {
             // console.log(data);
             setPlayerCards(data["cards"])
+            setPlayerCardsDealt(true)
         }
     })
 
     socket.on("dealing_flop", (data) => {
-        // console.log(data);
+        console.log("THIS IS THE FLOP ON THE FRONT END: ")
+        console.log(data["table_cards"]);
         setTableCards(data["table_cards"])
+        setFlopDealt(true)
     })
 
     socket.on("dealing_turn", (data) => {
         // console.log(data)
         setTableCards(data["table_cards"])
+        setTurnDealt(true)
     })
 
     socket.on("dealing_river", (data) => {
         // console.log(data)
         setTableCards(data["table_cards"])
+        setRiverDealt(true)
     })
 
     socket.on("returning_winners", (data) => {
@@ -105,12 +115,24 @@ function Game({gameData, socket}) {
     }
     //GAME LOGIC -------------------------------------------------
 
+
     if (gameStarted) {
-        dealPlayerCards(1)
-        dealFlop(2)
-        dealTurn()
-        dealRiver()
-        checkWin()
+        if (!playerCardsDealt) {
+            dealPlayerCards(1)
+        }
+        if (!flopDealt && playerCardsDealt) {
+            console.log("This flop is going to emit....")
+            dealFlop(2)
+        }
+        if (!turnDealt && flopDealt) {
+            setTimeout(dealTurn, 2000)
+        }
+        if (!riverDealt && turnDealt) {
+            setTimeout(dealRiver, 2000)
+        }
+        if (playerCards && flopDealt && riverDealt ) {
+            checkWin()
+        }
         //Remove player or continue
         // dealTableCards()
 

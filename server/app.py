@@ -132,6 +132,7 @@ def deal_flop(data):
     print(f"The incoming number for turn in {turn} and the stored turn is {stored_turn}")
     if not game["flop_dealt"]:
         print("running flop logic....")
+        print(game["table_cards"])
         game["table_cards"].append(cards[game["last_card_dealt"]])
         game["last_card_dealt"] += 1
         game["table_cards"].append(cards[game["last_card_dealt"]])
@@ -140,6 +141,7 @@ def deal_flop(data):
         game["last_card_dealt"] += 1
         game["last_card_dealt"] += 1
         # game["turn_number"] += 1
+        print(game["table_cards"])
         socketio.emit("dealing_flop", {"table_cards": game["table_cards"]}, room = room)
         game["flop_dealt"] = True
 
