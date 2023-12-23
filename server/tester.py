@@ -173,14 +173,14 @@ room = "GAME3"
 
 game_rooms = [{
             "id": 12345,
-            "player_list": [{"Sergio": [{"name": "A", "suit": "spades", "value": 1}, {"name": "10", "suit": "clubs", "value": 10},]}, 
-                            {"Joe": [{"name": "K", "suit": "hearts", "value": 13}, {"name": "K", "suit": "diamonds", "value": 13}]},
+            "player_list": [{"Sergio": [{"name": "9", "suit": "hearts", "value": 9}, {"name": "10", "suit": "clubs", "value": 10},]}, 
+                            {"Joe": [{"name": "K", "suit": "spades", "value": 13}, {"name": "K", "suit": "diamonds", "value": 13}]},
                             {"Eman": [{"name": "10", "suit": "hearts", "value": 10}, {"name": "A", "suit": "hearts", "value": 1}]},
                             ],
             "deck": [],
-            "table_cards": [{"name": "2", "suit": "hearts", "value": 2}, {"name": "Q", "suit": "hearts", "value": 12},
-                      {"name": "A", "suit": "diamonds", "value": 1}, {"name": "10", "suit": "spades", "value": 10},
-                      {"name": "4", "suit": "hearts", "value": 4}],
+            "table_cards": [{"name": "A", "suit": "clubs", "value": 1}, {"name": "Q", "suit": "hearts", "value": 12},
+                      {"name": "A", "suit": "diamonds", "value": 1}, {"name": "K", "suit": "spades", "value": 13},
+                      {"name": "J", "suit": "hearts", "value": 11}],
             "last_card_dealt": 0,
             "player_order": ["Sergio", "Joe"],
             "current_turn": "Sergio",
@@ -219,7 +219,7 @@ def is_three_of_a_kind(cards):
         # return any(values.count(value) == 3 for value in set(values))
         triples = [value for value in set(values) if values.count(value) == 3]
         if len(triples) > 0:
-             return max(triples)
+            return max(triples)
         else:
              return False
 def is_straight(cards):
@@ -251,24 +251,78 @@ def is_flush(cards):
             return False
              
         # return any(suits.count(suit) == 5 for suit in set(suits))
+def is_full_house(cards):
+    values = [card["value"] for card in cards]
+    if 1 and 14 in values:
+        #This is a case of both Aces being present should be ignored
+        return False
+    pairs = list(set(values))
+    if len(pairs) == 2:
+        full_house = [value for value in pairs if values.count(value) == 3]
+        if len(full_house) > 0:
+            return max(full_house)
+    else:
+        return False
+    
+def is_four_of_a_kind(cards):
+    values = [card["value"] for card in cards]
+    quads = [value for value in set(values) if values.count(value) == 4]
+    if len(quads) > 0:
+        return max(quads)
+    else:
+        return False
+def is_straight_flush(cards):
+    straight = is_straight(cards)
+    if straight:
+        straight_flush = is_flush(cards)
+        if straight_flush:
+            return straight_flush
+        else:
+            return False
+    else:
+        return False
 
+
+
+
+
+
+# hand_evaluations = [
+#     get_high_card,
+#     is_one_pair,
+#     is_two_pair,
+#     is_three_of_a_kind,
+#     is_straight,
+#     is_flush,
+#     is_full_house,
+#     is_four_of_a_kind,
+#     is_straight_flush,
+#         # is_one_pair,
+#         # get_high_card,
+#     ]
 
 hand_evaluations = [
-        is_one_pair,
-        is_two_pair,
-        is_three_of_a_kind,
-        is_straight,
-        is_flush,
-        # is_one_pair,
-        # get_high_card,
+    is_straight_flush,
+    is_four_of_a_kind,
+    is_full_house,
+    is_flush,
+    is_straight,
+    is_three_of_a_kind,
+    is_two_pair,
+    is_one_pair,
+    get_high_card,
     ]
 
 hand_scores = {
-     "is_one_pair": 20,
-     "is_two_pair": 30,
-     "is_three_of_a_kind": 40,
-     "is_straight": 50,
-     "is_flush": 60,
+    "get_high_card":10,
+    "is_one_pair": 20,
+    "is_two_pair": 30,
+    "is_three_of_a_kind": 40,
+    "is_straight": 50,
+    "is_flush": 60,
+    "is_full_house": 70,
+    "is_four_of_a_kind": 80,
+    "is_straight_flush": 90,
 }
 
 
@@ -283,6 +337,8 @@ def evaluate_hand(player_cards, all_table_cards, player):
     all_combinations = list(combinations(all_cards, 5))
     player_card_values = [player_cards[0]["value"], player_cards[1]["value"]]
     max_score = 0
+    helper_score = 0
+    evalutation_index = 0
     players_in_winners = list(winners.keys())
     if len(players_in_winners) > 0:
         max_score = winners[players_in_winners[0]]["score"]
@@ -299,9 +355,18 @@ def evaluate_hand(player_cards, all_table_cards, player):
                     winners.clear()
                     winners[player] = {"name": player, "score": score, 
                                     "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
+                    #adding this in to help stop full cycle through of hand evaluations added 1-3-2024, remove if needed
+                    helper_score = score
                 elif score == max_score: 
                         winners[player] = {"name": player, "score": score, 
                                     "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
+    
+        evalutation_index +=1
+        #If scored exists at a higher hand evaluation such as a straight flush do not proceed with other evalutions
+        if helper_score > 0 and evalutation_index > 0:
+            print("We did break")
+            print(evalutation_index)
+            break
         
     #CHECK REAL WINNER NOW
 
