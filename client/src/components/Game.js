@@ -9,7 +9,10 @@ function Game({gameData, socket}) {
     const [playersChecked, setPlayersChecked] = useState(0);
     const [shuffledDeck, setShuffledDeck] = useState([]);
     const [gameStarted, setGameStarted] = useState(false)
-    
+
+    const [playerCards, setPlayerCards] = useState([])
+    const [tableCards, setTableCards] = useState([])
+    const [winners, setWinners] = useState([])
 
     //SOCKET COMMANDS -----------------------------------------
     
@@ -25,23 +28,33 @@ function Game({gameData, socket}) {
 
     socket.on('dealing', (data) => {
         if (gameData["user"] === data["user"]) {
-            console.log(data);
+            // console.log(data);
+            setPlayerCards(data["cards"])
         }
     })
 
     socket.on("dealing_flop", (data) => {
-        console.log(data);
+        // console.log(data);
+        setTableCards(data["table_cards"])
     })
 
     socket.on("dealing_turn", (data) => {
-        console.log(data)
+        // console.log(data)
+        setTableCards(data["table_cards"])
     })
 
     socket.on("dealing_river", (data) => {
-        console.log(data)
+        // console.log(data)
+        setTableCards(data["table_cards"])
     })
 
+    socket.on("returning_winners", (data) => {
+        // console.log(data)
+    } )
+
     console.log(shuffledDeck);
+    console.log(playerCards)
+    console.log(tableCards)
     
     useEffect(() => {
         socket.emit('join_room', gameData)
@@ -88,8 +101,7 @@ function Game({gameData, socket}) {
     }
 
     function checkWin() {
-        console.log("hi")
-        // socket.emit("check_win", {room: gameData["room"]})
+        socket.emit("check_win", {room: gameData["room"]})
     }
     //GAME LOGIC -------------------------------------------------
 
@@ -104,12 +116,25 @@ function Game({gameData, socket}) {
 
     }
 
+    const displayPlayerHand = playerCards.map((card) => {
+        return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
+    })
+
+    const displayTableCards = tableCards.map((card) => {
+        return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
+    })
+
     return (
         <div>
             This is our game page.
             {gameStarted? (<button>End Game</button>): (<button onClick={startGame}>Start Game</button>)}
             {/* <button onClick={shuffleCards}>Shuffle Deck</button> */}
-            <div id="table"></div>
+            <div id="table">
+               {displayTableCards}
+            </div>
+            <div id="playerHand">
+                {displayPlayerHand}
+            </div>
         </div>
     )
 }
