@@ -9,7 +9,15 @@ function Game({gameData, socket}) {
     const [playersChecked, setPlayersChecked] = useState(0);
     const [shuffledDeck, setShuffledDeck] = useState([]);
     const [gameStarted, setGameStarted] = useState(false)
-    
+
+    const [playerCards, setPlayerCards] = useState([])
+    const [tableCards, setTableCards] = useState([])
+    const [winners, setWinners] = useState([])
+
+    const [playerCardsDealt, setPlayerCardsDealt] = useState(false)
+    const [flopDealt, setFlopDealt] = useState(false)
+    const [turnDealt, setTurnDealt] = useState(false)
+    const [riverDealt, setRiverDealt] = useState(false)
 
     //SOCKET COMMANDS -----------------------------------------
     
@@ -25,23 +33,38 @@ function Game({gameData, socket}) {
 
     socket.on('dealing', (data) => {
         if (gameData["user"] === data["user"]) {
-            console.log(data);
+            // console.log(data);
+            setPlayerCards(data["cards"])
+            setPlayerCardsDealt(true)
         }
     })
 
     socket.on("dealing_flop", (data) => {
-        console.log(data);
+        console.log("THIS IS THE FLOP ON THE FRONT END: ")
+        console.log(data["table_cards"]);
+        setTableCards(data["table_cards"])
+        setFlopDealt(true)
     })
 
     socket.on("dealing_turn", (data) => {
-        console.log(data)
+        // console.log(data)
+        setTableCards(data["table_cards"])
+        setTurnDealt(true)
     })
 
     socket.on("dealing_river", (data) => {
-        console.log(data)
+        // console.log(data)
+        setTableCards(data["table_cards"])
+        setRiverDealt(true)
     })
 
+    socket.on("returning_winners", (data) => {
+        // console.log(data)
+    } )
+
     console.log(shuffledDeck);
+    console.log(playerCards)
+    console.log(tableCards)
     
     useEffect(() => {
         socket.emit('join_room', gameData)
@@ -88,28 +111,52 @@ function Game({gameData, socket}) {
     }
 
     function checkWin() {
-        console.log("hi")
-        // socket.emit("check_win", {room: gameData["room"]})
+        socket.emit("check_win", {room: gameData["room"]})
     }
     //GAME LOGIC -------------------------------------------------
 
+
     if (gameStarted) {
-        dealPlayerCards(1)
-        dealFlop(2)
-        dealTurn()
-        dealRiver()
-        checkWin()
+        if (!playerCardsDealt) {
+            dealPlayerCards(1)
+        }
+        if (!flopDealt && playerCardsDealt) {
+            console.log("This flop is going to emit....")
+            dealFlop(2)
+        }
+        if (!turnDealt && flopDealt) {
+            setTimeout(dealTurn, 2000)
+        }
+        if (!riverDealt && turnDealt) {
+            setTimeout(dealRiver, 2000)
+        }
+        if (playerCards && flopDealt && riverDealt ) {
+            checkWin()
+        }
         //Remove player or continue
         // dealTableCards()
 
     }
+
+    const displayPlayerHand = playerCards.map((card) => {
+        return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
+    })
+
+    const displayTableCards = tableCards.map((card) => {
+        return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
+    })
 
     return (
         <div>
             This is our game page.
             {gameStarted? (<button>End Game</button>): (<button onClick={startGame}>Start Game</button>)}
             {/* <button onClick={shuffleCards}>Shuffle Deck</button> */}
-            <div id="table"></div>
+            <div id="table">
+               {displayTableCards}
+            </div>
+            <div id="playerHand">
+                {displayPlayerHand}
+            </div>
         </div>
     )
 }
