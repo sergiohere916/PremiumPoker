@@ -19,6 +19,24 @@ function Game({gameData, socket}) {
     const [turnDealt, setTurnDealt] = useState(false)
     const [riverDealt, setRiverDealt] = useState(false)
 
+    //INITIATING NEW GAME SET UP
+    const [game, setGame] = useState({
+        id: "",
+        player_list: [],
+        player_cards: [],
+        table_cards: [],
+        deck: [],
+        last_card_dealt: 0,
+        player_order: [],
+        current_turn: "",
+        turn_number: 0,
+        player_cards_dealt: false,
+        flop_dealt: false,
+        turn_dealt: false,
+        river_dealt: false,
+
+    })
+
     //SOCKET COMMANDS -----------------------------------------
     
     socket.on('starting', (message) => {
@@ -112,6 +130,9 @@ function Game({gameData, socket}) {
 
     function checkWin() {
         socket.emit("check_win", {room: gameData["room"]})
+    }
+    function takePlayerBets() {
+        
     }
     //GAME LOGIC -------------------------------------------------
 
