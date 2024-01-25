@@ -59,7 +59,7 @@ def handle_join_room(room_data):
     join_room(room)
     if game_rooms.get(room) is not None:
         if user not in game_rooms.get(room)["player_order"]:
-            game_rooms[room]["player_list"].append({user: []})
+            game_rooms[room]["player_list"][user] = {"cards" : [], "cash" : 1000, "bet" : 0}
             game_rooms[room]["player_order"].append(user)
         else:
             pass
@@ -67,7 +67,7 @@ def handle_join_room(room_data):
     else:
         game_rooms[room] = {
             "id": room,
-            "player_list": [{user: []}],
+            "player_list": {user: {"cards" : [], "cash" : 1000, "bet" : 0}},
             "table_cards": [],
             "deck": [],
             "last_card_dealt": 0,
@@ -77,7 +77,12 @@ def handle_join_room(room_data):
             "player_cards_dealt": False,
             "flop_dealt": False,
             "turn_dealt": False,
-            "river_dealt": False
+            "river_dealt": False,
+            "blinds_picked": False,
+            "pot": 0,
+            "min_bet": 0,
+            "last_play": user,
+            "playing": [user]
         }  
 
     print(game_rooms.get(room))
@@ -95,7 +100,77 @@ def handle_shuffled_deck(deck_data):
 @socketio.on('start_game')
 def handle_game_start(data):
     print("server letting players know game is starting...")
+    room = data["room"]
+    game = game_rooms.get(room)
     socketio.emit('starting', data["message"], room = data["room"])
+
+@socketio.on("pick_blinds")
+def pick_blinds(data):
+    room = data["room"]
+    game = game_rooms.get(room)
+
+    game["playing"] = [player for player in game["player_order"]]
+    print('THESE ARE THE PLAYERS PLAYING: ')
+    print(game["playing"])
+    if not game["blinds_picked"]:
+        game["small_blind"] = game["player_order"][0]
+        # Assuming more than one playera
+        game["big_blind"] = game["player_order"][1]
+        game["player_list"][game["small_blind"]]["cash"] -= 5
+        game["pot"] += 5
+        game["player_list"][game["big_blind"]]["cash"] -= 10
+        game["pot"] += 10
+        game["min_bet"] = 10
+        game["current_turn"] = game["player_order"][2]
+        game["last_play"] = game["player_order"][2]
+        print(game["small_blind"])
+        print(game["big_blind"])
+        socketio.emit("blinds_picked", {
+                "blinds" : [game["small_blind"], game["big_blind"]], 
+                "pot" : game["pot"], 
+                "min_bet" : game["min_bet"],
+                "current_turn" : game["current_turn"],
+                "player_order" : game["player_order"],
+                "last_play" : game["last_play"]
+            }, room = room)
+        game["blinds_picked"] = True
+
+# @socketio.on("call")
+# def call(data):
+#     room = data["room"]
+#     game = game_rooms.get(room)
+#     game["player_list"][data["user"]]["cash"] -= game["min_bet"]
+#     game["pot"] += game["min_bet"]
+#     socketio.emit("called", {"user" : data["user"], "user_info" : game["player_list"][data["user"]], "pot" : game["pot"]}, room = room)
+    
+@socketio.on("betting")
+def betting(data):
+    pass
+    room = data["room"]
+    game = game_rooms.get(room)
+    socketio.emit("take_bet", {"current_turn" : game["current_turn"]}, room = room)
+
+@socketio.on("bet_status")
+def bet_status(data):
+    room = data["room"]
+    game = game_rooms.get(room)
+
+    player = data["user"]
+    if (data["status"] == "call"):
+        game["player_list"][data["user"]]["cash"] -= game["min_bet"]
+        game["pot"] += game["min_bet"]
+    elif (data["status"] == "fold"):
+        pass
+    elif (data["status"] == "raise"):
+        pass
+        # if data at status is call, remove the call amount
+    # if data at status is fold, remove the player from player_order
+    # if data at status is raise, remove the raise amount
+    # set variable to continue bet loop
+    # set the current turn to the next player in player_order
+    # if the next player is out of index, set the index back to 0
+    # if the next player in turn is the last played, end the betting
+        
 
 @socketio.on('deal_cards')
 def deal_cards(data):
@@ -104,15 +179,25 @@ def deal_cards(data):
     turn = int(data["turn"])
     # cards = data["cards"]
     game = game_rooms.get(room)
+
+    game["playing"] = [player for player in game["player_order"]]
+
     cards = game["deck"]
     cards_dealt = game["player_cards_dealt"]
     if not cards_dealt:
-        for player_dict in game["player_list"]:
-            for player in player_dict:
-                game["current_turn"] = player
-                player_dict[player].append(cards[game["last_card_dealt"]])
-                player_dict[player].append(cards[game["last_card_dealt"] + 1])
-                socketio.emit("dealing", {"user": player, "cards": player_dict[player]}, room = room)
+        for player in game["player_list"]:
+            game["current_turn"] = player
+            game["player_list"][player]["cards"].append(cards[game["last_card_dealt"]])
+            game["player_list"][player]["cards"].append(cards[game["last_card_dealt"] + 1])
+            print("emitting to " + str(player))
+            socketio.emit("dealing", {"user": player, "user_info": game["player_list"][player]}, room = room)
+            
+        # for player_dict in game["player_list"]:
+        #     for player in player_dict:
+        #         game["current_turn"] = player
+        #         player_dict[player].append(cards[game["last_card_dealt"]])
+        #         player_dict[player].append(cards[game["last_card_dealt"] + 1])
+        #         socketio.emit("dealing", {"user": player, "cards": player_dict[player]}, room = room)
             game["last_card_dealt"] += 2
         game["last_card_dealt"] += 1
         # game["turn_number"] +=1
@@ -178,9 +263,6 @@ def winner_winner_chicken_dinner(data):
     print(game_winners)
     socketio.emit("returning_winners", {"winners": game_winners}, room = room)
    
-
-
-
 #HELPER FUNCTIONS -------------------------------------------------------
 
 def get_high_card(cards):
@@ -297,67 +379,67 @@ hand_scores = {
     "is_straight_flush": 90,
 }
 
-def determine_winner(game):
-    player_hands = {}
-    winners = {}
-    winners_check_2 = {}
-    winners_check_final = {}
+# def determine_winner(game):
+#     player_hands = {}
+#     winners = {}
+#     winners_check_2 = {}
+#     winners_check_final = {}
 
-    table_cards = game["table_cards"]
+#     table_cards = game["table_cards"]
 
-    for player_info in game["player_list"]:
-        player = list(player_info.keys())[0]
-        player_cards = player_info[player]
-        player_hand = evaluate_hand(player_cards, table_cards, player)
-        player_hands[player] = player_hand
-    #CAN USE ANYTHING THAT ALREADY CONTAINS NAMES
+#     for player_info in game["player_list"]:
+#         player = list(player_info.keys())[0]
+#         player_cards = player_info[player]
+#         player_hand = evaluate_hand(player_cards, table_cards, player)
+#         player_hands[player] = player_hand
+#     #CAN USE ANYTHING THAT ALREADY CONTAINS NAMES
 
-    player_list = list(player_hands.keys())
-    best_score = player_hands[list(player_hands.keys())[0]]["score"]
+#     player_list = list(player_hands.keys())
+#     best_score = player_hands[list(player_hands.keys())[0]]["score"]
 
-    for player_name in player_list:
-        current_player_hand = player_hands[player_name]
-        score = current_player_hand["score"]
-        if score > best_score:
-            best_score = score
-            winners.clear()
-            winners[player_name] = current_player_hand
-        elif score == best_score:
-             winners[player_name] = current_player_hand
-    if len(list(winners.keys())) > 1:
-        #Second Filter
-        winner_list = list(winners.keys())
-        best_score = 0  
-        for player_name in winner_list:
-            current_player_hand = winners[player_name]
-            score = current_player_hand["pair_value"]
-            if score > best_score:
-                best_score = score
-                winners_check_2.clear()
-                winners_check_2[player_name] = current_player_hand
-            elif score == best_score:
-                winners_check_2[player_name] = current_player_hand
-        if len(list(winners_check_2.keys())) > 1:
-            #Final Run Through
-            winner_list = list(winners_check_2.keys())
-            best_score = 0  
-            for player_name in winner_list:
-                current_player_hand = winners[player_name]
-                score = current_player_hand["hand_sum"]
-                if score > best_score:
-                    best_score = score
-                    winners_check_final.clear()
-                    winners_check_final[player_name] = current_player_hand
-                elif score == best_score:
-                    winners_check_final[player_name] = current_player_hand
-            print("final filter")
-            return list(winners_check_final.keys())
-        else:
-            print("second filter")
-            return list(winners_check_2.keys())
-    else:
-        print("first filter")
-        return list(winners.keys())
+#     for player_name in player_list:
+#         current_player_hand = player_hands[player_name]
+#         score = current_player_hand["score"]
+#         if score > best_score:
+#             best_score = score
+#             winners.clear()
+#             winners[player_name] = current_player_hand
+#         elif score == best_score:
+#              winners[player_name] = current_player_hand
+#     if len(list(winners.keys())) > 1:
+#         #Second Filter
+#         winner_list = list(winners.keys())
+#         best_score = 0  
+#         for player_name in winner_list:
+#             current_player_hand = winners[player_name]
+#             score = current_player_hand["pair_value"]
+#             if score > best_score:
+#                 best_score = score
+#                 winners_check_2.clear()
+#                 winners_check_2[player_name] = current_player_hand
+#             elif score == best_score:
+#                 winners_check_2[player_name] = current_player_hand
+#         if len(list(winners_check_2.keys())) > 1:
+#             #Final Run Through
+#             winner_list = list(winners_check_2.keys())
+#             best_score = 0  
+#             for player_name in winner_list:
+#                 current_player_hand = winners[player_name]
+#                 score = current_player_hand["hand_sum"]
+#                 if score > best_score:
+#                     best_score = score
+#                     winners_check_final.clear()
+#                     winners_check_final[player_name] = current_player_hand
+#                 elif score == best_score:
+#                     winners_check_final[player_name] = current_player_hand
+#             print("final filter")
+#             return list(winners_check_final.keys())
+#         else:
+#             print("second filter")
+#             return list(winners_check_2.keys())
+#     else:
+#         print("first filter")
+#         return list(winners.keys())
 
 
 
@@ -407,5 +489,4 @@ def evaluate_hand(player_cards, all_table_cards, player):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=5555)
-
+    socketio.run(app, debug=True, port=5555),
