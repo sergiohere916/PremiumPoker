@@ -26,7 +26,8 @@ game_rooms = {}
 turns_and_card_positions = [{"12": [1, 0]}]
 
 # Views go here!
-
+#RETURN POINT 1/31/2024
+    #HERE
 @app.route('/')
 def index():
     return '<h1>Poker Server</h1>'
@@ -60,6 +61,8 @@ def handle_join_room(room_data):
     if game_rooms.get(room) is not None:
         if user not in game_rooms.get(room)["player_order"]:
             game_rooms[room]["player_list"].append({user: []})
+            #new version of player list below when properly integrated remove old player_list
+            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop_bet": 0, "turn_bet": 0, "river_bet": 0}
             game_rooms[room]["player_order"].append(user)
         else:
             pass
@@ -69,17 +72,21 @@ def handle_join_room(room_data):
             "id": room,
             "game_started": True,
             "player_list": [{user: []}],
-            "player_data": {user: {"cards": [], "cash": 1000, "status": 0, "flop_bet": 0, "turn_bet": 0, "river_bet": 0}},
+            "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn_bet": 0, "river_bet": 0}},
             "table_cards": [],
             "deck": [],
             "last_card_dealt": 0,
             "player_order": [user],
-            "current_turn": user,
+            "current_turn": 0,
             "turn_number": 0,
             "player_cards_dealt": False,
             "flop_dealt": False,
             "turn_dealt": False,
-            "river_dealt": False
+            "river_dealt": False,
+            "min_bet": 1,
+            "betting_round": "",
+            "flop_bets_taken": False,
+            "flop_bets_completed": False
         }  
 
     print(game_rooms.get(room))
@@ -114,17 +121,30 @@ def deal_cards(data):
     cards = game["deck"]
     cards_dealt = game["player_cards_dealt"]
     if not cards_dealt:
-        for player_dict in game["player_list"]:
-            for player in player_dict:
-                game["current_turn"] = player
-                player_dict[player].append(cards[game["last_card_dealt"]])
-                player_dict[player].append(cards[game["last_card_dealt"] + 1])
-                socketio.emit("dealing", {"user": player, "cards": player_dict[player]}, room = room)
+        # for player_dict in game["player_list"]:
+        #     for player in player_dict:
+        #         game["current_turn"] = player
+        #         player_dict[player].append(cards[game["last_card_dealt"]])
+        #         player_dict[player].append(cards[game["last_card_dealt"] + 1])
+        #         socketio.emit("dealing", {"user": player, "cards": player_dict[player]}, room = room)
+        #     game["last_card_dealt"] += 2
+        # game["last_card_dealt"] += 1
+        # # game["turn_number"] +=1
+        # game["player_cards_dealt"] = True
+        # print(game["player_list"])
+
+        for player_name in game["player_data"]:
+            players_data = game["player_data"][player_name]
+            # game["current_turn"] = player_name
+            players_data["cards"].append(cards[game["last_card_dealt"]])
+            players_data["cards"].append(cards[game["last_card_dealt"] + 1])
+            socketio.emit("dealing", {"user": player_name, "cards": players_data["cards"]}, room = room)
             game["last_card_dealt"] += 2
-        game["last_card_dealt"] += 1
+            game["last_card_dealt"] += 1
         # game["turn_number"] +=1
+            
         game["player_cards_dealt"] = True
-        print(game["player_list"])
+        print(game["player_data"])
 
 @socketio.on("deal_flop")
 def deal_flop(data):
@@ -140,6 +160,7 @@ def deal_flop(data):
     if not game["flop_dealt"]:
         print("running flop logic....")
         print(game["table_cards"])
+        game["betting_round"] = "flop"
         game["table_cards"].append(cards[game["last_card_dealt"]])
         game["last_card_dealt"] += 1
         game["table_cards"].append(cards[game["last_card_dealt"]])
@@ -154,10 +175,10 @@ def deal_flop(data):
 
 @socketio.on("deal_turn")
 def deal_turn(data):
-    print("dealing the turn...")
     room = data["room"]
     game = game_rooms.get(room)
     if not game["turn_dealt"]:
+        print("dealing the turn...")
         cards = game["deck"]
         game["table_cards"].append(cards[game["last_card_dealt"]])
         game["last_card_dealt"] += 1
@@ -167,20 +188,37 @@ def deal_turn(data):
 
 @socketio.on("deal_river")
 def deal_river(data):
-    print("dealing the river...")
     room = data["room"]
     game = game_rooms.get(room)
     if not game["river_dealt"]:
+        print("dealing the river...")
         cards = game["deck"]
         game["table_cards"].append(cards[game["last_card_dealt"]])
         game["last_card_dealt"] += 1
         socketio.emit("dealing_river", {"table_cards": game["table_cards"]}, room = room)
         game["river_dealt"] = True
 
+@socketio.on("initiate_betting")
+def initiate_betting(data):
+    room = data["room"]
+    game = game_rooms.get(room)
+    round = game["betting_round"]
+    if not game["flop_bets_taken"]:
+        starting_player = game["current_turn"]
+        player = game["player_order"][starting_player]
+        min_bet_difference = game["min_bet"] - game["player_data"][player][round]
+        socketio.emit("take_bet", {"user": player, "bet_difference": min_bet_difference}, room = room)
+        game["flop_bets_taken"] = True
+    
+@socketio.on("handle_bet_action")
+def handle_bet_action(data):
+    print("We haveee success, but app breaks here.....")
+
 @socketio.on("check_win")
 def winner_winner_chicken_dinner(data):
     room = data["room"]
     game = game_rooms.get(room)
+    # print("Somebody won!!")
     game_winners = determine_winner(game)
     print(game_winners)
     socketio.emit("returning_winners", {"winners": game_winners}, room = room)
@@ -312,11 +350,18 @@ def determine_winner(game):
 
     table_cards = game["table_cards"]
 
-    for player_info in game["player_list"]:
-        player = list(player_info.keys())[0]
-        player_cards = player_info[player]
-        player_hand = evaluate_hand(player_cards, table_cards, player)
-        player_hands[player] = player_hand
+    # for player_info in game["player_list"]:
+    #     player = list(player_info.keys())[0]
+    #     player_cards = player_info[player]
+    #     player_hand = evaluate_hand(player_cards, table_cards, player)
+    #     player_hands[player] = player_hand
+
+    #NEW VERSION WITH PLAYER_DATA
+    for player_name in game["player_data"]:
+        players_data = game["player_data"][player_name]
+        player_cards = players_data["cards"]
+        player_hand = evaluate_hand(player_cards, table_cards, player_name)
+        player_hands[player_name] = player_hand
     #CAN USE ANYTHING THAT ALREADY CONTAINS NAMES
 
     player_list = list(player_hands.keys())
