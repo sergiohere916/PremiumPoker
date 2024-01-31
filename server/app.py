@@ -67,7 +67,9 @@ def handle_join_room(room_data):
     else:
         game_rooms[room] = {
             "id": room,
+            "game_started": True,
             "player_list": [{user: []}],
+            "player_data": {user: {"cards": [], "cash": 1000, "status": 0, "flop_bet": 0, "turn_bet": 0, "river_bet": 0}},
             "table_cards": [],
             "deck": [],
             "last_card_dealt": 0,
@@ -90,12 +92,17 @@ def handle_shuffled_deck(deck_data):
     print("shuffling deck")
     game["deck"] = deck_data["deck"]
     print(deck_data["deck"][0])
-    socketio.emit('shuffleDeck', deck_data['deck'], room = room)
+    # socketio.emit('shuffleDeck', deck_data['deck'], room = room) 
 
 @socketio.on('start_game')
 def handle_game_start(data):
-    print("server letting players know game is starting...")
-    socketio.emit('starting', data["message"], room = data["room"])
+    room = data["room"]
+    game = game_rooms.get(room)
+    game["deck"] = data["deck"]
+
+    print("server letting players know game is starting...and shuffling deck")
+    print(data["deck"][0])
+    socketio.emit('starting', game, room = room)
 
 @socketio.on('deal_cards')
 def deal_cards(data):
