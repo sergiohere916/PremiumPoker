@@ -38,8 +38,9 @@ function Game({gameData, socket}) {
         flop_dealt: false,
         turn_dealt: false,
         river_dealt: false,
-        min_bet: 1,
+        min_bet: 0,
         betting_round: "",
+        raise_occurred: false,
         flop_bets_taken: false,
         flop_bets_completed: false,
         bet_difference: 0
@@ -177,10 +178,14 @@ function Game({gameData, socket}) {
         let status = ""
         if (myBet === game["player_cash"]) {
             status = "all_in"
-        } else if (myBet > game["bet_difference"]) {
+        } else if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
             status = "raise"
-        } else if (myBet === game["bet_difference"] ) {
+        } else if (myBet === game["bet_difference"] && myBet !== 0 ) {
             status = "call"
+        } else if (myBet === 0) {
+            status = "check"
+        } else if (myBet > game["bet_difference"]) {
+            status = "standard_bet"
         }
         socket.emit("handle_bet_action", {room: gameData["room"], bet_status: status, bet: myBet })
         setDisplayBetting(false)

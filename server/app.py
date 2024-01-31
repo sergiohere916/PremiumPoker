@@ -83,8 +83,9 @@ def handle_join_room(room_data):
             "flop_dealt": False,
             "turn_dealt": False,
             "river_dealt": False,
-            "min_bet": 1,
+            "min_bet": 0,
             "betting_round": "",
+            "raise_occurred": False,
             "flop_bets_taken": False,
             "flop_bets_completed": False
         }  
@@ -212,7 +213,30 @@ def initiate_betting(data):
     
 @socketio.on("handle_bet_action")
 def handle_bet_action(data):
-    print("We haveee success, but app breaks here.....")
+    room = data["room"]
+    game = game_rooms.get(room)
+    status = data["bet_status"]
+    print(f"We haveee success, but app breaks here status is {status}.....")
+    #update the game status with the new data
+    #update the players info with new data
+    #add total bet to pot
+    #increment current_turn
+    if game["current_turn"] >= len(game["player_order"]) and game["raise_occurred"] :
+        #if all players have betted and a raise occurred reset the current turn number to 0
+        #call function that will continue the betting
+        pass
+    elif game["current_turn"] >= len(game["player_order"]) and not game["raise_occurred"]:
+        #Betting has ended and raise did not occur
+        #Call function that will reset the statuses of the players bets
+        #put player in front at the end now 
+        #may need to make copy of player order to hold original order in game 1 is for betting the other for after the game is over
+        #min bet must return to 0 for next betting round
+        #set flop complete to true and emit this to front end - maybe do this in function mentioned above
+        pass
+    else:
+        #still more players to cycle through original betting round
+        #call copy of initiate bets to handle next better
+        pass
 
 @socketio.on("check_win")
 def winner_winner_chicken_dinner(data):
