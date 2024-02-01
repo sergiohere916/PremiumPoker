@@ -70,6 +70,7 @@ def handle_join_room(room_data):
     else:
         game_rooms[room] = {
             "id": room,
+            "host": user,
             "game_started": True,
             "player_list": [{user: []}],
             "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0}},
@@ -216,16 +217,48 @@ def initiate_betting(data):
     room = data["room"]
     game = game_rooms.get(room)
     round = game["betting_round"]
-    if not game[f"{round}_bets_taken"]:
+    round_key = str(round) + "_bets_taken"
+    print(round_key)
+    if not game[round + "_bets_taken"]:
         starting_player = game["current_turn"]
         player = game["player_order"][starting_player]
-        if player in game["players_all_in"]:
-            game["current_turn"] += 1
-            starting_player = game["current_turn"]
-            player = game["player_order"][starting_player]
-        min_bet_difference = game["min_bet"] - game["player_data"][player][round]
-        socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
-        game[round + "_bets_taken"] = True
+        player_data = game["player_data"][player]
+        player_status = player_data["status"]
+
+        if player_status == "all_in" or player_status == "fold":
+            game["current_turn"] +=1
+            while game["current_turn"] < len(game["player_order"]):
+                # next_player = game["player_order"][game["current_turn"]]
+                # next_player_data = game["player_data"][next_player]
+                starting_player = game["current_turn"]
+                player = game["player_order"][starting_player]
+                player_data = game["player_data"][player]
+                if player_data["status"] == "fold":
+                    game["current_turn"] +=1
+                    # starting_player = game["current_turn"]
+                    # player = game["player_order"][starting_player]
+                    # player_data = game["player_data"][player]
+                elif player_data["status"] == "all_in":
+                    game["current_turn"] +=1
+                    # starting_player = game["current_turn"]
+                    # player = game["player_order"][starting_player]
+                    # player_data = game["player_data"][player]
+                else:
+                    # starting_player = game["current_turn"]
+                    # player = game["player_order"][starting_player]
+                    # player_data = game["player_data"][player]
+                    break
+
+        if game["current_turn"] == len(game["player_order"]):
+            print("Betting has ended we need to comm with front end")
+            game[round + "_bets_completed"] = True
+            reset_betting(room, game)
+            game[round + "_bets_taken"] = True
+            socketio.emit("end_betting_round", {"game_update": game}, room = room)
+        else:
+            min_bet_difference = game["min_bet"] - game["player_data"][player][round]
+            game[round + "_bets_taken"] = True
+            socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
     
 @socketio.on("handle_bet_action")
 def handle_bet_action(data):
@@ -367,7 +400,11 @@ def reset_betting(room, game):
     game["min_bet"] = 0
     game["players_folded_list"].clear()
     for player in game["player_data"]:
-        game["player_data"][player]["status"] = ""
+        status = game["player_data"][player]["status"]
+        print(f"{player}'s status is {status} and this decides if its reset")
+        if status != "fold" and status != "all_in":
+            print(f"reseting {player}'s status")
+            game["player_data"][player]["status"] = ""
     # Moving first player to the back
     first_player = game["player_order"].pop(0)
     game["player_order"].append(first_player)

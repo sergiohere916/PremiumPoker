@@ -25,6 +25,7 @@ function Game({gameData, socket}) {
     const [game, setGame] = useState({
         id: "",
         game_started: false,
+        host: "",
         player_list: [],
         player_data: [],
         player_cards: [],
@@ -75,7 +76,7 @@ function Game({gameData, socket}) {
     // socket.on('shuffleDeck', (deck) => {
     //     setShuffledDeck(deck);
     // })
-
+    
     socket.on('dealing', (data) => {
         if (gameData["user"] === data["user"]) {
             setGame({...game, player_cards: data["cards"], player_cards_dealt: true})
@@ -109,11 +110,10 @@ function Game({gameData, socket}) {
     })
 
     socket.on("take_bet", (data) => {
-        console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
         if (data["user"] === gameData["user"]) {
-            
-            setDisplayBetting(true)
+            console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
             setGame({...game, ...data["game_update"], bet_difference: data["bet_difference"]})
+            setDisplayBetting(true)
             //SHOW THE FORM
             //SET GAME flops bets taken to true
             //Bet difference needed to determine minimum needed to achieve call
@@ -162,7 +162,7 @@ function Game({gameData, socket}) {
     // console.log(game["deck"]);
     // console.log(game["player_cards"])
     // console.log(tableCards)
-    console.log(game)
+    // console.log(game)
     
     useEffect(() => {
         socket.emit('join_room', gameData)
@@ -219,21 +219,28 @@ function Game({gameData, socket}) {
     }
 
     function handleBetChange(e) {
-        const value = e.target.value;
+        const value = Number(e.target.value);
         setMyBet(value);
     }
 
     function handleBetSubmit(e) {
         e.preventDefault()
         let status = ""
-
+        
         if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
             status = "raise"
         } else if (myBet > game["bet_difference"]) {
             status = "standard_bet"
-        } else if (myBet === game["player_data"][gameData["user"]]["cash"]) {
+        } 
+        
+        if (myBet === game["player_cash"]) {
             status = "all_in"
         }
+       
+        // console.log(myBet)
+        // console.log(typeof(myBet))
+        // console.log(status)
+        // console.log(game["player_cash"])
 
         // if (myBet === game["player_cash"]) {
         //     status = "all_in"
@@ -274,34 +281,40 @@ function Game({gameData, socket}) {
 
     //GAME LOGIC -------------------------------------------------
 
-    if (game["game_started"]) {
+    if (game["game_started"] && game["host"] == gameData["user"]) {
         // PLAYER CARDS DEALING
         if (!game["player_cards_dealt"]) {
+            console.log("going to run deal cards")
             dealPlayerCards(1)
         }
         // PRE GAME BETTING ROUND
         if (!game["pregame_bets_taken"] && game["player_cards_dealt"]) {
+            console.log("going to run allow preflop betting")
             setTimeout(takeBets, 1000)
         }
         // FLOP DEALING
         if (!game["flop_dealt"] && game["player_cards_dealt"] && game["pregame_bets_completed"]) {
-            console.log("This flop is going to emit....")
+            console.log("going to run deal flop")
             dealFlop(2)
         }
         // FLOP BETTING ROUND
         if (!game["flop_bets_taken"] && game["flop_dealt"]) {
+            console.log("going to allow post flop betting")
             setTimeout(takeBets, 1000)
         }
         // TURN DEALING
         if (!game["turn_dealt"] && game["flop_dealt"] && game["flop_bets_completed"]) {
+            console.log("going to run deal turn")
             setTimeout(dealTurn, 2000)
         }
         // TURN BETTING ROUND
-        if (!game["turn_bets_taken"] && game["flop_dealt"]) {
+        if (!game["turn_bets_taken"] && game["turn_dealt"]) {
+            console.log("going to allow post turn betting")
             setTimeout(takeBets, 1000)
         }
         // RIVER DEALING
         if (!game["river_dealt"] && game["turn_dealt"] && game["turn_bets_completed"]) {
+            console.log("going to run deal river")
             setTimeout(dealRiver, 2000)
         }
         // RIVER DEALING ROUND
