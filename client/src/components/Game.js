@@ -30,6 +30,7 @@ function Game({gameData, socket}) {
         player_data: {},
         player_cards: [],
         player_cash: 0,
+        all_player_cards: [],
         table_cards: [],
         deck: [],
         last_card_dealt: 0,
@@ -79,9 +80,13 @@ function Game({gameData, socket}) {
     
     socket.on('dealing', (data) => {
         if (gameData["user"] === data["user"]) {
-            setGame({...game, player_cards: data["cards"], player_cards_dealt: true})
+            setGame({...game, player_cards: data["cards"],
+             all_player_cards: data["all_player_cards"], 
+            player_cards_dealt: true})
             // setPlayerCards(data["cards"])
             // setPlayerCardsDealt(true)
+        } else {
+            setGame({...game, all_player_cards: data["all_player_cards"]})
         }
     })
 
@@ -281,7 +286,7 @@ function Game({gameData, socket}) {
 
     //GAME LOGIC -------------------------------------------------
 
-    if (game["game_started"] && game["host"] == gameData["user"]) {
+    if (game["game_started"] && game["host"] === gameData["user"]) {
         // PLAYER CARDS DEALING
         if (!game["player_cards_dealt"]) {
             console.log("going to run deal cards")
@@ -336,24 +341,34 @@ function Game({gameData, socket}) {
         return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
     })
 
-    // const allPlayerCards = [];
+    
     // for (const player in game["player_data"]) {
-    //     if (player !== gameData["user"]) {
+    //     if (player !== gameData["user"] && game["player_cards_dealt"]) {
     //         const cards = game["player_data"][player]["cards"]
-    //         allPlayerCards.push(cards)
+    //         // allPlayerCards.push(cards)
+    //         if (!allPlayerCards.includes(cards)) {
+    //             allPlayerCards.push(cards)
+    //             setAllPlayerCards([...allPlayerCards])
+    //         }
     //     }
     // }
-    // //Cards to display but will need to keep hidden until end of game if player decides to show cards
-    // const displayAllPlayerCards = allPlayerCards.map((cardSet) => {
-    //     return (<div key={cardSet[0]["value"] + cardSet[0]["suit"]}>
-    //         <div>
-    //             {cardSet[0]["value"] + " " + cardSet[0]["suit"]}
-    //         </div>
-    //         <div>
-    //             {cardSet[1]["value"] + " " + cardSet[1]["suit"]}
-    //         </div>
-    //     </div>)
-    // })
+    
+    // Cards to display but will need to keep hidden until end of game if player decides to show cards
+    const displayAllPlayerCards = game["all_player_cards"].map((playerData) => {
+        const playerName = Object.keys(playerData)[0]
+        if (playerName !== gameData["user"]) {
+            const card1 = playerData[playerName][0]
+            const card2 = playerData[playerName][1]
+            return (<div key={card1["name"] + card1["suit"]}>
+                <div>
+                    {card1["name"] + " " + card1["suit"]}
+                </div>
+                <div>
+                    {card2["name"] + " " + card2["suit"]}
+                </div>
+            </div>)
+        }
+    })
 
     return (
         <div>
@@ -366,9 +381,9 @@ function Game({gameData, socket}) {
             <div id="playerHand">
                 {displayPlayerHand}
             </div>
-            {/* <div>
+            <div>
                 {displayAllPlayerCards}
-            </div> */}
+            </div>
             {/* Set constraint on form to not allow lower bet than needed */}
             {displayBetting ?
             (

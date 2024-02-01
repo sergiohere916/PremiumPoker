@@ -74,6 +74,7 @@ def handle_join_room(room_data):
             "game_started": True,
             "player_list": [{user: []}],
             "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0}},
+            "all_player_cards": [],
             "table_cards": [],
             "deck": [],
             "last_card_dealt": 0,
@@ -150,7 +151,8 @@ def deal_cards(data):
             # game["current_turn"] = player_name
             players_data["cards"].append(cards[game["last_card_dealt"]])
             players_data["cards"].append(cards[game["last_card_dealt"] + 1])
-            socketio.emit("dealing", {"user": player_name, "cards": players_data["cards"]}, room = room)
+            game["all_player_cards"].append({player_name: players_data["cards"]})
+            socketio.emit("dealing", {"user": player_name, "cards": players_data["cards"], "all_player_cards": game["all_player_cards"]}, room = room)
             game["last_card_dealt"] += 2
             game["last_card_dealt"] += 1
         # game["turn_number"] +=1
