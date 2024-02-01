@@ -27,7 +27,7 @@ function Game({gameData, socket}) {
         game_started: false,
         host: "",
         player_list: [],
-        player_data: [],
+        player_data: {},
         player_cards: [],
         player_cash: 0,
         table_cards: [],
@@ -336,6 +336,25 @@ function Game({gameData, socket}) {
         return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
     })
 
+    // const allPlayerCards = [];
+    // for (const player in game["player_data"]) {
+    //     if (player !== gameData["user"]) {
+    //         const cards = game["player_data"][player]["cards"]
+    //         allPlayerCards.push(cards)
+    //     }
+    // }
+    // //Cards to display but will need to keep hidden until end of game if player decides to show cards
+    // const displayAllPlayerCards = allPlayerCards.map((cardSet) => {
+    //     return (<div key={cardSet[0]["value"] + cardSet[0]["suit"]}>
+    //         <div>
+    //             {cardSet[0]["value"] + " " + cardSet[0]["suit"]}
+    //         </div>
+    //         <div>
+    //             {cardSet[1]["value"] + " " + cardSet[1]["suit"]}
+    //         </div>
+    //     </div>)
+    // })
+
     return (
         <div>
             This is our game page.
@@ -347,6 +366,9 @@ function Game({gameData, socket}) {
             <div id="playerHand">
                 {displayPlayerHand}
             </div>
+            {/* <div>
+                {displayAllPlayerCards}
+            </div> */}
             {/* Set constraint on form to not allow lower bet than needed */}
             {displayBetting ?
             (
