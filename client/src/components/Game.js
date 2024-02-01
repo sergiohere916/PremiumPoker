@@ -38,8 +38,11 @@ function Game({gameData, socket}) {
         flop_dealt: false,
         turn_dealt: false,
         river_dealt: false,
+        pot: 0,
         min_bet: 0,
         betting_round: "",
+        last_raise: "",
+        players_folded_list: [],
         raise_occurred: false,
         flop_bets_taken: false,
         flop_bets_completed: false,
@@ -97,8 +100,9 @@ function Game({gameData, socket}) {
 
     socket.on("take_bet", (data) => {
         if (data["user"] === gameData["user"]) {
+            console.log(data["game_update"])
             setDisplayBetting(true)
-            setGame({...game, bet_difference: data["bet_difference"]})
+            setGame({...game, ...data["game_update"], bet_difference: data["bet_difference"]})
             //SHOW THE FORM
             //SET GAME flops bets taken to true
             //Bet difference needed to determine minimum needed to achieve call
@@ -187,7 +191,7 @@ function Game({gameData, socket}) {
         } else if (myBet > game["bet_difference"]) {
             status = "standard_bet"
         }
-        socket.emit("handle_bet_action", {room: gameData["room"], bet_status: status, bet: myBet })
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: status, bet: myBet })
         setDisplayBetting(false)
     }
     //GAME LOGIC -------------------------------------------------

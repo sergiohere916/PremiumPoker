@@ -62,7 +62,7 @@ def handle_join_room(room_data):
         if user not in game_rooms.get(room)["player_order"]:
             game_rooms[room]["player_list"].append({user: []})
             #new version of player list below when properly integrated remove old player_list
-            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop_bet": 0, "turn_bet": 0, "river_bet": 0}
+            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop": 0, "turn_bet": 0, "river_bet": 0}
             game_rooms[room]["player_order"].append(user)
         else:
             pass
@@ -83,8 +83,11 @@ def handle_join_room(room_data):
             "flop_dealt": False,
             "turn_dealt": False,
             "river_dealt": False,
+            "pot": 0,
             "min_bet": 0,
             "betting_round": "",
+            "last_raise": "",
+            "players_folded_list": [],
             "raise_occurred": False,
             "flop_bets_taken": False,
             "flop_bets_completed": False
@@ -204,38 +207,97 @@ def initiate_betting(data):
     room = data["room"]
     game = game_rooms.get(room)
     round = game["betting_round"]
-    if not game["flop_bets_taken"]:
+    if not game[f"{round}_bets_taken"]:
         starting_player = game["current_turn"]
         player = game["player_order"][starting_player]
         min_bet_difference = game["min_bet"] - game["player_data"][player][round]
-        socketio.emit("take_bet", {"user": player, "bet_difference": min_bet_difference}, room = room)
+        socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
         game["flop_bets_taken"] = True
     
 @socketio.on("handle_bet_action")
 def handle_bet_action(data):
     room = data["room"]
     game = game_rooms.get(room)
+
+    player_name = data["user"]
     status = data["bet_status"]
+    bet_amount = int(data["bet"])
+    player_data = game["player_data"][player_name]
+    round = game["betting_round"]
+
     print(f"We haveee success, but app breaks here status is {status}.....")
     #update the game status with the new data
     #update the players info with new data
     #add total bet to pot
     #increment current_turn
-    if game["current_turn"] >= len(game["player_order"]) and game["raise_occurred"] :
+    game["pot"] += bet_amount
+    player_data[round] += bet_amount
+    #Have to add the difference with the previous bet amount
+    #if this is a restarted round because of raise my bet minimum will be the difference
+    #between last raise and my last bet so if 20 and 10 i must bet at least 10 which is
+    #the amount registerd as bet amount but I'm actually betting a total of 20
+    bet_amount = player_data[round]
+
+    if bet_amount > game["min_bet"]:
+        game["min_bet"] = bet_amount
+
+    if status == "raise":
+        game["raise_occurred"] = True
+        game["last_raise"] = player_name
+        player_data["status"] = "raise"
+    if status == "fold":
+        player_data["status"] = "fold"
+    if status == "all_in":
+        player_data["status"] = "all_in"
+    game["current_turn"] += 1
+
+    #CHECK IF NEXT PLAYER IS ALL IN OR HAS FOLDED IF SO SKIP THEM AND INCREMENT AGAIN
+   
+    while game["current_turn"] < len(game["player_order"]):
+        next_player = game["player_order"][game["current_turn"]]
+        next_player_data = game["player_data"][next_player]
+        if next_player_data["status"] == "fold":
+            game["current_turn"] +=1
+        elif next_player_data["status"] == "all_in":
+            game["current_turn"] +=1
+        elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
+            print(f"{player_name} was last to raise game should stop here")
+            print(f'was there a raise? ... {game["raise_occurred"]}')
+            game["current_turn"] = len(game["player_order"])
+        else:
+            break
+
+
+    if game["current_turn"] == len(game["player_order"]) and game["raise_occurred"]:
         #if all players have betted and a raise occurred reset the current turn number to 0
-        #call function that will continue the betting
-        pass
-    elif game["current_turn"] >= len(game["player_order"]) and not game["raise_occurred"]:
+        #call function that will continue the betting make sure first player has not folded
+        restart_betting_round(room, game)
+        while game["current_turn"] < len(game["player_order"]):
+            next_player = game["player_order"][game["current_turn"]]
+            next_player_data = game["player_data"][next_player]
+            if next_player_data["status"] == "fold":
+                game["current_turn"] +=1
+            elif next_player_data["status"] == "all_in":
+                game["current_turn"] +=1
+            elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
+                print(f"{player_name} was last to raise game should stop here")
+                print(f'was there a raise? ... {game["raise_occurred"]}')
+                game["current_turn"] = len(game["player_order"])
+            else:
+                break
+        # continue_betting(room, game)
+    if game["current_turn"] == len(game["player_order"]) and not game["raise_occurred"]:
         #Betting has ended and raise did not occur
         #Call function that will reset the statuses of the players bets
         #put player in front at the end now 
         #may need to make copy of player order to hold original order in game 1 is for betting the other for after the game is over
         #min bet must return to 0 for next betting round
         #set flop complete to true and emit this to front end - maybe do this in function mentioned above
-        pass
+        print("Betting has ended we need to comm with front end")
     else:
         #still more players to cycle through original betting round
         #call copy of initiate bets to handle next better
+        continue_betting(room, game)
         pass
 
 @socketio.on("check_win")
@@ -251,6 +313,21 @@ def winner_winner_chicken_dinner(data):
 
 
 #HELPER FUNCTIONS -------------------------------------------------------
+def continue_betting(room, game):
+    round = game["betting_round"]
+    
+    player_index = game["current_turn"]
+    player = game["player_order"][player_index]
+    min_bet_difference = game["min_bet"] - game["player_data"][player][round]
+    socketio.emit("take_bet", {"game_update": game,"user": player, "bet_difference": min_bet_difference}, room = room)
+
+def reset_betting():
+    pass
+
+def restart_betting_round(room, game):
+    game["current_turn"] = 0
+    game["raise_occurred"] = False
+
 
 def get_high_card(cards):
         values = sorted(card["value"] for card in cards)
