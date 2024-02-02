@@ -61,6 +61,8 @@ function Game({gameData, socket}) {
         //Keeping playercards within the gamedata
         const updatedGame = {...game, ...data, player_cash: money}
         setGame(updatedGame)
+        // setting cash
+        setCash(money)
     })
     
     // socket.on('shuffleDeck', (deck) => {
@@ -266,6 +268,9 @@ function Game({gameData, socket}) {
             <>
             </>
             }
+            <div>
+                {"CASH: " + cash}
+            </div>
         </div>
     )
 }
