@@ -259,10 +259,16 @@ function Game({gameData, socket}) {
         if (!game["turn_dealt"] && game["flop_dealt"] && game["flop_bets_completed"]) {
             setTimeout(dealTurn, 2000)
         }
-        if (!game["river_dealt"] && game["turn_dealt"]) {
+        if (!game["turn_bets_taken"] && game["flop_dealt"]) {
+            setTimeout(takeBets, 1000)
+        }
+        if (!game["river_dealt"] && game["turn_dealt"] && game["turn_bets_completed"]) {
             setTimeout(dealRiver, 2000)
         }
-        if (game["player_cards"] && game["flop_dealt"] && game["river_dealt"] ) {
+        if (!game["river_bets_taken"] && game["river_dealt"]) {
+            setTimeout(takeBets, 1000)
+        }
+        if (game["player_cards"] && game["flop_dealt"] && game["river_dealt"] && game["river_bets_completed"]) {
             checkWin()
         }
         //Remove player or continue

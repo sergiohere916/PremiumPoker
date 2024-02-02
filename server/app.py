@@ -62,7 +62,7 @@ def handle_join_room(room_data):
         if user not in game_rooms.get(room)["player_order"]:
             game_rooms[room]["player_list"].append({user: []})
             #new version of player list below when properly integrated remove old player_list
-            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop": 0, "turn_bet": 0, "river_bet": 0, "pregame": 0}
+            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop": 0, "turn": 0, "river": 0, "pregame": 0}
             game_rooms[room]["player_order"].append(user)
         else:
             pass
@@ -72,7 +72,7 @@ def handle_join_room(room_data):
             "id": room,
             "game_started": True,
             "player_list": [{user: []}],
-            "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn_bet": 0, "river_bet": 0, "pregame": 0}},
+            "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0}},
             "table_cards": [],
             "deck": [],
             "last_card_dealt": 0,
