@@ -91,7 +91,7 @@ def handle_join_room(room_data):
             "raise_occurred": False,
             "flop_bets_taken": False,
             "flop_bets_completed": False
-        }  
+        }
 
     print(game_rooms.get(room))
     print("User was added to a room")
@@ -294,6 +294,10 @@ def handle_bet_action(data):
         #min bet must return to 0 for next betting round
         #set flop complete to true and emit this to front end - maybe do this in function mentioned above
         print("Betting has ended we need to comm with front end")
+        game[round + "_bets_taken"] = True
+        game[round + "_bets_completed"] = True
+        reset_betting(room, game)
+        socketio.emit("end_betting_round", {"game_update": game}, room = room)
     else:
         #still more players to cycle through original betting round
         #call copy of initiate bets to handle next better
@@ -321,8 +325,24 @@ def continue_betting(room, game):
     min_bet_difference = game["min_bet"] - game["player_data"][player][round]
     socketio.emit("take_bet", {"game_update": game,"user": player, "bet_difference": min_bet_difference}, room = room)
 
-def reset_betting():
-    pass
+def reset_betting(room, game):
+    round = game["betting_round"]
+    
+    # Reseting most of everything in game object after betting round is over
+    # for whatever round that is
+
+    # Give pot money to the winners.
+    game["last_raise"] = ""
+    game["raise_occurred"] = False
+    game["betting_round"] = ""
+    game["min_bet"] = 0
+    game["players_folded_list"].clear()
+    for player in game["player_data"]:
+        game["player_data"][player]["status"] = ""
+    # Moving first player to the back
+    first_player = game["player_order"].pop(0)
+    game["player_order"].append(first_player)
+    game["current_turn"] = 0
 
 def restart_betting_round(room, game):
     game["current_turn"] = 0

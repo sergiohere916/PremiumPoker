@@ -113,6 +113,22 @@ function Game({gameData, socket}) {
         // console.log(data)
     } )
 
+    socket.on("end_betting_round", (data) => {
+        setGame({...game, 
+            last_raise : data["game_update"]["last_raise"],
+            raise_occurred : data["game_update"]["raise_occurred"],
+            betting_round : data["game_update"]["betting_round"],
+            min_bet : data["game_update"]["min_bet"],
+            players_folded_list : data["game_update"]["players_folded_list"],
+            player_data : data["game_update"]["player_data"],
+            player_order : data["game_update"]["player_order"],
+            current_turn : data["game_update"]["current_turn"],
+            flop_bets_completed : data["game_update"]["flop_bets_completed"],
+            flop_bets_taken : data["game_update"]["flop_bets_taken"]
+        })
+        console.log(game)
+    })
+
 
     //CHECKING VISUALS AND DEBUGGING ---------------------------
     // console.log(game["deck"]);
@@ -143,8 +159,6 @@ function Game({gameData, socket}) {
             
             socket.emit('start_game', {deck: cards, room: gameData["room"]});
         })
-        
-
     }
 
     function dealPlayerCards(turn_number) {
