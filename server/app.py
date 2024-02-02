@@ -62,7 +62,7 @@ def handle_join_room(room_data):
         if user not in game_rooms.get(room)["player_order"]:
             game_rooms[room]["player_list"].append({user: []})
             #new version of player list below when properly integrated remove old player_list
-            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop": 0, "turn_bet": 0, "river_bet": 0}
+            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop": 0, "turn_bet": 0, "river_bet": 0, "pregame": 0}
             game_rooms[room]["player_order"].append(user)
         else:
             pass
@@ -72,7 +72,7 @@ def handle_join_room(room_data):
             "id": room,
             "game_started": True,
             "player_list": [{user: []}],
-            "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn_bet": 0, "river_bet": 0}},
+            "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn_bet": 0, "river_bet": 0, "pregame": 0}},
             "table_cards": [],
             "deck": [],
             "last_card_dealt": 0,
@@ -89,8 +89,14 @@ def handle_join_room(room_data):
             "last_raise": "",
             "players_folded_list": [],
             "raise_occurred": False,
+            "pregame_bets_taken": False,
+            "pregame_bets_completed": False,
             "flop_bets_taken": False,
-            "flop_bets_completed": False
+            "flop_bets_completed": False,
+            "turn_bets_taken": False,
+            "turn_bets_completed": False,
+            "river_bets_taken": False,
+            "river_bets_completed": False
         }
 
     print(game_rooms.get(room))
@@ -136,7 +142,7 @@ def deal_cards(data):
         # # game["turn_number"] +=1
         # game["player_cards_dealt"] = True
         # print(game["player_list"])
-
+        game["betting_round"] = "pregame"
         for player_name in game["player_data"]:
             players_data = game["player_data"][player_name]
             # game["current_turn"] = player_name
@@ -184,6 +190,7 @@ def deal_turn(data):
     if not game["turn_dealt"]:
         print("dealing the turn...")
         cards = game["deck"]
+        game["betting_round"] = "turn"
         game["table_cards"].append(cards[game["last_card_dealt"]])
         game["last_card_dealt"] += 1
         game["last_card_dealt"] += 1
@@ -197,6 +204,7 @@ def deal_river(data):
     if not game["river_dealt"]:
         print("dealing the river...")
         cards = game["deck"]
+        game["betting_round"] = "river"
         game["table_cards"].append(cards[game["last_card_dealt"]])
         game["last_card_dealt"] += 1
         socketio.emit("dealing_river", {"table_cards": game["table_cards"]}, room = room)
@@ -212,7 +220,7 @@ def initiate_betting(data):
         player = game["player_order"][starting_player]
         min_bet_difference = game["min_bet"] - game["player_data"][player][round]
         socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
-        game["flop_bets_taken"] = True
+        game[round + "_bets_taken"] = True
     
 @socketio.on("handle_bet_action")
 def handle_bet_action(data):

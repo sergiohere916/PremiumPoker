@@ -45,8 +45,14 @@ function Game({gameData, socket}) {
         last_raise: "",
         players_folded_list: [],
         raise_occurred: false,
+        pregame_bets_taken: false,
+        pregame_bets_completed: false,
         flop_bets_taken: false,
         flop_bets_completed: false,
+        turn_bets_taken: false,
+        turn_bets_completed: false,
+        river_bets_taken: false,
+        river_bets_completed: false,
         bet_difference: 0
     })
 
@@ -137,7 +143,13 @@ function Game({gameData, socket}) {
             player_order : data["game_update"]["player_order"],
             current_turn : data["game_update"]["current_turn"],
             flop_bets_completed : data["game_update"]["flop_bets_completed"],
-            flop_bets_taken : data["game_update"]["flop_bets_taken"]
+            flop_bets_taken : data["game_update"]["flop_bets_taken"],
+            pregame_bets_taken: data["game_update"]["pregame_bets_taken"],
+            pregame_bets_completed: data["game_update"]["pregame_bets_completed"],
+            turn_bets_taken: data["game_update"]["turn_bets_taken"],
+            turn_bets_completed: data["game_update"]["turn_bets_completed"],
+            river_bets_taken: data["game_update"]["river_bets_taken"],
+            river_bets_completed: data["game_update"]["river_bets_completed"]
             // ...data["game_update"]
 
         })
@@ -234,7 +246,10 @@ function Game({gameData, socket}) {
         if (!game["player_cards_dealt"]) {
             dealPlayerCards(1)
         }
-        if (!game["flop_dealt"] && game["player_cards_dealt"]) {
+        if (!game["pregame_bets_taken"] && game["player_cards_dealt"]) {
+            setTimeout(takeBets, 1000)
+        }
+        if (!game["flop_dealt"] && game["player_cards_dealt"] && game["pregame_bets_completed"]) {
             console.log("This flop is going to emit....")
             dealFlop(2)
         }
