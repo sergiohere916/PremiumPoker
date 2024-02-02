@@ -221,26 +221,51 @@ function Game({gameData, socket}) {
     function handleBetSubmit(e) {
         e.preventDefault()
         let status = ""
-        if (myBet === game["player_cash"]) {
-            status = "all_in"
-        } else if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
+
+        if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
             status = "raise"
-        } else if (myBet === game["bet_difference"] && myBet !== 0 ) {
-            status = "call"
-        } else if (myBet === 0) {
-            status = "check"
         } else if (myBet > game["bet_difference"]) {
             status = "standard_bet"
         }
 
-
-
-
+        // if (myBet === game["player_cash"]) {
+        //     status = "all_in"
+        // } else if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
+        //     status = "raise"
+        // } else if (myBet === game["bet_difference"] && myBet !== 0 ) {
+        //     status = "call"
+        // } else if (myBet === 0) {
+        //     status = "check"
+        // } else if (myBet > game["bet_difference"]) {
+        //     status = "standard_bet"
+        // }
         socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: status, bet: myBet })
         setDisplayBetting(false)
     }
-    //GAME LOGIC -------------------------------------------------
 
+    function handleCallButton() {
+        if (game["min_bet"] !== 0) {
+            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "call", bet: game["bet_difference"] })
+            setDisplayBetting(false)
+        }
+    }
+
+    function handleFoldButton() {
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "fold", bet: 0})
+        setDisplayBetting(false)
+    }
+
+    function handleAllInButton() {
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "all_in", bet: game["player_data"][gameData["user"]]["cash"] })
+        setDisplayBetting(false)
+    }
+
+    function handleCheckButton() {
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "check", bet: 0})
+        setDisplayBetting(false)
+    }
+
+    //GAME LOGIC -------------------------------------------------
 
     if (game["game_started"]) {
         if (!game["player_cards_dealt"]) {
@@ -273,7 +298,6 @@ function Game({gameData, socket}) {
         }
         //Remove player or continue
         // dealTableCards()
-
     }
 
     const displayPlayerHand = game["player_cards"].map((card) => {
@@ -296,12 +320,19 @@ function Game({gameData, socket}) {
                 {displayPlayerHand}
             </div>
             {/* Set constraint on form to not allow lower bet than needed */}
-            {displayBetting? 
-            (<form onSubmit={handleBetSubmit}>
-                <label>Bet Amount:</label>
-                <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
-                <button type="submit">Place Bet</button>
-            </form>): 
+            {displayBetting ?
+            (
+                <div>
+                    <form onSubmit={handleBetSubmit}>
+                        <label>Bet Amount:</label>
+                        <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
+                        <button type="submit">Place Bet</button>
+                    </form>
+                    <button onClick={handleAllInButton}>ALL IN</button>
+                    <button onClick={handleFoldButton}>FOLD</button>
+                    <button onClick={handleCallButton}>CALL</button>
+                    <button onClick={handleCheckButton}>CHECK</button>
+                </div>):
             <>
             </>
             }

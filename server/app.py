@@ -258,6 +258,7 @@ def handle_bet_action(data):
         player_data["status"] = "raise"
     if status == "fold":
         player_data["status"] = "fold"
+        game["players_folded_list"].append(player_name)
     if status == "all_in":
         player_data["status"] = "all_in"
     game["current_turn"] += 1
