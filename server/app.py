@@ -283,6 +283,9 @@ def handle_bet_action(data):
                 print(f"{player_name} was last to raise game should stop here")
                 print(f'was there a raise? ... {game["raise_occurred"]}')
                 game["current_turn"] = len(game["player_order"])
+                game[round + "_bets_taken"] = True
+                game[round + "_bets_completed"] = True
+                socketio.emit("end_betting_round", {"game_update": game}, room = room)
             else:
                 break
         # continue_betting(room, game)

@@ -8,6 +8,7 @@ function Game({gameData, socket}) {
     const [turn, setTurn] = useState(1);
     const [playersChecked, setPlayersChecked] = useState(0);
     // const [shuffledDeck, setShuffledDeck] = useState([]);
+    const [cash, setCash] = useState(0)
 
     const [playerCards, setPlayerCards] = useState([])
     const [tableCards, setTableCards] = useState([])
