@@ -225,6 +225,8 @@ def handle_bet_action(data):
     player_data = game["player_data"][player_name]
     round = game["betting_round"]
 
+    print("THIS IS THE PLAYER BETTTINGGG")
+    print(player_name)
     print(f"We haveee success, but app breaks here status is {status}.....")
     #update the game status with the new data
     #update the players info with new data
@@ -232,6 +234,7 @@ def handle_bet_action(data):
     #increment current_turn
     game["pot"] += bet_amount
     player_data[round] += bet_amount
+    game["player_data"][player_name]["cash"] -= bet_amount
     #Have to add the difference with the previous bet amount
     #if this is a restarted round because of raise my bet minimum will be the difference
     #between last raise and my last bet so if 20 and 10 i must bet at least 10 which is
@@ -264,6 +267,8 @@ def handle_bet_action(data):
             print(f"{player_name} was last to raise game should stop here")
             print(f'was there a raise? ... {game["raise_occurred"]}')
             game["current_turn"] = len(game["player_order"])
+            socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
+            socketio.emit("end_betting_round", {"game_update": game}, room = room)
         else:
             break
 
@@ -285,6 +290,7 @@ def handle_bet_action(data):
                 game["current_turn"] = len(game["player_order"])
                 game[round + "_bets_taken"] = True
                 game[round + "_bets_completed"] = True
+                socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
                 socketio.emit("end_betting_round", {"game_update": game}, room = room)
             else:
                 break
@@ -300,10 +306,12 @@ def handle_bet_action(data):
         game[round + "_bets_taken"] = True
         game[round + "_bets_completed"] = True
         reset_betting(room, game)
+        socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
         socketio.emit("end_betting_round", {"game_update": game}, room = room)
     else:
         #still more players to cycle through original betting round
         #call copy of initiate bets to handle next better
+        socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
         continue_betting(room, game)
         pass
 
@@ -321,10 +329,13 @@ def winner_winner_chicken_dinner(data):
 
 #HELPER FUNCTIONS -------------------------------------------------------
 def continue_betting(room, game):
+    print("OMGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG THIS IS CONTINUED")
     round = game["betting_round"]
     
     player_index = game["current_turn"]
     player = game["player_order"][player_index]
+    print("THIS IS THE PLAYERRRRRRRRR")
+    print(player)
     min_bet_difference = game["min_bet"] - game["player_data"][player][round]
     socketio.emit("take_bet", {"game_update": game,"user": player, "bet_difference": min_bet_difference}, room = room)
 

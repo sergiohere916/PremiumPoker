@@ -102,13 +102,23 @@ function Game({gameData, socket}) {
     })
 
     socket.on("take_bet", (data) => {
+        console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
         if (data["user"] === gameData["user"]) {
-            console.log(data["game_update"])
+            
             setDisplayBetting(true)
             setGame({...game, ...data["game_update"], bet_difference: data["bet_difference"]})
             //SHOW THE FORM
             //SET GAME flops bets taken to true
             //Bet difference needed to determine minimum needed to achieve call
+        }
+    })
+
+    socket.on("handle_cash", (data) => {
+        setGame({...game, ...data["game_update"]})
+        if (data["player"] === gameData["user"]) {
+            console.log(data["player_cash"])
+            console.log("CASH HAS NOW BEEN UPDATED FOR " + gameData["user"])
+            setCash(data["player_cash"])
         }
     })
 
@@ -128,6 +138,8 @@ function Game({gameData, socket}) {
             current_turn : data["game_update"]["current_turn"],
             flop_bets_completed : data["game_update"]["flop_bets_completed"],
             flop_bets_taken : data["game_update"]["flop_bets_taken"]
+            // ...data["game_update"]
+
         })
         console.log(game)
     })
@@ -208,6 +220,10 @@ function Game({gameData, socket}) {
         } else if (myBet > game["bet_difference"]) {
             status = "standard_bet"
         }
+
+
+
+
         socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: status, bet: myBet })
         setDisplayBetting(false)
     }
