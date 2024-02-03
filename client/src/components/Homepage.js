@@ -29,10 +29,10 @@ function Homepage({fillGameData}) {
         <br/>
         <input type="text" name="roomCode" value={roomCode}/>
         <button onClick={generateCode}>Generate Room Code</button>
-        <NavLink to="/game"><button onClick={saveGameData}>Start A Game</button></NavLink>
+        <button onClick={saveGameData}>Start A Game</button>
         <br/>
         <input type="text" name="joinCode" value={joinCode} onChange={(e) => setJoinCode(e.target.value)}/>
-        <NavLink to="/game"><button onClick={addGameData}>Join Game using Code</button></NavLink>
+        <button onClick={addGameData}>Join Game using Code</button>
        
     </div>)
 }

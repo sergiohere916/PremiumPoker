@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 
+//RESET POINT ALL THE WAY BACK TO START OF 2/7/24
+//Re add socket back here as the prop passed down if necessary
+function Game({gameData, socket, restoreGameData}) {
 
-
-function Game({gameData, socket}) {
-    // const [socket, setSocket] = useState("")
-    const [turn, setTurn] = useState(1);
-    const [playersChecked, setPlayersChecked] = useState(0);
     // const [shuffledDeck, setShuffledDeck] = useState([]);
     const [cash, setCash] = useState(0)
 
@@ -14,10 +12,6 @@ function Game({gameData, socket}) {
     const [tableCards, setTableCards] = useState([])
     const [winners, setWinners] = useState([])
 
-    // const [playerCardsDealt, setPlayerCardsDealt] = useState(false)
-    const [flopDealt, setFlopDealt] = useState(false)
-    const [turnDealt, setTurnDealt] = useState(false)
-    const [riverDealt, setRiverDealt] = useState(false)
 
     //INITIATING NEW GAME SET UP
     //Player cards only exists on the front end on back they are stored
@@ -58,18 +52,90 @@ function Game({gameData, socket}) {
         river_bets_completed: false,
         bet_difference: 0
     })
-
+    
     const [myBet, setMyBet] = useState(0)
     const [displayBetting, setDisplayBetting] = useState(false)
     //SOCKET COMMANDS -----------------------------------------
+    // useEffect(() => {
+    //     if (Object.keys(gameData).length === 0) {
+    //         console.log("This should only run on refresh")
+    //         fetch("/checkSession")
+    //         .then(r => r.json())
+    //         .then(data => {
+    //             // restoreGameData(data["user"], data["room"])
+    //             console.log("We are re initializing state")
+    //             console.log(data)
+    //             restoreGameData(data["user"], data["room"])
+    //             // socket.emit('join_room', {"user": data["user"], "room": data["room"]});
+    //         })
+    //     } else {
+    //         socket.emit('join_room', gameData)
+    //     }
+    // }, [])
+
+    useEffect(() => {
+        if (Object.keys(gameData).length === 0) {
+            console.log("This should only run on refresh")
+            fetch("/checkSession")
+            .then(r => r.json())
+            .then(data => {
+                // restoreGameData(data["user"], data["room"])
+                console.log("We are re initializing state")
+                console.log(data)
+                restoreGameData(data["user"], data["room"])
+                // socket.emit('join_room', {"user": data["user"], "room": data["room"]});
+            })
+        } else {
+            console.log("joining the rooom......")
+            socket.emit('join_room', gameData)
+        }
+    }, [gameData])
+
+    useEffect(() => {
+        socket.on('rejoin_at_bet', (data) => {
+            console.log("received rejoin at bet")
+            console.log(data["game"])
+            if (gameData["user"] === data["user"]) {
+                console.log("you have rejoined...")
+                setGame(prevGame => ({...prevGame, ...data["game"], player_cards: data["player_cards"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
+                setDisplayBetting(true)
+            }
+        })
+
+        socket.on("rejoin_game", (data) => {
+            if (gameData["user"] === data["user"]) {
+                setGame(prevGame => ({...prevGame, ...data["game"], player_cards: data["player_cards"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
+            }
+        })
+
+
+    }, [gameData])
+
+    
+
+        // socket.on('rejoin_at_bet', (data) => {
+        //     console.log("received rejoin at bet")
+        //     console.log(gameData)
+        //     if (gameData["user"] === data["user"]) {
+        //         console.log("you have rejoined...")
+        //         const game = data["game"]
+        //         setGame(prevGame => ({...prevGame, ...game}))
+        //         setDisplayBetting(true)
+        //     }
+        // })
     
     socket.on('starting', (data) => {
         const user = gameData["user"]
         const money = data["player_data"][user]["cash"]
         
         //Keeping playercards within the gamedata
-        const updatedGame = {...game, ...data, player_cash: money}
-        setGame(updatedGame)
+
+        // const updatedGame = {...game, ...data, player_cash: money}
+        setGame(prevGame => ({
+            ...prevGame,
+            ...data,
+            player_cash: money
+        }))
         // setting cash
         setCash(money)
     })
@@ -80,27 +146,30 @@ function Game({gameData, socket}) {
     
     socket.on('dealing', (data) => {
         if (gameData["user"] === data["user"]) {
-            setGame({...game, player_cards: data["cards"],
-             all_player_cards: data["all_player_cards"], 
-            player_cards_dealt: true})
+            console.log("game at the time socket on dealing of cards runs..." + "")
+            console.log(game)
+            console.log("game started has already reset to it's default...why?")
+            setGame((prevGame) => ({...prevGame, player_cards: data["cards"],
+            all_player_cards: data["all_player_cards"], 
+            player_cards_dealt: data["player_cards_dealt"]}))
             // setPlayerCards(data["cards"])
             // setPlayerCardsDealt(true)
         } else {
-            setGame({...game, all_player_cards: data["all_player_cards"]})
+            setGame(prevGame => ({...prevGame, all_player_cards: data["all_player_cards"], player_cards_dealt: data["player_cards_dealt"]}))
         }
     })
 
     socket.on("dealing_flop", (data) => {
         // console.log("THIS IS THE FLOP ON THE FRONT END: ")
         // console.log(data);
-        setGame({...game, table_cards: data["table_cards"], flop_dealt: true })
+        setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], flop_dealt: true }))
 
         // setTableCards(data["table_cards"])
         // setFlopDealt(true)
     })
 
     socket.on("dealing_turn", (data) => {
-        setGame({...game, table_cards: data["table_cards"], turn_dealt: true})
+        setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], turn_dealt: true}))
 
         // setTableCards(data["table_cards"])
         // setTurnDealt(true)
@@ -109,15 +178,16 @@ function Game({gameData, socket}) {
     socket.on("dealing_river", (data) => {
         // console.log(data)
 
-        setGame({...game, table_cards: data["table_cards"], river_dealt: true})
+        setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], river_dealt: true}))
         // setTableCards(data["table_cards"])
         // setRiverDealt(true)
     })
 
     socket.on("take_bet", (data) => {
+        console.log(gameData)
         if (data["user"] === gameData["user"]) {
             console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
-            setGame({...game, ...data["game_update"], bet_difference: data["bet_difference"]})
+            setGame(prevGame => ({...prevGame, ...data["game_update"], bet_difference: data["bet_difference"]}))
             setDisplayBetting(true)
             //SHOW THE FORM
             //SET GAME flops bets taken to true
@@ -126,11 +196,13 @@ function Game({gameData, socket}) {
     })
 
     socket.on("handle_cash", (data) => {
-        setGame({...game, ...data["game_update"]})
         if (data["player"] === gameData["user"]) {
             console.log(data["player_cash"])
             console.log("CASH HAS NOW BEEN UPDATED FOR " + gameData["user"])
-            setCash(data["player_cash"])
+            setGame(prevGame => ({...prevGame, ...data["game_update"], player_cash: data["player_cash"]}))
+            // setCash(data["player_cash"])
+        } else {
+            setGame(prevGame => ({...prevGame, ...data["game_update"]}))
         }
     })
 
@@ -139,7 +211,7 @@ function Game({gameData, socket}) {
     } )
 
     socket.on("end_betting_round", (data) => {
-        setGame({...game, 
+        setGame(prevGame => ({...prevGame, 
             last_raise : data["game_update"]["last_raise"],
             raise_occurred : data["game_update"]["raise_occurred"],
             betting_round : data["game_update"]["betting_round"],
@@ -158,30 +230,34 @@ function Game({gameData, socket}) {
             river_bets_completed: data["game_update"]["river_bets_completed"]
             // ...data["game_update"]
 
-        })
+        }))
         setDisplayBetting(false)
     })
+
+
+
 
 
     //CHECKING VISUALS AND DEBUGGING ---------------------------
     // console.log(game["deck"]);
     // console.log(game["player_cards"])
     // console.log(tableCards)
-    // console.log(game)
+    console.log(game)
     
-    useEffect(() => {
-        socket.emit('join_room', gameData)
-    }, [])
+    // useEffect(() => {
+    //     socket.emit('join_room', gameData);
+    // }, [])
+
+
     
     //FUNCTIONS ------------------------------------------------
-
     function startGame() {
         if (true) {
             fetch("/cards")
             .then(res => res.json())
             .then(cards => {
                 //Fisher-Yates alorith
-                
+                console.log(cards)
                 for (let i = cards.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     const temp = cards[i];
@@ -402,7 +478,7 @@ function Game({gameData, socket}) {
             </>
             }
             <div>
-                {"CASH: " + cash}
+                {"CASH: " + game["player_cash"]}
             </div>
         </div>
     )
