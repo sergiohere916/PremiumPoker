@@ -88,6 +88,7 @@ def handle_join_room(room_data):
             "betting_round": "",
             "last_raise": "",
             "players_folded_list": [],
+            "players_all_in": [],
             "raise_occurred": False,
             "pregame_bets_taken": False,
             "pregame_bets_completed": False,
@@ -218,6 +219,10 @@ def initiate_betting(data):
     if not game[f"{round}_bets_taken"]:
         starting_player = game["current_turn"]
         player = game["player_order"][starting_player]
+        if player in game["players_all_in"]:
+            game["current_turn"] += 1
+            starting_player = game["current_turn"]
+            player = game["player_order"][starting_player]
         min_bet_difference = game["min_bet"] - game["player_data"][player][round]
         socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
         game[round + "_bets_taken"] = True
@@ -261,6 +266,7 @@ def handle_bet_action(data):
         game["players_folded_list"].append(player_name)
     if status == "all_in":
         player_data["status"] = "all_in"
+        game["players_all_in"].append(player_name)
     game["current_turn"] += 1
 
     #CHECK IF NEXT PLAYER IS ALL IN OR HAS FOLDED IF SO SKIP THEM AND INCREMENT AGAIN

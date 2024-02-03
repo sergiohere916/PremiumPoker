@@ -44,6 +44,7 @@ function Game({gameData, socket}) {
         betting_round: "",
         last_raise: "",
         players_folded_list: [],
+        players_all_in: [],
         raise_occurred: false,
         pregame_bets_taken: false,
         pregame_bets_completed: false,
@@ -153,7 +154,7 @@ function Game({gameData, socket}) {
             // ...data["game_update"]
 
         })
-        console.log(game)
+        setDisplayBetting(false)
     })
 
 
@@ -170,22 +171,26 @@ function Game({gameData, socket}) {
     //FUNCTIONS ------------------------------------------------
 
     function startGame() {
-        fetch("/cards")
-        .then(res => res.json())
-        .then(cards => {
-            //Fisher-Yates alorith
-            
-            for (let i = cards.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                const temp = cards[i];
-                cards[i] = cards[j];
-                cards[j] = temp;
-            }
-            //May need to make shuffle deck into a function for later on
-            // socket.emit("shuffleDeck", {deck: cards, room: gameData["room"]} );
-            
-            socket.emit('start_game', {deck: cards, room: gameData["room"]});
-        })
+        if (true) {
+            fetch("/cards")
+            .then(res => res.json())
+            .then(cards => {
+                //Fisher-Yates alorith
+                
+                for (let i = cards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    const temp = cards[i];
+                    cards[i] = cards[j];
+                    cards[j] = temp;
+                }
+                //May need to make shuffle deck into a function for later on
+                // socket.emit("shuffleDeck", {deck: cards, room: gameData["room"]} );
+                
+                socket.emit('start_game', {deck: cards, room: gameData["room"]});
+            })
+        } else {
+            console.log("Need 3 or more players to start the game")
+        }
     }
 
     function dealPlayerCards(turn_number) {
@@ -226,6 +231,8 @@ function Game({gameData, socket}) {
             status = "raise"
         } else if (myBet > game["bet_difference"]) {
             status = "standard_bet"
+        } else if (myBet === game["player_data"][gameData["user"]]["cash"]) {
+            status = "all_in"
         }
 
         // if (myBet === game["player_cash"]) {
@@ -268,28 +275,36 @@ function Game({gameData, socket}) {
     //GAME LOGIC -------------------------------------------------
 
     if (game["game_started"]) {
+        // PLAYER CARDS DEALING
         if (!game["player_cards_dealt"]) {
             dealPlayerCards(1)
         }
+        // PRE GAME BETTING ROUND
         if (!game["pregame_bets_taken"] && game["player_cards_dealt"]) {
             setTimeout(takeBets, 1000)
         }
+        // FLOP DEALING
         if (!game["flop_dealt"] && game["player_cards_dealt"] && game["pregame_bets_completed"]) {
             console.log("This flop is going to emit....")
             dealFlop(2)
         }
+        // FLOP BETTING ROUND
         if (!game["flop_bets_taken"] && game["flop_dealt"]) {
             setTimeout(takeBets, 1000)
         }
+        // TURN DEALING
         if (!game["turn_dealt"] && game["flop_dealt"] && game["flop_bets_completed"]) {
             setTimeout(dealTurn, 2000)
         }
+        // TURN BETTING ROUND
         if (!game["turn_bets_taken"] && game["flop_dealt"]) {
             setTimeout(takeBets, 1000)
         }
+        // RIVER DEALING
         if (!game["river_dealt"] && game["turn_dealt"] && game["turn_bets_completed"]) {
             setTimeout(dealRiver, 2000)
         }
+        // RIVER DEALING ROUND
         if (!game["river_bets_taken"] && game["river_dealt"]) {
             setTimeout(takeBets, 1000)
         }
