@@ -56,7 +56,10 @@ function Game({gameData, socket}) {
         turn_bets_completed: false,
         river_bets_taken: false,
         river_bets_completed: false,
-        bet_difference: 0
+        bet_difference: 0,
+        min_all_in: [],
+        pots: [],
+        bets: []
     })
 
     const [myBet, setMyBet] = useState(0)
@@ -139,6 +142,7 @@ function Game({gameData, socket}) {
     } )
 
     socket.on("end_betting_round", (data) => {
+        console.log(data["game_update"]["pots"])
         setGame({...game, 
             last_raise : data["game_update"]["last_raise"],
             raise_occurred : data["game_update"]["raise_occurred"],
@@ -155,9 +159,9 @@ function Game({gameData, socket}) {
             turn_bets_taken: data["game_update"]["turn_bets_taken"],
             turn_bets_completed: data["game_update"]["turn_bets_completed"],
             river_bets_taken: data["game_update"]["river_bets_taken"],
-            river_bets_completed: data["game_update"]["river_bets_completed"]
+            river_bets_completed: data["game_update"]["river_bets_completed"],
+            pots: data["game_update"]["pots"],
             // ...data["game_update"]
-
         })
         setDisplayBetting(false)
     })

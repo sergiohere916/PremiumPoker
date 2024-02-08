@@ -101,7 +101,7 @@ def handle_join_room(room_data):
             "river_bets_taken": False,
             "river_bets_completed": False,
             "min_all_in": [],
-            "pots": [{}],
+            "pots": [],
             "bets": []
         }
 
@@ -283,7 +283,9 @@ def handle_bet_action(data):
     #update the players info with new data
     #add total bet to pot
     #increment current_turn
-    game["pot"] += bet_amount
+
+    # game["pot"] += bet_amount
+
     player_data[round] += bet_amount
     game["player_data"][player_name]["cash"] -= bet_amount
     #Have to add the difference with the previous bet amount
@@ -307,10 +309,12 @@ def handle_bet_action(data):
         game["players_all_in"].append(player_name)
         if (bet_amount < game["min_bet"]):
             game["min_all_in"].append(bet_amount)
-            game["pots"].append({"small pot" : {"cash" : 0, "players" : []}})
+            game["pots"].append({"cash" : 0, "players" : []})
 
     print("min_all_in" + str(game["min_all_in"]))
     print(game["pots"])
+    game["bets"].append({"player_name" : player_name, "bet" : bet_amount})
+    print(game["bets"])
     game["current_turn"] += 1
 
     #CHECK IF NEXT PLAYER IS ALL IN OR HAS FOLDED IF SO SKIP THEM AND INCREMENT AGAIN
@@ -326,6 +330,49 @@ def handle_bet_action(data):
             print(f"{player_name} was last to raise game should stop here")
             print(f'was there a raise? ... {game["raise_occurred"]}')
             game["current_turn"] = len(game["player_order"])
+
+            # --------------- POT LOGIC ---------------
+
+            # If small pots exists
+            if (len(game["pots"]) > 0):
+                # We want to subtract the min_all_in from
+                # all the bets that happened this round
+                # excluding any zeroes or numbers that are less
+                small_pot_money = 0
+                for i in range(len(game["bets"])):
+                    # Gets the last index of min_all_in
+                    last_index = len(game["min_all_in"]) - 1
+                    # Checking if the nth bet is greater or equal to the min_all_in
+                    if (game["bets"][i]["bet"] >= game["min_all_in"][last_index]):
+                        # Getting the difference Example: 750 (player's bet) - 500 (min_all_in) = 250
+                        difference = game["bets"][i]["bet"] - game["min_all_in"][last_index]
+                        # Subtracting that difference from the nth bet. 750 - 250 = 500
+                        game["bets"][i]["bet"] -= difference
+                        # Add the difference into the last small pot
+                        game["pots"][len(game["pots"]) - 1]["cash"] += difference
+                        # adding the player that betted in to the players array of that pot to
+                        # let the game know that, that player can play in this pot
+                        game["pots"][len(game["pots"]) - 1]["players"].append(game["bets"][i]["player_name"])
+                if (len(game["pots"]) > 1):
+                    small_pot_before = game["pots"][len(game["pots"]) - 2]
+                    for i in range(len(game["bets"])):
+                        small_pot_before["cash"] += game["bets"][i]["bet"]
+                else:
+                    for i in range(len(game["bets"])):
+                        game["pot"] += game["bets"][i]["bet"]
+            # No small pots exists
+            else:
+                for i in range(len(game["bets"])):
+                        game["pot"] += game["bets"][i]["bet"]
+            
+            # --------------- POT LOGIC ---------------
+            print("These are the pots " + str(game["pots"]))
+            print("This is min all in" + str(game["min_all_in"]))
+            print("These are the bets" + str(game["bets"]))
+            print("This is the main pot " + str(game["pot"]))
+            game["bets"] = []
+            game["min_all_in"] = []
+
             socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
         else:
@@ -349,6 +396,50 @@ def handle_bet_action(data):
                 game["current_turn"] = len(game["player_order"])
                 game[round + "_bets_taken"] = True
                 game[round + "_bets_completed"] = True
+
+                 # --------------- POT LOGIC ---------------
+
+                
+                if (len(game["pots"]) > 0):
+                    # We want to subtract the min_all_in from
+                    # all the bets that happened this round
+                    # excluding any zeroes or numbers that are less
+                    small_pot_money = 0
+                    for i in range(len(game["bets"])):
+                        # Gets the last index of min_all_in
+                        last_index = len(game["min_all_in"]) - 1
+                        # Checking if the nth bet is greater or equal to the min_all_in
+                        if (game["bets"][i]["bet"] >= game["min_all_in"][last_index]):
+                            # Getting the difference Example: 750 (player's bet) - 500 (min_all_in) = 250
+                            difference = game["bets"][i]["bet"] - game["min_all_in"][last_index]
+                            # Subtracting that difference from the nth bet. 750 - 250 = 500
+                            game["bets"][i]["bet"] -= difference
+                            # Add the difference into the last small pot
+                            game["pots"][len(game["pots"]) - 1]["cash"] += difference
+                            # adding the player that betted in to the players array of that pot to
+                            # let the game know that, that player can play in this pot
+                            game["pots"][len(game["pots"]) - 1]["players"].append(game["bets"][i]["player_name"])
+                    if (len(game["pots"]) > 1):
+                        small_pot_before = game["pots"][len(game["pots"]) - 2]
+                        for i in range(len(game["bets"])):
+                            small_pot_before["cash"] += game["bets"][i]["bet"]
+                    else:
+                        for i in range(len(game["bets"])):
+                            game["pot"] += game["bets"][i]["bet"]
+                # No small pots exists
+                else:
+                    for i in range(len(game["bets"])):
+                            game["pot"] += game["bets"][i]["bet"]
+
+                # --------------- POT LOGIC ---------------
+
+                print("These are the pots " + str(game["pots"]))
+                print("This is min all in" + str(game["min_all_in"]))
+                print("These are the bets" + str(game["bets"]))
+                print("This is the main pot " + str(game["pot"]))
+                game["bets"] = []
+                game["min_all_in"] = []
+                
                 socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
                 socketio.emit("end_betting_round", {"game_update": game}, room = room)
             else:
@@ -364,6 +455,61 @@ def handle_bet_action(data):
         print("Betting has ended we need to comm with front end")
         game[round + "_bets_taken"] = True
         game[round + "_bets_completed"] = True
+
+        # # --------------- POT LOGIC ---------------
+
+        # If small pots exists
+        if (len(game["pots"]) > 0):
+            # We want to subtract the min_all_in from
+            # all the bets that happened this round
+            # excluding any zeroes or numbers that are less
+            small_pot_money = 0
+            for i in range(len(game["bets"])):
+                # Gets the last index of min_all_in
+                last_index = len(game["min_all_in"]) - 1
+                # Checking if the nth bet is greater or equal to the min_all_in
+                if (game["bets"][i]["bet"] > game["min_all_in"][last_index]):
+                    # Getting the difference Example: 750 (player's bet) - 500 (min_all_in) = 250
+                    difference = game["bets"][i]["bet"] - game["min_all_in"][last_index]
+                    # Subtracting that difference from the nth bet. 750 - 250 = 500
+                    game["bets"][i]["bet"] -= difference
+                    # Add the difference into the last small pot
+                    game["pots"][len(game["pots"]) - 1]["cash"] += difference
+                    # adding the player that betted in to the players array of that pot to
+                    # let the game know that, that player can play in this pot
+                    game["pots"][len(game["pots"]) - 1]["players"].append(game["bets"][i]["player_name"])
+            if (len(game["pots"]) > 1):
+                small_pot_before = game["pots"][len(game["pots"]) - 2]
+                for i in range(len(game["bets"])):
+                    print("This is the main pot: " + str(game["pot"]))
+                    print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
+                    game["pot"] += game["bets"][i]["bet"]
+                    print("This is the main pot after getting added: " + str(game["pot"]))
+                    small_pot_before["cash"] += game["bets"][i]["bet"]
+            else:
+                for i in range(len(game["bets"])):
+                    print("This is the main pot: " + str(game["pot"]))
+                    print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
+                    game["pot"] += game["bets"][i]["bet"]
+                    print("This is the main pot after getting added: " + str(game["pot"]))
+        # No small pots exists
+        else:
+            for i in range(len(game["bets"])):
+                    print("This is the main pot: " + str(game["pot"]))
+                    print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
+                    game["pot"] += game["bets"][i]["bet"]
+                    print("This is the main pot after getting added: " + str(game["pot"]))
+                    game["pot"] += game["bets"][i]["bet"]
+
+        # --------------- POT LOGIC ---------------
+
+        print("These are the pots " + str(game["pots"]))
+        print("This is min all in" + str(game["min_all_in"]))
+        print("These are the bets" + str(game["bets"]))
+        print("This is the main pot " + str(game["pot"]))
+        game["bets"] = []
+        game["min_all_in"] = []
+
         reset_betting(room, game)
         socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
         socketio.emit("end_betting_round", {"game_update": game}, room = room)
