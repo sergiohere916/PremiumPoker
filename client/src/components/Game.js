@@ -1,23 +1,31 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-
-
+import Timer from "./Timer"
 
 function Game({gameData, socket}) {
     // const [socket, setSocket] = useState("")
+    const [seconds, setSeconds] = useState(0);
+
     const [turn, setTurn] = useState(1);
     const [playersChecked, setPlayersChecked] = useState(0);
     // const [shuffledDeck, setShuffledDeck] = useState([]);
-    const [cash, setCash] = useState(0)
+    const [cash, setCash]  = useState(0)
 
     const [playerCards, setPlayerCards] = useState([])
     const [tableCards, setTableCards] = useState([])
     const [winners, setWinners] = useState([])
+    const [user, setUser] = useState({cards : []})
+    const [currentTurn, setCurrentTurn] = useState("")
+    const [playerOrder, setPlayerOrder] = useState([])
+    const [lastPlay, setLastPlay] = useState("")
+    const [played, setPlayed] = useState("")
 
     // const [playerCardsDealt, setPlayerCardsDealt] = useState(false)
     const [flopDealt, setFlopDealt] = useState(false)
     const [turnDealt, setTurnDealt] = useState(false)
     const [riverDealt, setRiverDealt] = useState(false)
+    const [bettingRound, setBettingRound] = useState(false)
+    const [betted, setBetted] = useState(false)
 
     //INITIATING NEW GAME SET UP
     //Player cards only exists on the front end on back they are stored
