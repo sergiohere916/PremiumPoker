@@ -56,6 +56,7 @@ function Game({gameData, socket}) {
         turn_bets_completed: false,
         river_bets_taken: false,
         river_bets_completed: false,
+        checked_wins: false,
         bet_difference: 0,
         min_all_in: [],
         pots: [],
@@ -138,7 +139,9 @@ function Game({gameData, socket}) {
     })
 
     socket.on("returning_winners", (data) => {
-        // console.log(data)
+        setGame({...game,
+            checked_wins: true    
+            })
     } )
 
     socket.on("end_betting_round", (data) => {
@@ -330,7 +333,7 @@ function Game({gameData, socket}) {
         if (!game["river_bets_taken"] && game["river_dealt"]) {
             setTimeout(takeBets, 1000)
         }
-        if (game["player_cards"] && game["flop_dealt"] && game["river_dealt"] && game["river_bets_completed"]) {
+        if (game["player_cards"] && game["flop_dealt"] && game["river_dealt"] && game["river_bets_completed"] && game["checked_wins"] == false) {
             checkWin()
         }
         //Remove player or continue
