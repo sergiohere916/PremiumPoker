@@ -164,6 +164,7 @@ function Game({gameData, socket}) {
             river_bets_taken: data["game_update"]["river_bets_taken"],
             river_bets_completed: data["game_update"]["river_bets_completed"],
             pots: data["game_update"]["pots"],
+            min_all_in: data["game_update"]["min_all_in"]
             // ...data["game_update"]
         })
         setDisplayBetting(false)
@@ -287,8 +288,12 @@ function Game({gameData, socket}) {
     }
 
     function handleCheckButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "check", bet: 0})
-        setDisplayBetting(false)
+        if (game["min_bet"] === 0) {
+            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "check", bet: 0})
+            setDisplayBetting(false)
+        } else {
+            console.log("can't check")
+        }
     }
 
     //GAME LOGIC -------------------------------------------------
