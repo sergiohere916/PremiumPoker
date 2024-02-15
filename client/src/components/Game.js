@@ -50,7 +50,9 @@ function Game({gameData, socket, restoreGameData}) {
         turn_bets_completed: false,
         river_bets_taken: false,
         river_bets_completed: false,
-        bet_difference: 0
+        bet_difference: 0,
+        disconnected_players: [],
+        betting_index: 0,
     })
     
     const [myBet, setMyBet] = useState(0)
@@ -136,8 +138,9 @@ function Game({gameData, socket, restoreGameData}) {
             ...data,
             player_cash: money
         }))
-        // setting cash
         setCash(money)
+        // setting cash
+        
     })
     
     // socket.on('shuffleDeck', (deck) => {
@@ -189,6 +192,7 @@ function Game({gameData, socket, restoreGameData}) {
             console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
             setGame(prevGame => ({...prevGame, ...data["game_update"], bet_difference: data["bet_difference"]}))
             setDisplayBetting(true)
+            setMyBet(Number(data["bet_difference"]))
             //SHOW THE FORM
             //SET GAME flops bets taken to true
             //Bet difference needed to determine minimum needed to achieve call
@@ -234,7 +238,15 @@ function Game({gameData, socket, restoreGameData}) {
         setDisplayBetting(false)
     })
 
-
+    socket.on("fold_for_player", (data) => {
+        //MIGHT BE ABLE TO REPLACE THIS condition with synchronized timer that sets displaye betting to false and maybe actually displays words fold
+        run_auto_fold(data["folded_player"]);
+        if (game["user"] === data["folded_player"]) {
+            setDisplayBetting(false)
+        }
+        setGame(prevGame => ({...prevGame, player_data: data["updated_player_data"]}));
+        //auto fold function will just use host to send out fold for player that failed to submit response
+    })
 
 
 
@@ -280,7 +292,7 @@ function Game({gameData, socket, restoreGameData}) {
 
 
     function dealFlop(turn_number) {
-        socket.emit("deal_flop", {room: gameData["room"], turn: turn_number} )
+        socket.emit("deal_flop", {room: gameData["room"]} )
     }
 
     function dealTurn() {
@@ -308,14 +320,25 @@ function Game({gameData, socket, restoreGameData}) {
         e.preventDefault()
         let status = ""
         
-        if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
-            status = "raise"
-        } else if (myBet > game["bet_difference"]) {
-            status = "standard_bet"
-        } 
+        // if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
+        //     status = "raise"
+        // } else if (myBet > game["bet_difference"]) {
+        //     status = "standard_bet"
+        // } 
         
+        // if (myBet === game["player_cash"]) {
+        //     status = "all_in"
+        // }
+
+
         if (myBet === game["player_cash"]) {
-            status = "all_in"
+            status = "all_in";
+        } else if (myBet > game["bet_difference"]) {
+            status = "raise";
+        } else if (myBet == game["bet_difference"] && game["bet_difference"] != 0) {
+            status = "call";
+        } else if (myBet == game["bet_difference"] && game["bet_difference"] == 0) {
+            status = "check";
         }
        
         // console.log(myBet)
@@ -360,6 +383,11 @@ function Game({gameData, socket, restoreGameData}) {
         setDisplayBetting(false)
     }
 
+    function run_auto_fold(playerName) {
+        console.log("is this running twice? This is auto fold...")
+        socket.emit("handle_bet_action", {room: gameData["room"], user: playerName, bet_status: "fold", bet: 0});
+    }
+
     //GAME LOGIC -------------------------------------------------
 
     if (game["game_started"] && game["host"] === gameData["user"]) {
@@ -376,7 +404,7 @@ function Game({gameData, socket, restoreGameData}) {
         // FLOP DEALING
         if (!game["flop_dealt"] && game["player_cards_dealt"] && game["pregame_bets_completed"]) {
             console.log("going to run deal flop")
-            dealFlop(2)
+            dealFlop()
         }
         // FLOP BETTING ROUND
         if (!game["flop_bets_taken"] && game["flop_dealt"]) {
@@ -435,14 +463,14 @@ function Game({gameData, socket, restoreGameData}) {
         if (playerName !== gameData["user"]) {
             const card1 = playerData[playerName][0]
             const card2 = playerData[playerName][1]
-            return (<div key={card1["name"] + card1["suit"]}>
+            return (<><div key={card1["name"] + card1["suit"]}>
                 <div>
                     {card1["name"] + " " + card1["suit"]}
                 </div>
                 <div>
                     {card2["name"] + " " + card2["suit"]}
                 </div>
-            </div>)
+            </div><hr/></>)
         }
     })
 
@@ -457,6 +485,7 @@ function Game({gameData, socket, restoreGameData}) {
             <div id="playerHand">
                 {displayPlayerHand}
             </div>
+            <hr/>
             <div>
                 {displayAllPlayerCards}
             </div>
@@ -471,8 +500,8 @@ function Game({gameData, socket, restoreGameData}) {
                     </form>
                     <button onClick={handleAllInButton}>ALL IN</button>
                     <button onClick={handleFoldButton}>FOLD</button>
-                    <button onClick={handleCallButton}>CALL</button>
-                    <button onClick={handleCheckButton}>CHECK</button>
+                    <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
+                    {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
                 </div>):
             <>
             </>

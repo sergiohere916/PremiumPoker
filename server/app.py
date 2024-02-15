@@ -10,6 +10,7 @@ import random
 import string
 from string import ascii_uppercase
 from itertools import combinations
+import time
 
 # Local imports
 from config import app, db, api
@@ -77,6 +78,16 @@ def handle_connect(socket):
 def handle_disconnect():
     sid = request.sid
     print(f"{sid} disconnected")
+    # if players_in_games.get(sid, None):
+    #     print("player was in game so need place player in watch list and switch game hosts...")
+    #     game = players_in_games[sid][0]
+    #     user = players_in_games[sid][1]
+    #     #Let the game know this player disconnected add their name to a list to keep track of them
+    #     game["disconnected_players"].append(user)
+    #     #can possibly check if all possible players are disconnected
+    #     if game["host"] == user:
+
+
 
 @socketio.on('left_room')
 def handle_leaving_room(room_data):
@@ -84,26 +95,36 @@ def handle_leaving_room(room_data):
 
 @socketio.on('join_room')
 def handle_join_room(room_data):
-    print("running join room")
+    print("\nrunning join room")
     room = room_data['room']
     user = room_data['user']
     join_room(room)
     if game_rooms.get(room) is not None:
         if user not in game_rooms.get(room)["player_order"]:
+            print("new player has joined the room")
             game_rooms[room]["player_list"].append({user: []})
             #new version of player list below when properly integrated remove old player_list
-            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : 0, "flop": 0, "turn": 0, "river": 0, "pregame": 0}
+            game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
             game_rooms[room]["player_order"].append(user)
+
+            players_in_games[request.sid] = [room, user]
         else:
-            print("you are rejoining need to set it up")
             print(f"{user} is rejoining...")
             game = game_rooms[room]
+            
             round = game["betting_round"]
+            print(f"The round is {round}")
+            print(game[round + "_bets_taken"])
             player_cards = game["player_data"][user]["cards"]
             player_money = game["player_data"][user]["cash"]
+
             min_bet_difference = game["min_bet"] - game["player_data"][user][round]
             #ALLOW PLAYER TO REJOIN TO THEIR PROPER STAGE WITHIN THE GAME
-            if game["pregame_bets_taken"] == True and game["pregame_bets_completed"] == False:
+            #MAY WANT TO SET GAME TO FALSE AT START ON BACKEND THEN WITH STARTING SET TO TRUE
+            if game["game_started"] and game["player_cards_dealt"] == False:
+                print("player will be returned to game with their data recovered")
+                socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
+            elif game["pregame_bets_taken"] == True and game["pregame_bets_completed"] == False:
                 if game["player_order"][game["current_turn"]] == user:
                     print(f"letting {user} bet again")
                     print(game["all_player_cards"])
@@ -111,6 +132,9 @@ def handle_join_room(room_data):
                 else:
                     print("player will be returned to game with their data recovered")
                     socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
+            elif game["game_started"] and game["flop_dealt"] == False:
+                print("player will be returned to game with their data recovered")
+                socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
             elif game["pregame_bets_completed"] and game["flop_bets_taken"] and game["flop_bets_completed"] == False:
                 if game["player_order"][game["current_turn"]] == user:
                     print(f"letting {user} bet again")
@@ -119,6 +143,9 @@ def handle_join_room(room_data):
                 else:
                     print("player will be returned to the flop betting with their data recovered, but it is not yet their turn")
                     socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
+            elif game["game_started"] and game["turn_dealt"] == False:
+                print("player will be returned to game with their data recovered")
+                socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
             elif game["flop_bets_completed"] and game["turn_bets_taken"] and game["turn_bets_completed"] == False:
                 if game["player_order"][game["current_turn"]] == user:
                     print(f"letting {user} bet again")
@@ -127,6 +154,10 @@ def handle_join_room(room_data):
                 else:
                     print("player will be returned to the flop betting with their data recovered, but it is not yet their turn")
                     socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
+            elif game["game_started"] and game["river_dealt"] == False:
+                print("player will be returned to game with their data recovered")
+                print("river cards should be dealt out directly after?")
+                socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
             elif game["turn_bets_completed"] and game["river_bets_taken"] and game["river_bets_completed"] == False:
                 if game["player_order"][game["current_turn"]] == user:
                     print(f"letting {user} bet again")
@@ -135,13 +166,18 @@ def handle_join_room(room_data):
                 else:
                     print("player will be returned to the flop betting with their data recovered, but it is not yet their turn")
                     socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
+            else:
+                #TRYING TO IMPLEMENT THIS AS RETURNING AT ANY OTHER POINT
+                print("player will be returned to the flop betting with their data recovered, but just standard in between actions..")
+                socketio.emit('rejoin_game', {"game": game, "user": user, "player_cards": player_cards, "player_cash": player_money, "bet_difference": min_bet_difference }, room = room )
     else:
+        print("host is creating a room...")
         game_rooms[room] = {
             "id": room,
             "host": user,
             "game_started": True,
             "player_list": [{user: []}],
-            "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0}},
+            "player_data": {user: {"cards": [], "cash": 1000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}},
             "all_player_cards": [],
             "table_cards": [],
             "deck": [],
@@ -167,17 +203,21 @@ def handle_join_room(room_data):
             "turn_bets_taken": False,
             "turn_bets_completed": False,
             "river_bets_taken": False,
-            "river_bets_completed": False
+            "river_bets_completed": False,
+            "disconnected_players": [],
+            "betting_index": 0,
         }
+        players_in_games[request.sid] = [room, user]
 
-    print(game_rooms.get(room))
-    print("User was added or rejoined a room")
+    # print(game_rooms.get(room))
+    # print("User was added or rejoined a room")
+    print(players_in_games)
 
 @socketio.on('shuffleDeck')
 def handle_shuffled_deck(deck_data):
     room = deck_data["room"]
     game = game_rooms.get(room)
-    print("shuffling deck")
+    print("\nshuffling deck")
     game["deck"] = deck_data["deck"]
     print(deck_data["deck"][0])
     # socketio.emit('shuffleDeck', deck_data['deck'], room = room) 
@@ -188,13 +228,13 @@ def handle_game_start(data):
     game = game_rooms.get(room)
     game["deck"] = data["deck"]
 
-    print("server letting players know game is starting...and shuffling deck")
+    print("\nserver letting players know game is starting...and shuffling deck")
     print(data["deck"][0])
     socketio.emit('starting', game, room = room)
 
 @socketio.on('deal_cards')
 def deal_cards(data):
-    print("deal cards is running....")
+    print("\ndeal cards is running....")
     room = data["room"]
     turn = int(data["turn"])
     # cards = data["cards"]
@@ -224,15 +264,11 @@ def deal_cards(data):
 
 @socketio.on("deal_flop")
 def deal_flop(data):
-    print("dealing the flop...")
+    print("\ndealing the flop...")
     
     room = data["room"]
-    turn = int(data["turn"])
     game = game_rooms.get(room)
     cards = game["deck"]
-    stored_turn = game["turn_number"]
-    cards_dealt = game["flop_dealt"]
-    print(f"The incoming number for turn in {turn} and the stored turn is {stored_turn}")
     if not game["flop_dealt"]:
         print("running flop logic....")
         print(game["table_cards"])
@@ -245,7 +281,7 @@ def deal_flop(data):
         game["last_card_dealt"] += 1
         game["last_card_dealt"] += 1
         # game["turn_number"] += 1
-        print(game["table_cards"])
+        print(f'These are the table cards: \n {game["table_cards"]}')
         socketio.emit("dealing_flop", {"table_cards": game["table_cards"]}, room = room)
         game["flop_dealt"] = True
 
@@ -254,7 +290,7 @@ def deal_turn(data):
     room = data["room"]
     game = game_rooms.get(room)
     if not game["turn_dealt"]:
-        print("dealing the turn...")
+        print("\ndealing the turn...")
         cards = game["deck"]
         game["betting_round"] = "turn"
         game["table_cards"].append(cards[game["last_card_dealt"]])
@@ -268,7 +304,7 @@ def deal_river(data):
     room = data["room"]
     game = game_rooms.get(room)
     if not game["river_dealt"]:
-        print("dealing the river...")
+        print("\ndealing the river...")
         cards = game["deck"]
         game["betting_round"] = "river"
         game["table_cards"].append(cards[game["last_card_dealt"]])
@@ -283,7 +319,7 @@ def initiate_betting(data):
     round = game["betting_round"]
     round_key = str(round) + "_bets_taken"
     print(round_key)
-    print("initiating betting is running")
+    print("\ninitiating betting is running")
     if not game[round + "_bets_taken"]:
         starting_player = game["current_turn"]
         player = game["player_order"][starting_player]
@@ -322,8 +358,25 @@ def initiate_betting(data):
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
         else:
             min_bet_difference = game["min_bet"] - game["player_data"][player][round]
+
+            current_bet_id = game["betting_index"]
+
             game[round + "_bets_taken"] = True
             socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
+
+            # #LOGIC FOR HANDLING TIME OUTS ON BETTING ---------------------------------------------------------------------
+            # time.sleep(15)
+            # print("desycronized check that occurs when 10 seconds pass from take bet function might be a problem, maybe not?")
+            # # print("player has folded...too much time passed")
+            # if game["betting_index"] == current_bet_id:
+            #     print("time maxed out and a bet was not received")
+            #     player_data["status"] == "fold"
+            #     socketio.emit("fold_for_player",{"folded_player": player, "updated_player_data": game["player_data"]}, room = room)
+            # else: 
+            #     print("bet was received :)\n")
+            # #If the last bet sent out was not received fold for this player and 
+            # #maybe can emit something to new host to receive and pass along to game as sub in for  
+            # #how can I check that the last bet was sent out to Sergio and he never 
     
 @socketio.on("handle_bet_action")
 def handle_bet_action(data):
@@ -336,9 +389,11 @@ def handle_bet_action(data):
     player_data = game["player_data"][player_name]
     round = game["betting_round"]
 
-    print("THIS IS THE PLAYER BETTTINGGG")
+    game["betting_index"] += 1
+
+    print("\nThis is the player that just had an opportunity to bet, their data is being received")
     print(player_name)
-    print(f"We haveee success, but app breaks here status is {status}.....")
+    print(f"This player's betting status is {status}.....\n")
     #update the game status with the new data
     #update the players info with new data
     #add total bet to pot
@@ -359,6 +414,7 @@ def handle_bet_action(data):
         game["raise_occurred"] = True
         game["last_raise"] = player_name
         player_data["status"] = "raise"
+        print(f'{game["last_raise"]}, was the last to raise')
     if status == "fold":
         player_data["status"] = "fold"
         game["players_folded_list"].append(player_name)
@@ -377,7 +433,7 @@ def handle_bet_action(data):
         elif next_player_data["status"] == "all_in":
             game["current_turn"] +=1
         elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
-            print(f"{player_name} was last to raise game should stop here")
+            print(f'{next_player} was last to raise game should stop here')
             print(f'was there a raise? ... {game["raise_occurred"]}')
             game["current_turn"] = len(game["player_order"])
             socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
@@ -398,7 +454,7 @@ def handle_bet_action(data):
             elif next_player_data["status"] == "all_in":
                 game["current_turn"] +=1
             elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
-                print(f"{player_name} was last to raise game should stop here")
+                print(f"{next_player} was last to raise game should stop here")
                 print(f'was there a raise? ... {game["raise_occurred"]}')
                 game["current_turn"] = len(game["player_order"])
                 game[round + "_bets_taken"] = True
@@ -421,6 +477,8 @@ def handle_bet_action(data):
         reset_betting(room, game)
         socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
         socketio.emit("end_betting_round", {"game_update": game}, room = room)
+        #remove this after testing of refreshes 2/9/24
+        print("The betting round has ended \n")
     else:
         #still more players to cycle through original betting round
         #call copy of initiate bets to handle next better
@@ -443,26 +501,45 @@ def winner_winner_chicken_dinner(data):
 
 #HELPER FUNCTIONS -------------------------------------------------------
 def continue_betting(room, game):
-    print("OMGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG THIS IS CONTINUED")
+    print("\nBetting round has not completed so betting is continuing")
     round = game["betting_round"]
     
     player_index = game["current_turn"]
     player = game["player_order"][player_index]
-    print("THIS IS THE PLAYERRRRRRRRR")
+    player_data = game["player_data"][player]
+
+    print("This player will now bet -----")
     print(player)
     min_bet_difference = game["min_bet"] - game["player_data"][player][round]
+
+    current_bet_id = game["betting_index"]
     socketio.emit("take_bet", {"game_update": game,"user": player, "bet_difference": min_bet_difference}, room = room)
+
+
+    # #LOGIC FOR HANDLING TIME OUTS ON BETTING ---------------------------------------------------------------------
+    # time.sleep(15)
+    # print("desycronized check that occurs when 10 seconds pass from take bet function might be a problem, maybe not?")
+    # # print("player has folded...too much time passed")
+    # if game["betting_index"] == current_bet_id:
+    #     print("time maxed out and a bet was not received, will emit fold this is is continue betting")
+    #     player_data["status"] == "fold"
+    #     socketio.emit("fold_for_player",{"folded_player": player, "updated_player_data": game["player_data"]}, room = room)
+    # else: 
+    #     print("bet was received :) in continue betting\n")
+    # #If the last bet sent out was not received fold for this player and 
+    # #maybe can emit something to new host to receive and pass along to game as sub in for  
+    # #how can I check that the last bet was sent out to Sergio and he never 
 
 def reset_betting(room, game):
     round = game["betting_round"]
-    
+    print("\nreseting the betting round")
     # Reseting most of everything in game object after betting round is over
     # for whatever round that is
 
     # Give pot money to the winners.
     game["last_raise"] = ""
     game["raise_occurred"] = False
-    game["betting_round"] = ""
+    # game["betting_round"] = ""
     game["min_bet"] = 0
     game["players_folded_list"].clear()
     for player in game["player_data"]:
