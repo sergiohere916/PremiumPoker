@@ -186,6 +186,7 @@ def handle_join_room(room_data):
             "current_turn": 0,
             "turn_number": 0,
             "player_cards_dealt": False,
+            "player_cards_dealing": False,
             "flop_dealt": False,
             "turn_dealt": False,
             "river_dealt": False,
@@ -231,18 +232,52 @@ def handle_game_start(data):
     print("\nserver letting players know game is starting...and shuffling deck")
     print(data["deck"][0])
     socketio.emit('starting', game, room = room)
+#ORIGINAL VERSION OF DEAL CARDS
+# @socketio.on('deal_cards')
+# def deal_cards(data):
+#     print("\ndeal cards is running....")
+#     room = data["room"]
+    
+#     # cards = data["cards"]
+#     game = game_rooms.get(room)
+#     cards = game["deck"]
+#     cards_dealt = game["player_cards_dealt"]
+#     if not cards_dealt:
+#         #THIS FUNCTION MAY BE ABLE TO RUN BY USING SYSTEM OF DISPLAY CARDS ON FRONTEND 
+#         #WOULD NEED TO REMOVE INDIVIDUAL PLAYERCARDS LIST BEING USED WOULD PROBABLY RUN OPTIMALLY AS IT ONLY RUNS ONCE
+#         game["betting_round"] = "pregame"
+#         game["player_cards_dealing"] = True
+#         for player_name in game["player_order"]:
+#             players_data = game["player_data"][player_name]
+#             # game["current_turn"] = player_name
+#             players_data["cards"].append(cards[game["last_card_dealt"]])
+#             players_data["cards"].append(cards[game["last_card_dealt"] + 1])
+#             game["all_player_cards"].append({player_name: players_data["cards"]})
+#             #adding in security so game at player cards dealt is only set to true once last set of cards have been emitted
+#             if player_name != game["player_order"][len(game["player_order"]) - 1]:
+#                 socketio.emit("dealing", {"user": player_name, "cards": players_data["cards"], "all_player_cards": game["all_player_cards"], "dealing": game["player_cards_dealing"]}, room = room)
+#                 print("emitted")
+#             else:
+#                 game["player_cards_dealt"] = True
+#                 socketio.emit("dealing", {"user": player_name, "cards": players_data["cards"], "all_player_cards": game["all_player_cards"], "player_cards_dealt": game["player_cards_dealt"], "dealing": game["player_cards_dealing"]}, room = room)
+#                 print("emitted")
+#             game["last_card_dealt"] += 2
+#             game["last_card_dealt"] += 1
+#         print(game["player_data"])
 
 @socketio.on('deal_cards')
 def deal_cards(data):
     print("\ndeal cards is running....")
     room = data["room"]
-    turn = int(data["turn"])
+    
     # cards = data["cards"]
     game = game_rooms.get(room)
     cards = game["deck"]
     cards_dealt = game["player_cards_dealt"]
     if not cards_dealt:
         game["betting_round"] = "pregame"
+        game["player_cards_dealing"] = True
+        game["player_cards_dealt"] = True
         for player_name in game["player_order"]:
             players_data = game["player_data"][player_name]
             # game["current_turn"] = player_name
@@ -250,17 +285,10 @@ def deal_cards(data):
             players_data["cards"].append(cards[game["last_card_dealt"] + 1])
             game["all_player_cards"].append({player_name: players_data["cards"]})
             #adding in security so game at player cards dealt is only set to true once last set of cards have been emitted
-            if player_name != game["player_order"][len(game["player_order"]) - 1]:
-                socketio.emit("dealing", {"user": player_name, "cards": players_data["cards"], "all_player_cards": game["all_player_cards"]}, room = room)
-            else:
-                game["player_cards_dealt"] = True
-                socketio.emit("dealing", {"user": player_name, "cards": players_data["cards"], "all_player_cards": game["all_player_cards"], "player_cards_dealt": game["player_cards_dealt"]}, room = room)
             game["last_card_dealt"] += 2
             game["last_card_dealt"] += 1
-        # game["turn_number"] +=1
-            
-        # game["player_cards_dealt"] = True
         print(game["player_data"])
+        socketio.emit("dealing", {"all_player_cards": game["all_player_cards"],"player_cards_dealt": game["player_cards_dealt"], "dealing": game["player_cards_dealing"]}, room = room)
 
 @socketio.on("deal_flop")
 def deal_flop(data):
@@ -282,8 +310,8 @@ def deal_flop(data):
         game["last_card_dealt"] += 1
         # game["turn_number"] += 1
         print(f'These are the table cards: \n {game["table_cards"]}')
-        socketio.emit("dealing_flop", {"table_cards": game["table_cards"]}, room = room)
         game["flop_dealt"] = True
+        socketio.emit("dealing_flop", {"table_cards": game["table_cards"]}, room = room)
 
 @socketio.on("deal_turn")
 def deal_turn(data):
