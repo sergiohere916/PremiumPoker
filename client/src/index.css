@@ -6,7 +6,53 @@
 }
 
 #table {
-  height: 500px;
-  width: 500px;
-  border: 2px solid black;
+  height: 370px;
+  width: 650px;
+  border: 10px solid rgb(78, 77, 75);
+  border-radius: 45%;
+  background-color: rgb(71, 158, 100);
+  margin-top: 30px;
+  box-shadow: 5px 5px 5px 3px rgb(22, 21, 21);
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#tableCards {
+  
+  width: 400px;
+  height: 200px;
+  position: relative;
+  color: black;
+  font-size: 15pt;
+  -webkit-text-stroke: .2pt rgb(16, 63, 214);
+  font-weight: bolder;
+  text-align: center;
+  background-image: url("https://logos-world.net/wp-content/uploads/2022/11/PokerStars-Symbol.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  /*This part displays cards horizontally*/
+  display: flex;
+  gap: 15px;
+}
+
+/* #tableCards::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-image: url("https://logos-world.net/wp-content/uploads/2022/11/PokerStars-Symbol.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: .7;
+} */
+
+#gameWinner {
+  font-size: 13pt;
+  font-weight: bold;
 }
