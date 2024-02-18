@@ -26,7 +26,7 @@ socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
 game_rooms = {}
 players_in_games = {}
 turns_and_card_positions = [{"12": [1, 0]}]
-
+#UP TO DATE BACKEND
 # Views go here!
 #RETURN POINT 1/31/2024
     #HERE
