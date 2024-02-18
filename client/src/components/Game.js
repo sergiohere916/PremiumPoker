@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-
+//NEW BRANCH
 //RESET POINT ALL THE WAY BACK TO START OF 2/7/24
 //Re add socket back here as the prop passed down if necessary
 function Game({gameData, socket, restoreGameData}) {
@@ -273,6 +273,7 @@ function Game({gameData, socket, restoreGameData}) {
                 
                 socket.emit('start_game', {deck: cards, room: gameData["room"]});
             })
+
             // const cards = [
             //     { name: "10", suit: "Hearts", value: 10 },
             //     { name: "3", suit: "Diamonds", value: 3 },
@@ -509,7 +510,7 @@ function Game({gameData, socket, restoreGameData}) {
             checkWin()
         }
         if (game["winners_declared"] && !game["game_over"]) {
-            setTimeout(shuffleAndRestart, 2000)
+            setTimeout(shuffleAndRestart, 5000)
         }
         //Remove player or continue
         // dealTableCards()
