@@ -60,7 +60,8 @@ function Game({gameData, socket}) {
         bet_difference: 0,
         min_all_in: [],
         pots: [],
-        bets: []
+        bets: [],
+        main_pot: true
     })
 
     const [myBet, setMyBet] = useState(0)
@@ -164,7 +165,8 @@ function Game({gameData, socket}) {
             river_bets_taken: data["game_update"]["river_bets_taken"],
             river_bets_completed: data["game_update"]["river_bets_completed"],
             pots: data["game_update"]["pots"],
-            min_all_in: data["game_update"]["min_all_in"]
+            min_all_in: data["game_update"]["min_all_in"],
+            main_pot: data["game_update"]["main_pot"]
             // ...data["game_update"]
         })
         setDisplayBetting(false)

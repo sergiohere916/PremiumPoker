@@ -103,7 +103,8 @@ def handle_join_room(room_data):
             "checked_wins": False,
             "min_all_in": [],
             "pots": [],
-            "bets": []
+            "bets": [],
+            "main_pot": True
         }
 
     print(game_rooms.get(room))
@@ -228,6 +229,7 @@ def initiate_betting(data):
     print(round_key)
     print("THESE ARE HOW MANY PLAYERS ARE ALL IN : " + str(game["players_all_in"]))
     print("THESE ARE THE PLAYERS FOLDED : " + str(game["players_folded_list"]))
+
     if (len(game["player_order"]) - (len(game["players_folded_list"]) + len(game["players_all_in"])) <= 1):
         game["bets"] = []
         game["min_all_in"] = []
@@ -309,8 +311,6 @@ def handle_bet_action(data):
     #the amount registerd as bet amount but I'm actually betting a total of 20
     bet_amount = player_data[round]
 
-    if bet_amount > game["min_bet"]:
-        game["min_bet"] = bet_amount
     
     if status == "check":
         player_data["status"] = "check"
@@ -318,9 +318,13 @@ def handle_bet_action(data):
         game["raise_occurred"] = True
         game["last_raise"] = player_name
         player_data["status"] = "raise"
+
     if status == "fold":
         player_data["status"] = "fold"
         game["players_folded_list"].append(player_name)
+
+        # THIS REMOVES THE LAST MIN ALL IN BET WHEN A PLAYER
+        # WITH ENOUGH MONEY FOLDS
 
         # We want to get the max from min_all_in
         print("THIS IS THE PLAYER FOLDING : " + str(player_name))
@@ -341,24 +345,13 @@ def handle_bet_action(data):
         player_data["status"] = "all_in"
         game["players_all_in"].append(player_name)
         print(player_name)
-        if (bet_amount < game["min_bet"]):
+        print("THIS IS THE MIN BET : " + str(game["min_bet"]))
+        if (bet_amount > game["min_bet"]):
+            game["last_raise"] = player_name
+        if (bet_amount != game["min_bet"]):
             if (bet_amount not in game["min_all_in"]):
                 game["min_all_in"].append(bet_amount)
                 game["pots"].append({"cash" : 0, "players" : []})
-        else:
-
-            print("THIS IS WHO IS GOING ALL IN : " + str(player_name))
-
-            # We also want to check if the player goes all in 
-            # but the next players in turn can still play
-            
-            for player in game["player_data"]:
-                if game["player_data"][player]["status"] != "fold":
-                    if game["player_data"][player]["cash"] > bet_amount:
-                        if (bet_amount not in game["min_all_in"]):
-                            print("THIS IS THE PLAYER WHO WENT ALL IN : " + str(player_name) + " AND THEIR BET IS " + str(bet_amount))
-                            game["min_all_in"].append(bet_amount)
-                            game["pots"].append({"cash" : 0, "players" : []})
 
     print("min_all_in" + str(game["min_all_in"]))
     print(game["pots"])
@@ -366,14 +359,24 @@ def handle_bet_action(data):
     print(game["bets"])
     game["current_turn"] += 1
 
+    if bet_amount > game["min_bet"]:
+        game["min_bet"] = bet_amount
+
     #CHECK IF NEXT PLAYER IS ALL IN OR HAS FOLDED IF SO SKIP THEM AND INCREMENT AGAIN
    
     while game["current_turn"] < len(game["player_order"]):
         next_player = game["player_order"][game["current_turn"]]
         next_player_data = game["player_data"][next_player]
+
+        # Why dont we just check it here?
+        # We check if the len(player_order) - (len(players_folded) + len(players_all_in)) <= 1 
+        # player order = 4, players folded = 0, players_all_in = 3: 4 - 3 = 1 
+
         if next_player_data["status"] == "fold":
             game["current_turn"] +=1
         elif next_player_data["status"] == "all_in":
+            # If this person is the last person to raise
+            # We want to end the betting round
             game["current_turn"] +=1
         elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
             print(f"{player_name} was last to raise game should stop here")
@@ -382,8 +385,7 @@ def handle_bet_action(data):
 
             # --------------- POT LOGIC ---------------
             if (len(game["pots"]) > 0):
-                
-                main_pot = True
+            
                 # THIS SECTION IS IF THERE ARE MORE THAN 1 MIN ALL BET
                 
                 while (len(game["min_all_in"]) > 0):
@@ -398,14 +400,15 @@ def handle_bet_action(data):
                             # Subtract that difference from the nth bet. 750 - 350 = 400
                             game["bets"][i]["bet"] -= min_all_bet
                             # Adding that difference to the respective pot
-                            if (main_pot):
+                            if (game["main_pot"]):
                                 game["pot"] += min_all_bet
                             else:
                                 respective_pot = game["pots"][len(game["pots"]) - len(game["min_all_in"]) - 1]
                                 respective_pot["cash"] += min_all_bet
+                                game["bets"][i]["bet"] -= min_all_bet
                                 if (game["bets"][i]["player_name"] not in respective_pot["players"]):
                                     respective_pot["players"].append(game["bets"][i]["player_name"])
-                    main_pot = False
+                    game["main_pot"] = False
 
                     for i in range(len(game["min_all_in"])):
                         game["min_all_in"][i] -= min_all_bet
@@ -418,7 +421,7 @@ def handle_bet_action(data):
 
                     print("This is the main pot: " + str(game["pot"]))
                     print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-                    print("This is the main pot condition " + str(main_pot))
+                    print("This is the main pot condition " + str(game["main_pot"]))
 
                     # for i in range(len(game["bets"])):
                     #     print("This is the main pot: " + str(game["pot"]))
@@ -446,18 +449,6 @@ def handle_bet_action(data):
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
         else:
             break
-    
-    if (game["current_turn"] == len(game["player_order"])):
-        for player in game["player_data"]:
-            if game["player_data"][player]["status"] == "check":
-                if (game["min_bet"] != 0):
-                    game["current_turn"] = 0
-                    socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
-                    continue_betting(room, game)
-                    break
-                    
-                    
-
 
     if game["current_turn"] == len(game["player_order"]) and game["raise_occurred"]:
         #if all players have betted and a raise occurred reset the current turn number to 0
@@ -480,7 +471,6 @@ def handle_bet_action(data):
                 # --------------- POT LOGIC ---------------
                 if (len(game["pots"]) > 0):
                    
-                    main_pot = True
                     # THIS SECTION IS IF THERE ARE MORE THAN 1 MIN ALL BET
                     
                     while (len(game["min_all_in"]) > 0):
@@ -495,13 +485,17 @@ def handle_bet_action(data):
                                 # Subtract that difference from the nth bet. 750 - 350 = 400
                                 game["bets"][i]["bet"] -= min_all_bet
                                 # Adding that difference to the respective pot
-                                if (main_pot):
+                                if (game["main_pot"]):
                                     game["pot"] += min_all_bet
                                 else:
                                     respective_pot = game["pots"][len(game["pots"]) - len(game["min_all_in"]) - 1]
                                     respective_pot["cash"] += min_all_bet
-                                    respective_pot["players"].append(game["bets"][i]["player_name"])
-                        main_pot = False
+                                    game["bets"][i]["bet"] -= min_all_bet
+                                    # Make sure to minus the min_all_bet from the bets themselves
+                                    # and check if the player is not already in the players array 
+                                    if (game["bets"][i]["player_name"] not in respective_pot["players"]):
+                                        respective_pot["players"].append(game["bets"][i]["player_name"])
+                        game["main_pot"] = False
 
                         for i in range(len(game["min_all_in"])):
                             game["min_all_in"][i] -= min_all_bet
@@ -514,7 +508,7 @@ def handle_bet_action(data):
 
                         print("This is the main pot: " + str(game["pot"]))
                         print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-                        print("This is the main pot condition " + str(main_pot))
+                        print("This is the main pot condition " + str(game["main_pot"]))
 
                         # for i in range(len(game["bets"])):
                         #     print("This is the main pot: " + str(game["pot"]))
@@ -581,7 +575,6 @@ def handle_bet_action(data):
 
 
             # --------------- POT LOGIC ---------------
-            main_pot = True
             # THIS SECTION IS IF THERE ARE MORE THAN 1 MIN ALL BET
             
             while (len(game["min_all_in"]) > 0):
@@ -596,13 +589,15 @@ def handle_bet_action(data):
                         # Subtract that difference from the nth bet. 750 - 350 = 400
                         game["bets"][i]["bet"] -= min_all_bet
                         # Adding that difference to the respective pot
-                        if (main_pot):
+                        if (game["main_pot"]):
                             game["pot"] += min_all_bet
                         else:
                             respective_pot = game["pots"][len(game["pots"]) - len(game["min_all_in"]) - 1]
                             respective_pot["cash"] += min_all_bet
-                            respective_pot["players"].append(game["bets"][i]["player_name"])
-                main_pot = False
+                            game["bets"][i]["bet"] -= min_all_bet
+                            if (game["bets"][i]["player_name"] not in respective_pot["players"]):
+                                    respective_pot["players"].append(game["bets"][i]["player_name"])
+                game["main_pot"] = False
 
                 for i in range(len(game["min_all_in"])):
                     game["min_all_in"][i] -= min_all_bet
@@ -639,6 +634,8 @@ def handle_bet_action(data):
         socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
         socketio.emit("end_betting_round", {"game_update": game}, room = room)
     else:
+
+        
         #still more players to cycle through original betting round
         #call copy of initiate bets to handle next better
         socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
@@ -650,6 +647,15 @@ def winner_winner_chicken_dinner(data):
     room = data["room"]
     game = game_rooms.get(room)
     players_not_playing = []
+
+    print("THESE ARE THE POTS BEFORE REMOVING EMPTY SIDE POTS : " + str(game["pots"]))
+
+    # Removing any empty pots that are still remaining
+    for i in range(len(game["pots"])):
+        if len(game["pots"][i]["players"]) == 0 and game["pots"][i]["cash"] == 0:
+            game["pots"].pop(i)
+
+    print("THESE ARE THE SIDE POTS AFTER REMOVING EMPTY SIDE POTS : " + str(game["pots"]))
 
     for player in game["players_folded_list"]:
         players_not_playing.append(player)
