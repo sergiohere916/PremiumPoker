@@ -200,7 +200,7 @@ function Game({gameData, socket, restoreGameData}) {
         socket.on("returning_winners", (data) => {
             setGame(prevGame => ({
                 ...prevGame, winners: data["winners"],
-                winners_declared: data["winners_declared"]
+                ...data["game_update"]
             }))
         } )
 
@@ -257,83 +257,83 @@ function Game({gameData, socket, restoreGameData}) {
     //FUNCTIONS ------------------------------------------------
     function startGame() {
         if (true) {
-            // fetch("/cards")
-            // .then(res => res.json())
-            // .then(cards => {
-            //     //Fisher-Yates alorith
-            //     console.log(cards)
-            //     for (let i = cards.length - 1; i > 0; i--) {
-            //         const j = Math.floor(Math.random() * (i + 1));
-            //         const temp = cards[i];
-            //         cards[i] = cards[j];
-            //         cards[j] = temp;
-            //     }
-            //     //May need to make shuffle deck into a function for later on
-            //     // socket.emit("shuffleDeck", {deck: cards, room: gameData["room"]} );
+            fetch("/cards")
+            .then(res => res.json())
+            .then(cards => {
+                //Fisher-Yates alorith
+                console.log(cards)
+                for (let i = cards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    const temp = cards[i];
+                    cards[i] = cards[j];
+                    cards[j] = temp;
+                }
+                //May need to make shuffle deck into a function for later on
+                // socket.emit("shuffleDeck", {deck: cards, room: gameData["room"]} );
                 
-            //     socket.emit('start_game', {deck: cards, room: gameData["room"]});
-            // })
-            const cards = [
-                { name: "10", suit: "Hearts", value: 10 },
-                { name: "3", suit: "Diamonds", value: 3 },
-                { name: "4", suit: "Spades", value: 4 },
-                { name: "8", suit: "Diamonds", value: 8 },
-                { name: "5", suit: "Diamonds", value: 5 },
-                { name: "6", suit: "Spades", value: 6 },
-                { name: "7", suit: "Spades", value: 7 },
+                socket.emit('start_game', {deck: cards, room: gameData["room"]});
+            })
+            // const cards = [
+            //     { name: "10", suit: "Hearts", value: 10 },
+            //     { name: "3", suit: "Diamonds", value: 3 },
+            //     { name: "4", suit: "Spades", value: 4 },
+            //     { name: "8", suit: "Diamonds", value: 8 },
+            //     { name: "5", suit: "Diamonds", value: 5 },
+            //     { name: "6", suit: "Spades", value: 6 },
+            //     { name: "7", suit: "Spades", value: 7 },
 
-                { name: "7", suit: "Clubs", value: 7 },
-                // { name: "9", suit: "Spades", value: 9 },
+            //     { name: "7", suit: "Clubs", value: 7 },
+            //     // { name: "9", suit: "Spades", value: 9 },
 
-                { name: "3", suit: "Clubs", value: 3 },
-                { name: "J", suit: "Spades", value: 11 },
-                { name: "5", suit: "Hearts", value: 5 },
-                { name: "K", suit: "Spades", value: 13 },
-                { name: "7", suit: "Hearts", value: 7 },
-                { name: "2", suit: "Hearts", value: 2 },
-                { name: "3", suit: "Hearts", value: 3 },
-                { name: "4", suit: "Hearts", value: 4 },
-                { name: "Q", suit: "Spades", value: 12 },
-                { name: "6", suit: "Hearts", value: 6 },
-                { name: "A", suit: "Spades", value: 1 },
-                { name: "8", suit: "Hearts", value: 8 },
-                { name: "9", suit: "Hearts", value: 9 },
-                { name: "2", suit: "Spades", value: 2 },
-                { name: "J", suit: "Hearts", value: 11 },
-                { name: "Q", suit: "Hearts", value: 12 },
-                { name: "K", suit: "Hearts", value: 13 },
-                { name: "A", suit: "Hearts", value: 1 },
-                { name: "2", suit: "Diamonds", value: 2 },
-                { name: "3", suit: "Diamonds", value: 3 },
-                { name: "4", suit: "Diamonds", value: 4 },
-                { name: "5", suit: "Diamonds", value: 5 },
-                { name: "6", suit: "Diamonds", value: 6 },
-                { name: "7", suit: "Diamonds", value: 7 },
-                { name: "8", suit: "Diamonds", value: 8 },
-                { name: "9", suit: "Diamonds", value: 9 },
-                { name: "10", suit: "Diamonds", value: 10 },
-                { name: "J", suit: "Diamonds", value: 11 },
-                { name: "Q", suit: "Diamonds", value: 12 },
-                { name: "K", suit: "Diamonds", value: 13 },
-                { name: "A", suit: "Diamonds", value: 1 },
-                { name: "2", suit: "Clubs", value: 2 },
-                { name: "10", suit: "Spades", value: 10 },
-                { name: "4", suit: "Clubs", value: 4 },
-                { name: "5", suit: "Clubs", value: 5 },
-                { name: "6", suit: "Clubs", value: 6 },
+            //     { name: "3", suit: "Clubs", value: 3 },
+            //     { name: "J", suit: "Spades", value: 11 },
+            //     { name: "5", suit: "Hearts", value: 5 },
+            //     { name: "K", suit: "Spades", value: 13 },
+            //     { name: "7", suit: "Hearts", value: 7 },
+            //     { name: "2", suit: "Hearts", value: 2 },
+            //     { name: "3", suit: "Hearts", value: 3 },
+            //     { name: "4", suit: "Hearts", value: 4 },
+            //     { name: "Q", suit: "Spades", value: 12 },
+            //     { name: "6", suit: "Hearts", value: 6 },
+            //     { name: "A", suit: "Spades", value: 1 },
+            //     { name: "8", suit: "Hearts", value: 8 },
+            //     { name: "9", suit: "Hearts", value: 9 },
+            //     { name: "2", suit: "Spades", value: 2 },
+            //     { name: "J", suit: "Hearts", value: 11 },
+            //     { name: "Q", suit: "Hearts", value: 12 },
+            //     { name: "K", suit: "Hearts", value: 13 },
+            //     { name: "A", suit: "Hearts", value: 1 },
+            //     { name: "2", suit: "Diamonds", value: 2 },
+            //     { name: "3", suit: "Diamonds", value: 3 },
+            //     { name: "4", suit: "Diamonds", value: 4 },
+            //     { name: "5", suit: "Diamonds", value: 5 },
+            //     { name: "6", suit: "Diamonds", value: 6 },
+            //     { name: "7", suit: "Diamonds", value: 7 },
+            //     { name: "8", suit: "Diamonds", value: 8 },
+            //     { name: "9", suit: "Diamonds", value: 9 },
+            //     { name: "10", suit: "Diamonds", value: 10 },
+            //     { name: "J", suit: "Diamonds", value: 11 },
+            //     { name: "Q", suit: "Diamonds", value: 12 },
+            //     { name: "K", suit: "Diamonds", value: 13 },
+            //     { name: "A", suit: "Diamonds", value: 1 },
+            //     { name: "2", suit: "Clubs", value: 2 },
+            //     { name: "10", suit: "Spades", value: 10 },
+            //     { name: "4", suit: "Clubs", value: 4 },
+            //     { name: "5", suit: "Clubs", value: 5 },
+            //     { name: "6", suit: "Clubs", value: 6 },
 
-                { name: "9", suit: "Spades", value: 9 },
-                // { name: "7", suit: "Clubs", value: 7 },
+            //     { name: "9", suit: "Spades", value: 9 },
+            //     // { name: "7", suit: "Clubs", value: 7 },
 
-                { name: "8", suit: "Clubs", value: 8 },
-                { name: "9", suit: "Clubs", value: 9 },
-                { name: "10", suit: "Clubs", value: 10 },
-                { name: "J", suit: "Clubs", value: 11 },
-                { name: "Q", suit: "Clubs", value: 12 },
-                { name: "K", suit: "Clubs", value: 13 },
-                { name: "A", suit: "Clubs", value: 1 }
-            ];
-            socket.emit('start_game', {deck: cards, room: gameData["room"]});
+            //     { name: "8", suit: "Clubs", value: 8 },
+            //     { name: "9", suit: "Clubs", value: 9 },
+            //     { name: "10", suit: "Clubs", value: 10 },
+            //     { name: "J", suit: "Clubs", value: 11 },
+            //     { name: "Q", suit: "Clubs", value: 12 },
+            //     { name: "K", suit: "Clubs", value: 13 },
+            //     { name: "A", suit: "Clubs", value: 1 }
+            // ];
+            // socket.emit('start_game', {deck: cards, room: gameData["room"]});
         } else {
             console.log("Need 3 or more players to start the game")
         }
