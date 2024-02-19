@@ -552,6 +552,7 @@ function Game({gameData, socket, restoreGameData}) {
         // }
     })
 
+
     const displayWinners = game["winners"].map((playerName) => {
         return (
             <div id="gameWinner">
@@ -616,8 +617,14 @@ function Game({gameData, socket, restoreGameData}) {
                 {/* {displayAllPlayerCards} */}
             </div>
             {/* Set constraint on form to not allow lower bet than needed */}
-            {displayBetting ?
-            (
+            
+            {/* <div>
+                {"CASH: " + game["player_cash"]}
+            </div> */}
+            <div className="box" style={{"--c": "5px solid blue"}}>
+                {displayAllPlayerCards}
+                {displayBetting ?
+                (
                 <div>
                     <form onSubmit={handleBetSubmit}>
                         <label>Bet Amount:</label>
@@ -632,11 +639,6 @@ function Game({gameData, socket, restoreGameData}) {
             <>
             </>
             }
-            {/* <div>
-                {"CASH: " + game["player_cash"]}
-            </div> */}
-            <div className="box" style={{"--c": "5px solid blue"}}>
-                {displayAllPlayerCards}
             </div>
         </div>
     )

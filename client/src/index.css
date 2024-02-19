@@ -70,11 +70,17 @@
   position: relative;
   height: 600px;
   width: 1100px;
-  border: solid 2px rgb(14, 13, 13);
+  
+  border-top: solid 5px rgb(102, 99, 99);
+  border-left: solid 1px rgb(14, 13, 13);
+  border-right: solid 1px rgb(14, 13, 13);
+  border-bottom: solid 1px rgb(14, 13, 13);
+
   /* outline: solid 12px rgb(88, 87, 86); */
   outline: solid 6px rgba(255, 255, 255, 0.11);
   outline-offset: -50px;
-  box-shadow: 0 0 0 25px rgb(77, 76, 75), 0 0 0 27px rgb(87, 86, 86);
+  /* box-shadow: 0 0 0 25px rgb(77, 76, 75), 0 0 0 27px rgb(87, 86, 86), 0 0 0 35px black; */
+  box-shadow: 0 0 0 18px rgb(36, 35, 35), 0 0 1px 27px rgb(36, 40, 40), 0 32px 15px 0px rgb(102, 99, 99), 0 10px 0px 35px rgba(0, 0, 0, 0.514), 0 35px 30px 40px rgb(90, 19, 19);
   /* rgb(136, 98, 41) */
   border-radius: 200px;
   /* background: url("https://logos-world.net/wp-content/uploads/2022/11/PokerStars-Symbol.png"), radial-gradient(circle, rgb(90, 146, 104) 0%, rgb(21, 46, 29) 70%); */
@@ -257,7 +263,7 @@
 }
 
 .box {
-  margin-top: 50px;
+  margin-top: 100px;
   height: 500px;
   width: 500px;
   background-color: white;

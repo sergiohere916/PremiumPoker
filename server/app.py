@@ -182,7 +182,7 @@ def handle_join_room(room_data):
             "host": user,
             "game_started": True,
             "player_list": [{user: []}],
-            "player_data": {user: {"cards": [], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}},
+            "player_data": {user: {"player": "Player 1", "cards": [], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}},
             "all_player_cards": [],
             "table_cards": [],
             "deck": [],
