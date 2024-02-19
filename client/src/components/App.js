@@ -12,8 +12,8 @@ function App() {
   const history = useHistory()
   
   //If idea does not work must return socket={socket} to Game component
-  function fillGameData(user, code) {
-    const data = {"user": user, "room": code}
+  function fillGameData(user, code, userId) {
+    const data = {"user": user, "room": code, "userId": userId }
     fetch("/storeData", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -34,8 +34,8 @@ function App() {
   }
 
 
-  function restoreGameData(user, code) {
-    setGameData({"user": user, "room": code})
+  function restoreGameData(user, code, userId) {
+    setGameData({"user": user, "room": code, "userId": userId})
   }
 
   

@@ -11,13 +11,14 @@ import string
 from string import ascii_uppercase
 from itertools import combinations
 import time
+import uuid
 
 # Local imports
 from config import app, db, api
 # Add your model imports
 from models import Card
 
-
+#RETURN POINT LINE 22 --------------------/
 
 # Instantiate Socket Io
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
@@ -38,11 +39,12 @@ class StoreRoomData(Resource):
     def post(self):
         user = request.json["user"]
         code = request.json["room"]
+        uid = request.json["userId"]
         session["user"] = user
         session["room"] = code
 
         print("stored data")
-        return {"user": user, "room": code }, 200
+        return {"user": user, "room": code, "userId": uid }, 200
     
 api.add_resource(StoreRoomData, "/storeData")
 
@@ -50,8 +52,9 @@ class CheckSession(Resource):
     def get(self):
         user = session["user"]
         code = session["room"]
-        if user and code:
-            return {"user": user, "room": code}, 200
+        uid = session["userId"]
+        if user and code and uid:
+            return {"user": user, "room": code, "userId": uid}, 200
 api.add_resource(CheckSession, "/checkSession")
 
 class Cards(Resource):
@@ -65,9 +68,22 @@ class Room_codes(Resource):
     def get(self):
         code = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
         # print(code)
-        return make_response({"room_code": code}, 200)
+        if code:
+            return make_response({"room_code": code}, 200)
+        else:
+            return make_response({"error": "Failed to generate a room code"}, 500)
     
 api.add_resource(Room_codes, "/room_codes")
+
+class Player_ids(Resource):
+    def get(self):
+        random_id = uuid.uuid1()
+        if random_id:
+            return make_response({"user_id": random_id}, 200)
+        else:
+            return make_response({"error": "Failed to generate unique id"}, 500)
+    
+api.add_resource(Player_ids, "/player_ids")
 
 @socketio.on('connect')
 def handle_connect(socket):
@@ -100,19 +116,61 @@ def handle_join_room(room_data):
     print("\nrunning join room")
     room = room_data['room']
     user = room_data['user']
+    userId = room_data["userId"]
+
     join_room(room)
     if game_rooms.get(room) is not None:
-        if user not in game_rooms.get(room)["player_order"]:
-            print("new player has joined the room")
-            game_rooms[room]["player_list"].append({user: []})
-            #new version of player list below when properly integrated remove old player_list
-            if user == "Ava":
-                game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 3000, "status" : "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
-            else:
-                game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
-            game_rooms[room]["player_order"].append(user)
+        #old model before 2/28 ---------------
+        # if user not in game_rooms.get(room)["player_order"]:
+        #     print("new player has joined the room")
+        #     if user == "Ava":
+        #         game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 3000, "status" : "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+        #     else:
+        #         game_rooms[room]["player_data"][user] = {"cards" : [], "cash" : 1000, "status" : "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+        #     game_rooms[room]["player_order"].append(user)
 
-            players_in_games[request.sid] = [room, user]
+        #     players_in_games[request.sid] = [room, user]
+        if userId not in game_rooms.get(room)["player_ids"] and len(game_rooms.get(room)["player_ids"]) < 6:
+            #Maybe add one more condition to ensure game hasn't started and handle other conditions elsewhere...
+            #Look through game for available player seats, if seat is available user is assigned this player/seat ----
+            game = game_rooms[room]
+            player_data = game["player_data"]
+            if player_data["player1"]["userId"] == "":
+                #add the player here
+                player_data["player1"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                game["player_ids"].append(userId)
+                game["player_order"].append("player1")
+                
+            elif player_data["player2"]["userId"] == "":
+                player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                game["player_ids"].append(userId)
+                game["player_order"].append("player2")
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                
+            elif player_data["player3"]["userId"] == "":
+                player_data["player3"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                game["player_ids"].append(userId)
+                game["player_order"].append("player3")
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                
+            elif player_data["player4"]["userId"] == "":
+                player_data["player4"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                game["player_ids"].append(userId)
+                game["player_order"].append("player4")
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                
+            elif player_data["player5"]["userId"] == "":
+                player_data["player5"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                game["player_ids"].append(userId)
+                game["player_order"].append("player5")
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+
+            elif player_data["player6"]["userId"] == "":
+                player_data["player6"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                game["player_ids"].append(userId)
+                game["player_order"].append("player6")
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+
         else:
             print(f"{user} is rejoining...")
             game = game_rooms[room]
@@ -182,12 +240,19 @@ def handle_join_room(room_data):
             "host": user,
             "game_started": True,
             "player_list": [{user: []}],
-            "player_data": {user: {"player": "Player 1", "cards": [], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}},
-            "all_player_cards": [],
+            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
+                            "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
+                            "player3": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
+                            "player4": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
+                            "player5": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
+                            "player6": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}},
+
+            "all_player_cards": ["player1", "player2", "player3", "player4", "player5", "player6"],
             "table_cards": [],
             "deck": [],
             "last_card_dealt": 0,
-            "player_order": [user],
+            "player_ids": [userId],
+            "player_order": ["player1"],
             "current_turn": 0,
             "turn_number": 0,
             "player_cards_dealt": False,
@@ -223,7 +288,9 @@ def handle_join_room(room_data):
             "game_over": False
         }
         players_in_games[request.sid] = [room, user, request.sid]
+        game = game_rooms[room]
 
+        socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
     # print(game_rooms.get(room))
     # print("User was added or rejoined a room")
     print(players_in_games)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-//NEW BRANCH
-//RESET POINT ALL THE WAY BACK TO START OF 2/7/24
+
+//RETURN POINT 2/26 fixing in id into game and players ----- /
 //Re add socket back here as the prop passed down if necessary
 function Game({gameData, socket, restoreGameData}) {
 
@@ -25,6 +25,7 @@ function Game({gameData, socket, restoreGameData}) {
         table_cards: [],
         deck: [],
         last_card_dealt: 0,
+        player_ids: [],
         player_order: [],
         current_turn: 0,
         turn_number: 0,
@@ -85,7 +86,7 @@ function Game({gameData, socket, restoreGameData}) {
                 // restoreGameData(data["user"], data["room"])
                 console.log("We are re initializing state")
                 console.log(data)
-                restoreGameData(data["user"], data["room"])
+                restoreGameData(data["user"], data["room"], data["userId"])
                 // socket.emit('join_room', {"user": data["user"], "room": data["room"]});
                 //Must add failed condition if session brings back nothing...
             })
@@ -148,6 +149,12 @@ function Game({gameData, socket, restoreGameData}) {
         //         setGame(prevGame => ({...prevGame, all_player_cards: data["all_player_cards"], player_cards_dealt: data["player_cards_dealt"], player_cards_dealing: data["dealing"]}))
         //     }
         // })
+
+        socket.on('add_player', (data) => {
+            console.log(data)
+            setGame(prevGame => ({...prevGame, player_data: data["player_data"], all_player_cards: data["all_player_cards"]}))
+        })
+
 
         socket.on('dealing', (data) => {
             console.log("Socket on dealing received on frontend");
@@ -246,7 +253,7 @@ function Game({gameData, socket, restoreGameData}) {
     // console.log(game["deck"]);
     // console.log(game["player_cards"])
     // console.log(tableCards)
-    console.log(game)
+    console.log(gameData)
     
     // useEffect(() => {
     //     socket.emit('join_room', gameData);
@@ -528,30 +535,86 @@ function Game({gameData, socket, restoreGameData}) {
 
     
     // Cards to display but will need to keep hidden until end of game if player decides to show cards
-    const displayAllPlayerCards = game["all_player_cards"].map((playerData) => {
-        const playerName = Object.keys(playerData)[0]
-        // if (playerName !== gameData["user"]) {
-            let card1 = playerData[playerName][0]
-            let card2 = playerData[playerName][1]
-            const currCash = game["player_data"][playerName]["cash"]
-            const currStatus = game["player_data"][playerName]["status"]
-            if (playerName !== gameData["user"]) {
-                card1 = {name: "?", suit: ""};
-                card2 = {name: "?", suit: ""};
-            }
-            return (<div className="playerData" key={card1["name"] + card1["suit"]}>
-                <div>{playerName}: {currStatus} </div>
-                <div>${currCash}</div>
-                <div>
-                    {card1["name"] + " " + card1["suit"]}
-                </div>
-                <div>
-                    {card2["name"] + " " + card2["suit"]}
-                </div>
-            </div>)
-        // }
-    })
+    // const displayAllPlayerCards = game["all_player_cards"].map((playerData) => {
+    //     const playerName = Object.keys(playerData)[0]
+    //     // if (playerName !== gameData["user"]) {
+    //         let card1 = playerData[playerName][0]
+    //         let card2 = playerData[playerName][1]
+    //         const currCash = game["player_data"][playerName]["cash"]
+    //         const currStatus = game["player_data"][playerName]["status"]
+    //         if (playerName !== gameData["user"]) {
+    //             card1 = {name: "?", suit: ""};
+    //             card2 = {name: "?", suit: ""};
+    //         }
+    //         return (<div className="playerData" key={card1["name"] + card1["suit"]}>
+    //             <div>{playerName}: {currStatus} </div>
+    //             <div>${currCash}</div>
+    //             <div>
+    //                 {card1["name"] + " " + card1["suit"]}
+    //             </div>
+    //             <div>
+    //                 {card2["name"] + " " + card2["suit"]}
+    //             </div>
+    //         </div>)
+    //     // }
+    // })
 
+    const displayAllPlayerCards = game["all_player_cards"].map((player) => {
+        const playerData = game["player_data"][player];
+        const playerId = playerData["userId"];
+        const playerName = playerData["user"];
+        const currCash = playerData["cash"];
+        const currStatus = playerData["status"];
+
+        // let card1 = playerData["cards"][0];
+        // let card2 = playerData["cards"][1];
+        
+
+        return (
+            <div id={player}>
+                {playerId? (
+                <>
+                <div id={player + "icon"}>
+                    <img id = {player + "img"} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                </div>
+                <div id={player + "info"} style={{border: ""}}>
+                    {player}
+                    <hr/>
+                    <div className="Money">Cash: ${currCash}</div>
+                    <div>{currStatus}</div>         
+                </div>
+                <div id={player + "cards"}>
+                    <div className="cards12">
+                        <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" className="cardX"/>
+                    </div>
+                    <div className="cards12">
+                        <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" className="cardX"/>
+                    </div>
+                </div>
+                </>): (
+                <>
+                <div id={player + "icon"}>
+                    <img id = {player + "img"} src="https://i.pinimg.com/550x/18/b9/ff/18b9ffb2a8a791d50213a9d595c4dd52.jpg"/>
+                </div>
+                <div id={player + "info"}>
+                    {/* <h4>{player}</h4> */}
+                    {player}
+                    <hr/>
+                    <div>Vacant</div>    
+                </div>
+                {/* <div id={player + "cards"}>
+                    <div className="cards12">
+                        <img src="https://orig10.deviantart.net/69f2/f/2016/289/4/1/ygo_card_backing__final__by_icycatelf-dal6wsb.png" className="cardX"/>
+                    </div>
+                    <div className="cards12">
+                        <img src="https://orig10.deviantart.net/69f2/f/2016/289/4/1/ygo_card_backing__final__by_icycatelf-dal6wsb.png" className="cardX"/>
+                    </div>
+                </div> */}
+                </>)}
+            </div>
+        )
+        
+    })
 
     const displayWinners = game["winners"].map((playerName) => {
         return (
@@ -586,30 +649,32 @@ function Game({gameData, socket, restoreGameData}) {
                 <div id="newTableCards">
                     {displayTableCards}
                 </div>
-                    <div className="imgBx1" style={{"--q": "1"}}>
+                    {displayAllPlayerCards}
+                    {/* <div className="imgBx4" style={{"--q": "4"}}>
                         <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                        <div id="playerData1"> Player 1:</div>
-                    </div>
-                    <div className="imgBx2" style={{"--q": "2"}}>
+                    </div> */}
+                    {/* <div className="imgBx5" style={{"--q": "5"}}>
                         <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div>
-                    <div className="imgBx3" style={{"--q": "3"}}>
+                    </div> */}
+                    {/* <div className="imgBx6" style={{"--q": "6"}}>
                         <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div>
-                    <div className="imgBx4" style={{"--q": "4"}}>
-                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div>
-                    <div className="imgBx5" style={{"--q": "5"}}>
-                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div>
-                    <div className="imgBx6" style={{"--q": "6"}}>
-                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div>
-                    {/* <div className="imgBx" style={{"--q": "7"}}>
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div>
-                    <div className="imgBx" style={{"--q": "8"}}>
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div> */}
+                    {/* <div id="player7">
+                        <div id="player7icon">
+                            <img id = "player7img"src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                        </div>
+                        <div id="player7info">
+                            
+                        </div>
+                        <div id="player7cards">
+                            <div className="cards12">
+                                <img className="cardX" src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" alt="pokerCard"/>
+                            </div>
+                            <div className="cards12">
+                                <img className="cardX" src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" alt="pokerCard"/>
+                            </div>
+                        </div>
+                        
                     </div> */}
                 </div>
             </div>
@@ -622,7 +687,7 @@ function Game({gameData, socket, restoreGameData}) {
                 {"CASH: " + game["player_cash"]}
             </div> */}
             <div className="box" style={{"--c": "5px solid blue"}}>
-                {displayAllPlayerCards}
+                {/* {displayAllPlayerCards} */}
                 {displayBetting ?
                 (
                 <div>
@@ -639,6 +704,9 @@ function Game({gameData, socket, restoreGameData}) {
             <>
             </>
             }
+            </div>
+            <div>
+                <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" alt="card"/>
             </div>
         </div>
     )
