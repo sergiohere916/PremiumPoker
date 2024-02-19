@@ -539,7 +539,7 @@ function Game({gameData, socket, restoreGameData}) {
                 card1 = {name: "?", suit: ""};
                 card2 = {name: "?", suit: ""};
             }
-            return (<><div key={card1["name"] + card1["suit"]}>
+            return (<div className="playerData" key={card1["name"] + card1["suit"]}>
                 <div>{playerName}: {currStatus} </div>
                 <div>${currCash}</div>
                 <div>
@@ -548,7 +548,7 @@ function Game({gameData, socket, restoreGameData}) {
                 <div>
                     {card2["name"] + " " + card2["suit"]}
                 </div>
-            </div><hr/></>)
+            </div>)
         // }
     })
 
@@ -562,13 +562,13 @@ function Game({gameData, socket, restoreGameData}) {
 
 
     return (
-        <div>
+        <div id="game">
             This is our game page.
             {game["game_started"]? (<button>End Game</button>): (<button onClick={startGame}>Start Game</button>)}
             {/* <button onClick={shuffleCards}>Shuffle Deck</button> */}
             <div id="table">
                 <div id="tableCards">
-                    {displayTableCards}
+                    {/* {displayTableCards} */}
                 </div>
                 {displayWinners}
             </div>
@@ -576,8 +576,44 @@ function Game({gameData, socket, restoreGameData}) {
                 {displayPlayerHand}
             </div>
             <hr/>
+            <div className="container">
+            <div className="icon">
+                
+                <div id="pokerLogoContainer">
+                    <img id="pokerLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png" />
+                </div>
+                <div id="newTableCards">
+                    {displayTableCards}
+                </div>
+                    <div className="imgBx1" style={{"--q": "1"}}>
+                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                        <div id="playerData1"> Player 1:</div>
+                    </div>
+                    <div className="imgBx2" style={{"--q": "2"}}>
+                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div>
+                    <div className="imgBx3" style={{"--q": "3"}}>
+                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div>
+                    <div className="imgBx4" style={{"--q": "4"}}>
+                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div>
+                    <div className="imgBx5" style={{"--q": "5"}}>
+                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div>
+                    <div className="imgBx6" style={{"--q": "6"}}>
+                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div>
+                    {/* <div className="imgBx" style={{"--q": "7"}}>
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div>
+                    <div className="imgBx" style={{"--q": "8"}}>
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    </div> */}
+                </div>
+            </div>
             <div>
-                {displayAllPlayerCards}
+                {/* {displayAllPlayerCards} */}
             </div>
             {/* Set constraint on form to not allow lower bet than needed */}
             {displayBetting ?
@@ -599,6 +635,9 @@ function Game({gameData, socket, restoreGameData}) {
             {/* <div>
                 {"CASH: " + game["player_cash"]}
             </div> */}
+            <div className="box" style={{"--c": "5px solid blue"}}>
+                {displayAllPlayerCards}
+            </div>
         </div>
     )
 }

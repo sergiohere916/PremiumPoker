@@ -5,6 +5,20 @@
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
+#game {
+  min-height: 100vh;
+  /* background: rgb(51, 50, 50); */
+  background: linear-gradient(0deg, rgb(0, 0, 0) 5%, rgb(66, 66, 66), rgb(100, 100, 100));
+
+  /* background-image: url("https://t3.ftcdn.net/jpg/02/76/29/70/360_F_276297089_WyP8nNMqA3ymVk5PnKPPZ3qvTsje6DPT.jpg"); */
+  /*Black felt with suits background https://t3.ftcdn.net/jpg/01/09/58/42/360_F_109584274_tsSC6KXjrWipSwOfQY3GbkMYD0bhq6zZ.jpg*/
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* max-width: 100vw; */
+  min-width: 100vw;
+}
 #table {
   height: 370px;
   width: 650px;
@@ -51,6 +65,210 @@
   background-repeat: no-repeat;
   opacity: .7;
 } */
+
+.container {
+  position: relative;
+  height: 600px;
+  width: 1100px;
+  border: solid 2px rgb(14, 13, 13);
+  /* outline: solid 12px rgb(88, 87, 86); */
+  outline: solid 6px rgba(255, 255, 255, 0.11);
+  outline-offset: -50px;
+  box-shadow: 0 0 0 25px rgb(77, 76, 75), 0 0 0 27px rgb(87, 86, 86);
+  /* rgb(136, 98, 41) */
+  border-radius: 200px;
+  /* background: url("https://logos-world.net/wp-content/uploads/2022/11/PokerStars-Symbol.png"), radial-gradient(circle, rgb(90, 146, 104) 0%, rgb(21, 46, 29) 70%); */
+  background: radial-gradient(circle, rgb(90, 146, 104) 0%, rgb(21, 46, 29) 70%);
+  /* radial-gradient(circle, rgb(71, 71, 110) 0%, rgb(0, 0, 0) 100%; */
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 80;
+}
+
+#newTableCards {
+  top: -250px;
+  border: 1px solid white;
+  width: 600px;
+  height: 500px;
+  position: relative;
+  color: rgb(248, 247, 247);
+  font-size: 15pt;
+  -webkit-text-stroke: .2pt rgb(16, 63, 214);
+  font-weight: bolder;
+  text-align: center;
+  /* background-image: url("https://logos-world.net/wp-content/uploads/2022/11/PokerStars-Symbol.png");
+  background-size: cover;
+  background-repeat: no-repeat; */
+
+  /*This part displays cards horizontally*/
+  display: flex;
+  gap: 15px;
+}
+
+.playerData {
+  margin-top: 50px;
+}
+
+#pokerLogoContainer {
+  position: relative;
+  /* border: 1px solid rgb(12, 8, 245); */
+  /* height: 50%;
+  width: 80%; */
+  top: 40px;
+  height: 480px;
+  width: 480px;
+  /* background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png");
+  background-size: cover;
+  opacity: 90%;
+  height: 400px;
+  width: 800px;
+  border-radius: 0%;
+  object-fit: cover;
+  margin-top: -80px; */
+}
+
+#pokerLogo {
+  width: 100%;
+  height: 100%;
+  opacity: 45%;
+  object-fit: contain;
+}
+
+.container .icon {
+  position: relative;
+  /* left: -50%; */
+  /* top: -50%; */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* cursor: pointer; */
+}
+
+/* .container .icon .imgBx {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  transition: 0.5s;
+  border: 1px solid rgb(20, 20, 20);
+  box-shadow: 0 0 0 4px rgb(150, 149, 149), 0 0 0 6px red;
+  transform-origin: 360px;
+  transform: rotate(calc(360deg/6 * var(--q)));
+} */
+
+.imgBx1 {
+  position: absolute;
+  top: -21%;
+  right: 15%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px solid black;
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+  display: flex;
+  flex-direction: column;
+
+}
+
+#playerData1 {
+  /* position: absolute; */
+  margin-left: 115%;
+  border: 5px solid black;
+  background: white;
+  border-radius: 0%;
+  height: 100%;
+  width: 300px;
+}
+
+.imgBx2 {
+  position: absolute;
+  /* top: -21%; */
+  right: -12%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px solid black;
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+
+}
+
+.imgBx3 {
+  position: absolute;
+  /* top: -21%; */
+  bottom: -21%;
+  right: 15%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px solid black;
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+
+}
+
+.imgBx4 {
+  position: absolute;
+  /* top: -21%; */
+  bottom: -21%;
+  left: 15%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px solid black;
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+
+}
+
+.imgBx5 {
+  position: absolute;
+  /* top: -21%; */
+  left: -12%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px solid black;
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+
+}
+
+.imgBx6 {
+  position: absolute;
+  /* top: -21%; */
+  top: -21%;
+  left: 15%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px solid black;
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+
+}
+.playerImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.box {
+  margin-top: 50px;
+  height: 500px;
+  width: 500px;
+  background-color: white;
+  /* border: 5px solid black; */
+  border: var(--c);
+}
+
+
+
+
+
 
 #gameWinner {
   font-size: 13pt;

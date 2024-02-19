@@ -85,7 +85,9 @@ def handle_disconnect():
     #     #Let the game know this player disconnected add their name to a list to keep track of them
     #     game["disconnected_players"].append(user)
     #     #can possibly check if all possible players are disconnected
-    #     if game["host"] == user:
+    #     if game["host"] == user and game["disconnected_players"] != len:
+    #         for player in game["player_order"]:
+    #             if player not in game["disconnected_players"]
 
 
 
@@ -220,7 +222,7 @@ def handle_join_room(room_data):
             "winners": [],
             "game_over": False
         }
-        players_in_games[request.sid] = [room, user]
+        players_in_games[request.sid] = [room, user, request.sid]
 
     # print(game_rooms.get(room))
     # print("User was added or rejoined a room")
