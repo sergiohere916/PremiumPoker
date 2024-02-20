@@ -6,11 +6,42 @@
 }
 
 body {
-  /* height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(0deg, rgb(0, 0, 0) 5%, rgb(66, 66, 66), rgba(100, 100, 100, 0));
+}
+
+#page {
+  height: 100vh;
   width: 100vw;
   display: flex;
+  justify-content: center;
   align-items: center;
-  background: linear-gradient(0deg, rgb(0, 0, 0) 5%, rgb(66, 66, 66), rgba(100, 100, 100, 0)); */
+}
+
+#gamePage {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  /* flex-direction: column; */
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(255, 0, 0, 0.308);
+}
+
+#leftBorder {
+  height: 100vh;
+  width: 8vw;
+  background-color: black;
+  /* background-image: url("https://www.shutterstock.com/image-vector/minimalistic-green-poker-background-texture-260nw-368553059.jpg"); */
+}
+
+#rightBorder {
+  height: 100vh;
+  width: 8vw;
+  background-color: rgba(0, 0, 0, 0.979);
+  /* background-image: url("https://www.shutterstock.com/image-vector/minimalistic-green-poker-background-texture-260nw-368553059.jpg"); */
 }
 
 #game {
@@ -21,38 +52,40 @@ body {
   align-items: center;
   background-color: blue; */
 
+  height: 90vh;
+  width: 84vw;
+  
+  background-color: #61dafb;
 
-  min-height: 100vh;
-  min-width: 100vw;
-  background: linear-gradient(0deg, rgb(0, 0, 0) 5%, rgb(66, 66, 66), rgba(100, 100, 100, 0));
+  /* background: linear-gradient(0deg, rgb(0, 0, 0) 5%, rgb(66, 66, 66), rgba(100, 100, 100, 0)); */
 
   /* background-image: url("https://t3.ftcdn.net/jpg/02/76/29/70/360_F_276297089_WyP8nNMqA3ymVk5PnKPPZ3qvTsje6DPT.jpg"); */
   /*Black felt with suits background https://t3.ftcdn.net/jpg/01/09/58/42/360_F_109584274_tsSC6KXjrWipSwOfQY3GbkMYD0bhq6zZ.jpg*/
 
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  
-  
-  
-}
-#table {
-  height: 370px;
-  width: 650px;
-  border: 10px solid rgb(78, 77, 75);
-  border-radius: 45%;
-  background-color: rgb(71, 158, 100);
-  margin-top: 30px;
-  box-shadow: 5px 5px 5px 3px rgb(22, 21, 21);
-  margin-left: 10px;
-  display: flex;
-  flex-direction: column;
   justify-content: center;
+  flex-direction: row;
   align-items: center;
+  
+ 
+}
+
+.startButtonContainer {
+  position: absolute;
+  bottom: 5%;
+  left: 25%;
+  
+  display: flex;
+  justify-content: center;
+  width: 50%;
+}
+
+
+.startButton {
+
 }
 
 #tableCards {
-  
   width: 400px;
   height: 200px;
   position: relative;
@@ -85,14 +118,24 @@ body {
 
 .container {
   position: relative;
+
+  
   height: 600px;
+  height: 68%;
+
   width: 1100px;
+  width: 65%;
 
   /* height: 60vh;
   width: 60vw; */
 
-  top: 100px;
-  left: -10px;
+
+  /* height: 60vh;
+  width: 60vw; */
+
+  /* top: 100px; */
+
+  /* left: -10px; */
   border-top: solid 5px rgb(102, 99, 99);
   border-left: solid 1px rgb(14, 13, 13);
   border-right: solid 1px rgb(14, 13, 13);
@@ -107,18 +150,28 @@ body {
   border-radius: 200px;
   /* background: url("https://logos-world.net/wp-content/uploads/2022/11/PokerStars-Symbol.png"), radial-gradient(circle, rgb(90, 146, 104) 0%, rgb(21, 46, 29) 70%); */
   background: radial-gradient(circle, rgb(90, 146, 104) 0%, rgb(21, 46, 29) 70%);
-  /* radial-gradient(circle, rgb(71, 71, 110) 0%, rgb(0, 0, 0) 100%; */
-  background-size: cover;
-  background-repeat: no-repeat;
-  opacity: 80;
+  
+  
+  
+  
 }
 
 #newTableCards {
+  position: absolute;
+  position: relative;
+  /* background-color: red; */
   top: -250px;
-  border: 1px solid white;
   width: 600px;
   height: 500px;
-  position: relative;
+
+  /* top: 40%; */
+  top: -5%;
+  border: 1px solid white;
+  
+
+  height: 20%;
+  width: 45%;
+
   color: rgb(248, 247, 247);
   font-size: 15pt;
   -webkit-text-stroke: .2pt rgb(16, 63, 214);
@@ -138,13 +191,18 @@ body {
 }
 
 #pokerLogoContainer {
-  position: relative;
+  position: absolute;
   /* border: 1px solid rgb(12, 8, 245); */
   /* height: 50%;
   width: 80%; */
+
   top: 40px;
+  top: 8%;
+  /* background-color: blue; */
   height: 480px;
+  height: 75%;
   width: 480px;
+  width: 80%;
   /* background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png");
   background-size: cover;
   opacity: 90%;
@@ -187,140 +245,6 @@ body {
   transform: rotate(calc(360deg/6 * var(--q)));
 } */
 
-.imgBx1 {
-  position: absolute;
-  top: -21%;
-  right: 15%;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 1px solid black;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
-  display: flex;
-  flex-direction: column;
-
-}
-
-#playerData1 {
-  /* position: absolute; */
-  margin-left: 115%;
-  border: 5px solid black;
-  background: white;
-  border-radius: 0%;
-  height: 100%;
-  width: 300px;
-}
-
-.imgBx2 {
-  position: absolute;
-  /* top: -21%; */
-  right: -12%;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 1px solid black;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
-
-}
-
-.imgBx3 {
-  position: absolute;
-  /* top: -21%; */
-  bottom: -21%;
-  right: 15%;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 1px solid black;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
-
-}
-
-.imgBx4 {
-  position: absolute;
-  /* top: -21%; */
-  bottom: -21%;
-  left: 15%;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 1px solid black;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
-
-}
-
-.imgBx5 {
-  position: absolute;
-  /* top: -21%; */
-  left: -12%;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 1px solid black;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
-
-}
-
-.imgBx6 {
-  position: absolute;
-  /* top: -21%; */
-  top: -21%;
-  left: 15%;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 1px solid black;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
-}
-
-#player7 {
-  position: absolute;
-  top: -22%;
-  left: 40%;
-  height: 90px;
-  width: 350px;
-  /* border: solid 4px rgb(19, 18, 18); */
-}
-
-#player7icon {
-  position: absolute;
-  height: 90px;
-  width: 90px;
-  border-radius: 50%;
-  display: flex;
-  gap: 10px;
-  background-color: #a2b9c0;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
-}
-
-#player7img {
-  position: absolute;
-  border-radius: 50%;
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  cursor: pointer;
-}
-
-#player7info {
-  position: absolute;
-  right: 0px;
-  height: 90px;
-  background-color: white;
-  width: 240px;
-  border: 3px solid black;
-}
-
-#player7cards {
-  position: absolute;
-  top: 145%;
-  height: 120px;
-  width: 190px;
-  /* border: 1px solid blue; */
-  display: flex;
-  gap: 5px;
-}
-
 .cards12 {
   height: 120px;
   width: 89px;
@@ -340,21 +264,16 @@ body {
   /* box-shadow: 0 5px 5px 0px black; */
 }
 
-.playerImg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-}
 
 .box {
-  margin-top: 100px;
+  position: relative;
+  left: 96%;
+  margin-top: 0%;
   height: 500px;
-  width: 500px;
+  height: 25%;
+  /* width: 500px; */
+  width: 30%;
+
   background-color: white;
   /* border: 5px solid black; */
   border: var(--c);
@@ -370,7 +289,7 @@ body {
 
 
 
-/* Player Display around table */
+/* Player Display around table  RETURN POINT --*/
 
 #player1 { 
   position: absolute;
@@ -382,18 +301,29 @@ body {
 
   height: 90px;
   width: 350px;
+
+  height: 16%;
+  width: 35%;
+  border: 1px solid black;
+
+  display: flex;
+  gap: 10%;
   /* border: solid 4px rgb(19, 18, 18); */
 }
 
 #player1icon {
-  position: absolute;
+  position: relative;
   height: 90px;
   width: 90px;
+
+  height: 100%;
+  width: 30%;
   border-radius: 50%;
   display: flex;
-  gap: 10px;
+  /* gap: 10px; */
   background-color: #a2b9c0;
   box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+  box-shadow: 0 0 0 .3em rgb(216, 214, 214), 0 0 0 .68em rgb(30, 5, 88);
 }
 
 #player1img {
@@ -406,19 +336,21 @@ body {
 }
 
 #player1info {
-  position: absolute;
+  /* position: absolute; */
   /* right: 0px; */
   height: 90px;
+  height: 100%;
+  width: 150px;
+  width: 50%;
   /* width: 240px; */
-  right: 90px;
+
+  /* right: 90px; */
+
   background: linear-gradient(0deg, rgb(99, 97, 97) 5%, black);
-  /* background: linear-gradient(0deg, black 5%, rgb(110, 109, 109)); */
-  /* background: linear-gradient(0deg, black 5%, rgb(22, 21, 80)); */
+  
 
   border-radius: 5%;
-  width: 150px;
   border: 3px solid rgb(143, 128, 40);
-  /* border: 3px solid rgb(17, 180, 17); */
   box-shadow: 0 1px 10px 0px black;  
   color: white;
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -432,6 +364,11 @@ body {
   left: -30px;
   height: 120px;
   width: 190px;
+
+  height: 100%;
+  width: 40%;
+  left: 0%;
+
   /* border: 1px solid blue; */
   display: flex;
   gap: 5px;
@@ -440,7 +377,10 @@ body {
 .cards12 {
   height: 120px;
   width: 89px;
-  box-shadow: 0 3px 10px 0px black;
+
+  height: 100%;
+  width: 45%;
+  /* box-shadow: 0 3px 10px 0px black; */
 }
 
 .cardX {
@@ -448,7 +388,6 @@ body {
   width: 89px; */
   height: 100%;
   width: 100%;
-  /* border: 1px solid saddlebrown; */
   object-fit: contain;
   /* box-shadow: 0 5px 5px 0px black; */
 }
@@ -740,6 +679,14 @@ body {
 
   height: 90px;
   width: 350px;
+
+
+  height: 16%;
+  width: 35%;
+  border: 1px solid black;
+
+  display: flex;
+  gap: 10%;
   /* border: solid 4px rgb(19, 18, 18); */
 }
 
@@ -749,12 +696,25 @@ body {
   width: 90px;
 
   right: 0px;
+  
 
-  border-radius: 50%;
+  /* border-radius: 50%;
   display: flex;
   gap: 10px;
   background-color: #a2b9c0;
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88); */
+
+  
+  position: relative;
+  left: 70%;
+  height: 100%;
+  width: 30%;
+  border-radius: 50%;
+  display: flex;
+  /* gap: 10px; */
+  background-color: #a2b9c0;
   box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
+  box-shadow: 0 0 0 .3em rgb(216, 214, 214), 0 0 0 .68em rgb(30, 5, 88);
 }
 
 #player6img {
@@ -768,6 +728,7 @@ body {
 
 #player6info {
   position: absolute;
+  position: relative;
   left: 90px;
 
   height: 90px;

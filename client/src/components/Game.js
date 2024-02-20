@@ -651,60 +651,68 @@ function Game({gameData, socket, restoreGameData}) {
 
 
     return (
+        <div id="gamePage">
+        <div id="leftBorder"></div>
         <div id="game">
-            This is our game page.
-            {game["game_started"]? (<button>End Game</button>): (<button onClick={startGame}>Start Game</button>)}
-            
-            {/* <div id="table">
-                <div id="tableCards">
-                    
-                </div>
-                {displayWinners}
-            </div> */}
-            {/* <div id="playerHand">
-                {displayPlayerHand}
-            </div> */}
-            <hr/>
+            {/* {game["game_started"]? (<button>End Game</button>): (<button className="startButton" onClick={startGame}>Start Game</button>)} */}
+            {/* This is our game page. */}
+            {/* <hr/> */}
             <div className="container">
-            <div className="icon">
-                
-                <div id="pokerLogoContainer">
-                    <img id="pokerLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png" alt="pokerTableLogo" />
+                <div className="icon">
+                    
+                    <div id="pokerLogoContainer">
+                        <img id="pokerLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png" alt="pokerTableLogo" />
+                    </div>
+                    <div id="newTableCards">
+                        {displayTableCards}
+                    </div>
+                        {displayAllPlayerCards}
+                    </div>
+                    {game["game_started"]? (<button>End Game</button>): (<div className="startButtonContainer"><button className="startButton" onClick={startGame}>Start Game</button></div>)}
+                    <div className="box" style={{"--c": "5px solid blue"}}>
+                    {/* {displayAllPlayerCards} */}
+                    {displayBetting ?
+                    (
+                    <div>
+                        <form onSubmit={handleBetSubmit}>
+                            <label>Bet Amount:</label>
+                            <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
+                            <button type="submit">Place Bet</button>
+                        </form>
+                        <button onClick={handleAllInButton}>ALL IN</button>
+                        <button onClick={handleFoldButton}>FOLD</button>
+                        <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
+                        {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
+                    </div>):
+                    <>
+                    </>
+                    }
+                    {displayWinners}
+                    </div>
                 </div>
-                <div id="newTableCards">
-                    {displayTableCards}
-                </div>
-                    {displayAllPlayerCards}
-                </div>
-            </div>
-            <div>
-                {/* {displayAllPlayerCards} */}
-            </div>
-            {/* Set constraint on form to not allow lower bet than needed */}
-            
-            {/* <div>
-                {"CASH: " + game["player_cash"]}
-            </div> */}
-            <div className="box" style={{"--c": "5px solid blue"}}>
-                {/* {displayAllPlayerCards} */}
-                {displayBetting ?
-                (
-                <div>
-                    <form onSubmit={handleBetSubmit}>
-                        <label>Bet Amount:</label>
-                        <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
-                        <button type="submit">Place Bet</button>
-                    </form>
-                    <button onClick={handleAllInButton}>ALL IN</button>
-                    <button onClick={handleFoldButton}>FOLD</button>
-                    <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
-                    {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
-                </div>):
-            <>
-            </>
-            }
-            {displayWinners}
-            </div>
+
+                {/* <div className="box" style={{"--c": "5px solid blue"}}>
+        
+                    {displayBetting ?
+                    (
+                    <div>
+                        <form onSubmit={handleBetSubmit}>
+                            <label>Bet Amount:</label>
+                            <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
+                            <button type="submit">Place Bet</button>
+                        </form>
+                        <button onClick={handleAllInButton}>ALL IN</button>
+                        <button onClick={handleFoldButton}>FOLD</button>
+                        <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
+                        {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
+                    </div>):
+                <>
+                </>
+                }
+                {displayWinners}
+                </div> */}
+        </div>
+        <div id="rightBorder"></div>
         </div>
     )
 }
