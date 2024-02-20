@@ -101,17 +101,17 @@ function Game({gameData, socket, restoreGameData}) {
         socket.on('rejoin_at_bet', (data) => {
             console.log("received rejoin at bet")
             console.log(data["game"])
-            if (gameData["user"] === data["user"]) {
+            if (gameData["user"] === data["userId"]) {
                 console.log("you have rejoined...")
-                setGame(prevGame => ({...prevGame, ...data["game"], player_cards: data["player_cards"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
+                setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
                 setDisplayBetting(true)
             }
         })
 
         socket.on("rejoin_game", (data) => {
-            if (gameData["user"] === data["user"]) {
+            if (gameData["user"] === data["userId"]) {
                 console.log("rejoining game at regular in between betting rounds....")
-                setGame(prevGame => ({...prevGame, ...data["game"], player_cards: data["player_cards"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
+                setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
             }
         })
 
@@ -436,9 +436,9 @@ function Game({gameData, socket, restoreGameData}) {
         socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "fold", bet: 0})
         setDisplayBetting(false)
     }
-
+    //Changed bet from bet: game["player_data"][gameData["user"]]["cash"] to game["player_cash"]...check if this leads to issues
     function handleAllInButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "all_in", bet: game["player_data"][gameData["user"]]["cash"] })
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "all_in", bet: game["player_cash"]})
         setDisplayBetting(false)
     }
 
@@ -610,7 +610,7 @@ function Game({gameData, socket, restoreGameData}) {
                 }
                 <div id={player + "cards"}>
                     <div className="cards12">
-                        <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" className="cardX"/>
+                        <img src="https://deckofcardsapi.com/static/img/JS.png" className="cardX"/>
                     </div>
                     <div className="cards12">
                         <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" className="cardX"/>
@@ -654,22 +654,22 @@ function Game({gameData, socket, restoreGameData}) {
         <div id="game">
             This is our game page.
             {game["game_started"]? (<button>End Game</button>): (<button onClick={startGame}>Start Game</button>)}
-            {/* <button onClick={shuffleCards}>Shuffle Deck</button> */}
-            <div id="table">
+            
+            {/* <div id="table">
                 <div id="tableCards">
-                    {/* {displayTableCards} */}
+                    
                 </div>
                 {displayWinners}
-            </div>
-            <div id="playerHand">
+            </div> */}
+            {/* <div id="playerHand">
                 {displayPlayerHand}
-            </div>
+            </div> */}
             <hr/>
             <div className="container">
             <div className="icon">
                 
                 <div id="pokerLogoContainer">
-                    <img id="pokerLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png" />
+                    <img id="pokerLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png" alt="pokerTableLogo" />
                 </div>
                 <div id="newTableCards">
                     {displayTableCards}
@@ -703,9 +703,7 @@ function Game({gameData, socket, restoreGameData}) {
             <>
             </>
             }
-            </div>
-            <div>
-                <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" alt="card"/>
+            {displayWinners}
             </div>
         </div>
     )
