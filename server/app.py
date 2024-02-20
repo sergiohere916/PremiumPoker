@@ -18,7 +18,6 @@ from config import app, db, api
 # Add your model imports
 from models import Card
 
-#RETURN POINT LINE 22 --------------------/
 
 # Instantiate Socket Io
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
@@ -29,7 +28,8 @@ players_in_games = {}
 turns_and_card_positions = [{"12": [1, 0]}]
 #UP TO DATE BACKEND
 # Views go here!
-#RETURN POINT 1/31/2024
+
+#RETURN POINT 2/29/2024
     #HERE
 @app.route('/')
 def index():
@@ -137,38 +137,51 @@ def handle_join_room(room_data):
             player_data = game["player_data"]
             if player_data["player1"]["userId"] == "":
                 #add the player here
-                player_data["player1"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                print("new player has joined the room")
+                player_data["player1"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
                 game["player_ids"].append(userId)
                 game["player_order"].append("player1")
+                game["player_map"][userId] = "player1"
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
                 
             elif player_data["player2"]["userId"] == "":
-                player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                print("new player has joined the room")
+                player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
                 game["player_ids"].append(userId)
                 game["player_order"].append("player2")
+                game["player_map"][userId] = "player2"
                 socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
                 
             elif player_data["player3"]["userId"] == "":
-                player_data["player3"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                print("new player has joined the room")
+                player_data["player3"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
                 game["player_ids"].append(userId)
                 game["player_order"].append("player3")
+                game["player_map"][userId] = "player3"
                 socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
                 
             elif player_data["player4"]["userId"] == "":
-                player_data["player4"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                print("new player has joined the room")
+                player_data["player4"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
                 game["player_ids"].append(userId)
                 game["player_order"].append("player4")
+                game["player_map"][userId] = "player4"
                 socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
                 
             elif player_data["player5"]["userId"] == "":
-                player_data["player5"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                print("new player has joined the room")
+                player_data["player5"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
                 game["player_ids"].append(userId)
                 game["player_order"].append("player5")
+                game["player_map"][userId] = "player5"
                 socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
 
             elif player_data["player6"]["userId"] == "":
-                player_data["player6"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                print("new player has joined the room")
+                player_data["player6"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
                 game["player_ids"].append(userId)
                 game["player_order"].append("player6")
+                game["player_map"][userId] = "player6"
                 socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
 
         else:
@@ -239,13 +252,13 @@ def handle_join_room(room_data):
             "id": room,
             "host": user,
             "game_started": True,
-            "player_list": [{user: []}],
+            "player_map": {userId: "player1"},
             "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
-                            "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
-                            "player3": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
-                            "player4": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
-                            "player5": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
-                            "player6": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}},
+                            "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
+                            "player3": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
+                            "player4": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
+                            "player5": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
+                            "player6": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}},
 
             "all_player_cards": ["player1", "player2", "player3", "player4", "player5", "player6"],
             "table_cards": [],
@@ -253,6 +266,7 @@ def handle_join_room(room_data):
             "last_card_dealt": 0,
             "player_ids": [userId],
             "player_order": ["player1"],
+            "round_order": [],
             "current_turn": 0,
             "turn_number": 0,
             "player_cards_dealt": False,
@@ -359,19 +373,43 @@ def deal_cards(data):
         game["betting_round"] = "pregame"
         game["player_cards_dealing"] = True
         game["player_cards_dealt"] = True
-        for player_name in game["player_order"]:
-            players_data = game["player_data"][player_name]
+
+        # for player_name in game["player_order"]:
+        #     players_data = game["player_data"][player_name]
+
+        #     # game["current_turn"] = player_name
+        #     players_data["cards"].append(cards[game["last_card_dealt"]])
+        #     players_data["cards"].append(cards[game["last_card_dealt"] + 1])
+        #     game["all_player_cards"].append({player_name: players_data["cards"]})
+
+        #     #adding in security so game at player cards dealt is only set to true once last set of cards have been emitted
+        #     game["last_card_dealt"] += 2
+        #     game["last_card_dealt"] += 1
+        # print(game["player_data"])
+        # socketio.emit("dealing", {"all_player_cards": game["all_player_cards"],"player_cards_dealt": game["player_cards_dealt"], "dealing": game["player_cards_dealing"]}, room = room)
+        # pass
+        print(game["player_order"])
+        for player in game["player_order"]:
+            #player1, player2...
+            player_data = game["player_data"][player]
+            player_id = player_data["userId"]
 
             # game["current_turn"] = player_name
-            players_data["cards"].append(cards[game["last_card_dealt"]])
-            players_data["cards"].append(cards[game["last_card_dealt"] + 1])
-            game["all_player_cards"].append({player_name: players_data["cards"]})
+            if player_id: 
+                game["round_order"].append(player)
+                player_data["cards"] = []
+                player_data["cards"].append(cards[game["last_card_dealt"]])
+                player_data["cards"].append(cards[game["last_card_dealt"] + 1])
+
+
+            # game["all_player_cards"].append({player_name: player_data["cards"]})
 
             #adding in security so game at player cards dealt is only set to true once last set of cards have been emitted
             game["last_card_dealt"] += 2
             game["last_card_dealt"] += 1
         print(game["player_data"])
-        socketio.emit("dealing", {"all_player_cards": game["all_player_cards"],"player_cards_dealt": game["player_cards_dealt"], "dealing": game["player_cards_dealing"]}, room = room)
+        socketio.emit("dealing", {"adding_cards": game["player_data"],"player_cards_dealt": game["player_cards_dealt"], "dealing": game["player_cards_dealing"]}, room = room)
+
 
 @socketio.on("deal_flop")
 def deal_flop(data):
@@ -425,6 +463,9 @@ def deal_river(data):
 
 @socketio.on("initiate_betting")
 def initiate_betting(data):
+    #RETURN POINT DELTE IF WORKING WHEN DONE....
+    # print("breaks")
+    # pass
     room = data["room"]
     game = game_rooms.get(room)
     round = game["betting_round"]
@@ -433,15 +474,16 @@ def initiate_betting(data):
     print("\ninitiating betting is running")
     if not game[round + "_bets_taken"]:
         starting_player = game["current_turn"]
-        player = game["player_order"][starting_player]
+        player = game["round_order"][starting_player]
+        #player1 or player2 or ....etc
         player_data = game["player_data"][player]
         player_status = player_data["status"]
 
         #ADDED 2/17 to account for all players either all in or folded or mix of both
         #4 in player order                      0                                   3
-        if (len(game["player_order"]) - len(game["players_folded_list"]) <= 1):
+        if (len(game["round_order"]) - len(game["players_folded_list"]) <= 1):
             #ALL BUT ONE PLAYER HAS FOLDED NO MORE BETTING WINNER CAN NOW BE DECLARED
-            print(len(game["player_order"]))
+            print(len(game["round_order"]))
             print(len(game["players_folded_list"]))
             print("all but one is folded end betting round end game")
             game["bets"] = []
@@ -453,7 +495,7 @@ def initiate_betting(data):
 
             #SHOULD SET ALL CARDS AS DEALT AND ALL BETS AS TAKEN TO END GAME AND RUN NO MORE LOGIC...
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
-        elif (len(game["player_order"]) - (len(game["players_folded_list"]) + len(game["players_all_in"])) == 0):
+        elif (len(game["round_order"]) - (len(game["players_folded_list"]) + len(game["players_all_in"])) == 0):
             #ALL PLAYERS ARE EITHER FOLDED OR ALL IN
             print("all are either folded or all in so end round end game")
             game["bets"] = []
@@ -463,7 +505,7 @@ def initiate_betting(data):
 
             reset_betting(room, game)
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
-        elif (len(game["player_order"]) - (len(game["players_all_in"]) + len(game["players_folded_list"])) == 1):
+        elif (len(game["round_order"]) - (len(game["players_all_in"]) + len(game["players_folded_list"])) == 1):
             #THIS SHOULD CAPTURE IF ALL PLAYERS ARE ALL IN AND ONE PLAYER JUST CALLED
             print("all but one have gone all in but that player called or raised previously so end round end game")
             game["bets"] = []
@@ -476,11 +518,11 @@ def initiate_betting(data):
         else:
             if player_status == "all_in" or player_status == "fold":
                 game["current_turn"] +=1
-                while game["current_turn"] < len(game["player_order"]):
+                while game["current_turn"] < len(game["round_order"]):
                     # next_player = game["player_order"][game["current_turn"]]
                     # next_player_data = game["player_data"][next_player]
                     starting_player = game["current_turn"]
-                    player = game["player_order"][starting_player]
+                    player = game["round_order"][starting_player]
                     player_data = game["player_data"][player]
                     if player_data["status"] == "fold":
                         game["current_turn"] +=1
@@ -498,7 +540,7 @@ def initiate_betting(data):
                         # player_data = game["player_data"][player]
                         break
 
-            if game["current_turn"] == len(game["player_order"]):
+            if game["current_turn"] == len(game["round_order"]):
                 print("Betting has ended we need to comm with front end")
                 game[round + "_bets_completed"] = True
                 reset_betting(room, game)
@@ -508,23 +550,13 @@ def initiate_betting(data):
                 min_bet_difference = game["min_bet"] - game["player_data"][player][round]
 
                 current_bet_id = game["betting_index"]
+                user_id = game["player_data"][player]["userId"]
+                player_bankroll = game["player_data"][player]["cash"]
+                game["player_data"][player]["myTurn"] = True
 
                 game[round + "_bets_taken"] = True
-                socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
-
-                # #LOGIC FOR HANDLING TIME OUTS ON BETTING ---------------------------------------------------------------------
-                # time.sleep(15)
-                # print("desycronized check that occurs when 10 seconds pass from take bet function might be a problem, maybe not?")
-                # # print("player has folded...too much time passed")
-                # if game["betting_index"] == current_bet_id:
-                #     print("time maxed out and a bet was not received")
-                #     player_data["status"] == "fold"
-                #     socketio.emit("fold_for_player",{"folded_player": player, "updated_player_data": game["player_data"]}, room = room)
-                # else: 
-                #     print("bet was received :)\n")
-                # #If the last bet sent out was not received fold for this player and 
-                # #maybe can emit something to new host to receive and pass along to game as sub in for  
-                # #how can I check that the last bet was sent out to Sergio and he never 
+                socketio.emit("take_bet", {"game_update": game, "player_cash": player_bankroll, "user": user_id, "bet_difference": min_bet_difference}, room = room)
+                game["player_data"][player]["myTurn"] = False
     
 @socketio.on("handle_bet_action")
 def handle_bet_action(data):
@@ -532,7 +564,11 @@ def handle_bet_action(data):
     room = data["room"]
     game = game_rooms.get(room)
 
-    player_name = data["user"]
+    user_id = data["userId"]
+    user_name = data["user"]
+
+    player_name = game["player_map"][user_id]
+
     status = data["bet_status"]
     bet_amount = int(data["bet"])
     player_data = game["player_data"][player_name]
@@ -624,8 +660,8 @@ def handle_bet_action(data):
         game["min_bet"] = bet_amount
     #CHECK IF NEXT PLAYER IS ALL IN OR HAS FOLDED IF SO SKIP THEM AND INCREMENT AGAIN
    
-    while game["current_turn"] < len(game["player_order"]):
-        next_player = game["player_order"][game["current_turn"]]
+    while game["current_turn"] < len(game["round_order"]):
+        next_player = game["round_order"][game["current_turn"]]
         next_player_data = game["player_data"][next_player]
         if next_player_data["status"] == "fold":
             game["current_turn"] +=1
@@ -634,187 +670,48 @@ def handle_bet_action(data):
         elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
             print(f'{next_player} was last to raise game should prepare to stop here')
             print(f'was there a raise? ... {game["raise_occurred"]}')
-            game["current_turn"] = len(game["player_order"])
-            # socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
-            # socketio.emit("end_betting_round", {"game_update": game}, room = room)
-
-            # # --------------- POT LOGIC ---------------
-            # if (len(game["pots"]) > 0):
-            
-            #     # THIS SECTION IS IF THERE ARE MORE THAN 1 MIN ALL BET
-                
-            #     while (len(game["min_all_in"]) > 0):
-            #         # Getting the min all bet and its respective index
-            #         min_all_bet = min(game["min_all_in"])
-            #         min_all_bet_index = game["min_all_in"].index(min_all_bet)
-
-            #         for i in range(len(game["bets"])):
-            #             if (game["bets"][i]["bet"] >= min_all_bet):
-            #                 # Getting the difference Example: 750 (player's bet) - 400 (min_all_in) = 350
-            #                 difference = game["bets"][i]["bet"] - min_all_bet
-            #                 # Subtract that difference from the nth bet. 750 - 350 = 400
-            #                 game["bets"][i]["bet"] -= min_all_bet
-            #                 # Adding that difference to the respective pot
-            #                 if (game["main_pot"]):
-            #                     game["pot"] += min_all_bet
-            #                 else:
-            #                     print("respective pot index: ")
-            #                     print(game["pots"][len(game["pots"]) - len(game["min_all_in"]) - 1])
-            #                     respective_pot = game["pots"][len(game["pots"]) - len(game["min_all_in"]) - 1]
-            #                     respective_pot["cash"] += min_all_bet
-            #                     game["bets"][i]["bet"] -= min_all_bet
-            #                     if (game["bets"][i]["player_name"] not in respective_pot["players"]):
-            #                         respective_pot["players"].append(game["bets"][i]["player_name"])
-            #         game["main_pot"] = False
-
-            #         for i in range(len(game["min_all_in"])):
-            #             game["min_all_in"][i] -= min_all_bet
-            #         game["min_all_in"].pop(min_all_bet_index)
-
-            #     for i in range(len(game["bets"])):
-            #         if (game["bets"][i]["bet"] > 0):
-            #             game["pots"][len(game["pots"]) - 1]["cash"] += game["bets"][i]["bet"]
-            #             game["pots"][len(game["pots"]) - 1]["players"].append(game["bets"][i]["player_name"])
-
-            #         print("This is the main pot: " + str(game["pot"]))
-            #         print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-            #         print("This is the main pot condition " + str(game["main_pot"]))
-
-            #         # for i in range(len(game["bets"])):
-            #         #     print("This is the main pot: " + str(game["pot"]))
-            #         #     print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-            #         #     game["pot"] += game["bets"][i]["bet"]
-            #         #     print("This is the main pot after getting added: " + str(game["pot"]))
-            # # No small pots exists
-            # else:
-            #     for i in range(len(game["bets"])):
-            #             print("This is the main pot: " + str(game["pot"]))
-            #             print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-            #             game["pot"] += game["bets"][i]["bet"]
-            #             print("This is the main pot after getting added: " + str(game["pot"]))
-
-            # # --------------- POT LOGIC ---------------
-                        
-            # print("These are the pots " + str(game["pots"]))
-            # print("This is min all in" + str(game["min_all_in"]))
-            # print("These are the bets" + str(game["bets"]))
-            # print("This is the main pot " + str(game["pot"]))
-            # game["bets"] = []
-            # game["min_all_in"] = []
-
-            # socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
-            # socketio.emit("end_betting_round", {"game_update": game}, room = room)
+            game["current_turn"] = len(game["round_order"])
         else:
             break
 
 
-    if game["current_turn"] == len(game["player_order"]) and game["raise_occurred"]:
+    if game["current_turn"] == len(game["round_order"]) and game["raise_occurred"]:
         #if all players have betted and a raise occurred reset the current turn number to 0
         #call function that will continue the betting make sure first player has not folded
         
         
         #ADDING CHECK IF ALL PLAYERS FOLDED HERE 2/17
-        if (len(game["player_order"]) - len(game["players_folded_list"]) <= 1):
+        if (len(game["round_order"]) - len(game["players_folded_list"]) <= 1):
             #ALL BUT ONE PLAYER HAS FOLDED NO MORE BETTING WINNER CAN NOW BE DECLARED
             # game["bets"] = []
             # game["min_all_in"] = []
             # game[round + "_bets_taken"] = True
             # game[round + "_bets_completed"] = True
             print("IS THIS RUNNING FOR SOME REASON???")
-            game["current_turn"] = len(game["player_order"])
+            game["current_turn"] = len(game["round_order"])
             game["raise_occurred"] = False
 
         print("this round should restart at least once...")
         restart_betting_round(room, game)
-        while game["current_turn"] < len(game["player_order"]):
-            next_player = game["player_order"][game["current_turn"]]
+        while game["current_turn"] < len(game["round_order"]):
+            next_player = game["round_order"][game["current_turn"]]
             next_player_data = game["player_data"][next_player]
             if next_player_data["status"] == "fold":
                 game["current_turn"] +=1
             elif next_player_data["status"] == "all_in":
                 #Added this if condition 2/17 to account for all in raises the regular condition is just current turn + 1
                 if next_player == game["last_raise"]:
-                    game["current_turn"] = len(game["player_order"])
+                    game["current_turn"] = len(game["round_order"])
                 else:
                     game["current_turn"] +=1
             elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
                 print(f"{next_player} was last to raise game should stop here")
                 print(f'was there a raise? ... {game["raise_occurred"]}')
-                game["current_turn"] = len(game["player_order"])
-
-                # game[round + "_bets_taken"] = True
-                # game[round + "_bets_completed"] = True
-                # # socketio.emit("handle_cash", {"game_update": game, "player" : player_name, "player_cash" : player_data["cash"]}, room = room)
-                # print("is this ending here? ")
-                # socketio.emit("end_betting_round", {"game_update": game}, room = room)
-
-                #  # --------------- POT LOGIC ---------------
-                # if (len(game["pots"]) > 0):
-                   
-                #     # THIS SECTION IS IF THERE ARE MORE THAN 1 MIN ALL BET
-                    
-                #     while (len(game["min_all_in"]) > 0):
-                #         # Getting the min all bet and its respective index
-                #         min_all_bet = min(game["min_all_in"])
-                #         min_all_bet_index = game["min_all_in"].index(min_all_bet)
-
-                #         for i in range(len(game["bets"])):
-                #             if (game["bets"][i]["bet"] >= min_all_bet):
-                #                 # Getting the difference Example: 750 (player's bet) - 400 (min_all_in) = 350
-                #                 difference = game["bets"][i]["bet"] - min_all_bet
-                #                 # Subtract that difference from the nth bet. 750 - 350 = 400
-                #                 game["bets"][i]["bet"] -= min_all_bet
-                #                 # Adding that difference to the respective pot
-                #                 if (game["main_pot"]):
-                #                     game["pot"] += min_all_bet
-                #                 else:
-                #                     respective_pot = game["pots"][len(game["pots"]) - len(game["min_all_in"]) - 1]
-                #                     respective_pot["cash"] += min_all_bet
-                #                     game["bets"][i]["bet"] -= min_all_bet
-                #                     # Make sure to minus the min_all_bet from the bets themselves
-                #                     # and check if the player is not already in the players array 
-                #                     if (game["bets"][i]["player_name"] not in respective_pot["players"]):
-                #                         respective_pot["players"].append(game["bets"][i]["player_name"])
-                #         game["main_pot"] = False
-
-                #         for i in range(len(game["min_all_in"])):
-                #             game["min_all_in"][i] -= min_all_bet
-                #         game["min_all_in"].pop(min_all_bet_index)
-
-                #     for i in range(len(game["bets"])):
-                #         if (game["bets"][i]["bet"] > 0):
-                #             game["pots"][len(game["pots"]) - 1]["cash"] += game["bets"][i]["bet"]
-                #             game["pots"][len(game["pots"]) - 1]["players"].append(game["bets"][i]["player_name"])
-
-                #         print("This is the main pot: " + str(game["pot"]))
-                #         print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-                #         print("This is the main pot condition " + str(game["main_pot"]))
-
-                #         # for i in range(len(game["bets"])):
-                #         #     print("This is the main pot: " + str(game["pot"]))
-                #         #     print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-                #         #     game["pot"] += game["bets"][i]["bet"]
-                #         #     print("This is the main pot after getting added: " + str(game["pot"]))
-                # # No small pots exists
-                # else:
-                #     for i in range(len(game["bets"])):
-                #             print("This is the main pot: " + str(game["pot"]))
-                #             print("This is how much is getting added: " + str(game["bets"][i]["bet"]))
-                #             game["pot"] += game["bets"][i]["bet"]
-                #             print("This is the main pot after getting added: " + str(game["pot"]))
-
-                # # --------------- POT LOGIC ---------------
-
-                # print("These are the pots " + str(game["pots"]))
-                # print("This is min all in" + str(game["min_all_in"]))
-                # print("These are the bets" + str(game["bets"]))
-                # print("This is the main pot " + str(game["pot"]))
-                # game["bets"] = []
-                # game["min_all_in"] = []
+                game["current_turn"] = len(game["round_order"])
             else:
                 break
         # continue_betting(room, game)
-    if game["current_turn"] == len(game["player_order"]) and not game["raise_occurred"]:
+    if game["current_turn"] == len(game["round_order"]) and not game["raise_occurred"]:
         #Betting has ended and raise did not occur
         #Call function that will reset the statuses of the players bets
         #put player in front at the end now 
@@ -826,7 +723,7 @@ def handle_bet_action(data):
         game[round + "_bets_completed"] = True
 
 
-                # # --------------- POT LOGIC ---------------
+        # # --------------- POT LOGIC ---------------
 
         # If small pots exists
         if (len(game["pots"]) > 0):
@@ -956,7 +853,8 @@ def winner_winner_chicken_dinner(data):
             players_playing = {}
 
             # Getting all the players that can be in play of the active pot
-            for player_name in game["player_data"]:
+            #Sergio NEED change to eman game 2/28 ------------- change game at player data to game at round order...
+            for player_name in game["round_order"]:
                 if player_name in pot_in_play["players"]:
                     players_playing[player_name] = game["player_data"][player_name]
 
@@ -1042,7 +940,8 @@ def winner_winner_chicken_dinner(data):
         players_playing = {}
 
         # Adding all players available to play for the main pot
-        for player_name in game["player_data"]:
+        #Sergio change to eman game 2/28 ------------- change game at player data to game at round order...
+        for player_name in game["round_order"]:
             if player_name not in players_not_playing:
                 players_playing[player_name] = game["player_data"][player_name]
 
@@ -1099,17 +998,20 @@ def continue_betting(room, game):
     round = game["betting_round"]
     
     player_index = game["current_turn"]
-    player = game["player_order"][player_index]
+    player = game["round_order"][player_index]
     player_data = game["player_data"][player]
+    user_id = player_data["userId"]
 
     print("This player will now bet -----")
     print(player)
     min_bet_difference = game["min_bet"] - game["player_data"][player][round]
+    #added bankroll to put a cap on max bet someone can put in
+    player_bankroll = player_data["cash"]
 
     current_bet_id = game["betting_index"]
 
     #ADDED 2/17 to end game if all other players have folded...the else was the regular piece of code before this if 
-    if (len(game["player_order"]) - len(game["players_folded_list"]) <= 1):
+    if (len(game["round_order"]) - len(game["players_folded_list"]) <= 1):
         #ALL BUT ONE PLAYER HAS FOLDED NO MORE BETTING WINNER CAN NOW BE DECLARED
         game["bets"] = []
         game["min_all_in"] = []
@@ -1119,8 +1021,9 @@ def continue_betting(room, game):
         reset_betting(room, game)
         socketio.emit("end_betting_round", {"game_update": game}, room = room)
     else:
-        socketio.emit("take_bet", {"game_update": game,"user": player, "bet_difference": min_bet_difference}, room = room)
-
+        game["player_data"][player]["myTurn"] = True
+        socketio.emit("take_bet", {"game_update": game, "player_cash": player_bankroll, "user": user_id, "bet_difference": min_bet_difference}, room = room)
+        game["player_data"][player]["myTurn"] = False
 
     #LOGIC FOR HANDLING TIME OUTS ON BETTING ---------------------------------------------------------------------
     # time.sleep(15)
@@ -1158,8 +1061,8 @@ def reset_betting(room, game):
             print(f"reseting {player}'s status")
             game["player_data"][player]["status"] = ""
     # Moving first player to the back
-    first_player = game["player_order"].pop(0)
-    game["player_order"].append(first_player)
+    first_player = game["round_order"].pop(0)
+    game["round_order"].append(first_player)
     game["current_turn"] = 0
 
 def restart_betting_round(room, game):
@@ -1170,14 +1073,14 @@ def start_next_game(room, game):
 
     for player in game["player_data"]:
         player_data = game["player_data"]
-        player_data[player]["cards"] = []
+        player_data[player]["cards"] = ["", ""]
         player_data[player]["status"] = ""
         player_data[player]["pregame"] = 0
         player_data[player]["flop"] = 0
         player_data[player]["turn"] = 0
         player_data[player]["river"] = 0
 
-    game["all_player_cards"] = []
+    # game["all_player_cards"] = []
     game["table_cards"] = []
     game["deck"] = []
     game["last_card_dealt"] = 0
@@ -1213,6 +1116,21 @@ def start_next_game(room, game):
     game["winners"] = []
     game["game_over"] = False
     #Continue adding
+
+    #Need to extract players no longer present meaning any in disconnected players list
+    #Extract from player order potentially will have bugs but works...
+    #Extract id from player map
+    #Reset player data of specific player template to default state without player
+    #Extract player id from player ids
+
+    #move front player in order to the back
+    print("this was our player order")
+    print(game["player_order"])
+    game["round_order"] = []
+    first_player = game["player_order"].pop(0)
+    game["player_order"].append(first_player)
+    print(game["player_order"])
+
 
 def get_high_card(cards):
         values = sorted(card["value"] for card in cards)

@@ -377,7 +377,7 @@
   display: flex;
   gap: 10px;
   background-color: #a2b9c0;
-  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88), 0 0 10px 20px rgba(255, 255, 255, 0.596);
+  box-shadow: 0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88);
 }
 
 #player1img {

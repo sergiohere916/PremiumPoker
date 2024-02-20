@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 
-//RETURN POINT 2/26 fixing in id into game and players ----- /
+//RETURN POINT 2/29 fixing in id into game and players ----- //
 //Re add socket back here as the prop passed down if necessary
 function Game({gameData, socket, restoreGameData}) {
 
@@ -17,7 +17,7 @@ function Game({gameData, socket, restoreGameData}) {
         id: "",
         game_started: false,
         host: "",
-        player_list: [],
+        player_map: {},
         player_data: {},
         player_cards: [],
         player_cash: 0,
@@ -27,6 +27,7 @@ function Game({gameData, socket, restoreGameData}) {
         last_card_dealt: 0,
         player_ids: [],
         player_order: [],
+        round_order: [],
         current_turn: 0,
         turn_number: 0,
         player_cards_dealt: false,
@@ -123,8 +124,8 @@ function Game({gameData, socket, restoreGameData}) {
 
         
         socket.on('starting', (data) => {
-            const user = gameData["user"]
-            const money = data["player_data"][user]["cash"]
+            // const user = gameData["user"]
+            // const money = data["player_data"][user]["cash"]
             
             //Keeping playercards within the gamedata
 
@@ -133,7 +134,7 @@ function Game({gameData, socket, restoreGameData}) {
             setGame(prevGame => ({
                 ...prevGame,
                 ...data,
-                player_cash: money
+                // player_cash: money
             }))
         })
         
@@ -158,7 +159,7 @@ function Game({gameData, socket, restoreGameData}) {
 
         socket.on('dealing', (data) => {
             console.log("Socket on dealing received on frontend");
-            setGame(prevGame => ({...prevGame, all_player_cards: data["all_player_cards"], player_cards_dealt: data["player_cards_dealt"], player_cards_dealing: data["dealing"]}))
+            setGame(prevGame => ({...prevGame, player_data: data["adding_cards"], player_cards_dealt: data["player_cards_dealt"], player_cards_dealing: data["dealing"]}))
         })
 
         socket.on("dealing_flop", (data) => {
@@ -180,9 +181,9 @@ function Game({gameData, socket, restoreGameData}) {
         })
 
         socket.on("take_bet", (data) => {
-            if (data["user"] === gameData["user"]) {
+            if (data["user"] === gameData["userId"]) {
                 console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
-                setGame(prevGame => ({...prevGame, ...data["game_update"], bet_difference: data["bet_difference"]}))
+                setGame(prevGame => ({...prevGame, ...data["game_update"], player_cash: data["player_cash"], bet_difference: data["bet_difference"]}))
                 setDisplayBetting(true)
                 setMyBet(Number(data["bet_difference"]))
                 //SHOW THE FORM
@@ -215,23 +216,23 @@ function Game({gameData, socket, restoreGameData}) {
             console.log("ending bet round")
             setDisplayBetting(false)
             setGame(prevGame => ({...prevGame, 
-                last_raise : data["game_update"]["last_raise"],
-                raise_occurred : data["game_update"]["raise_occurred"],
-                betting_round : data["game_update"]["betting_round"],
-                min_bet : data["game_update"]["min_bet"],
-                players_folded_list : data["game_update"]["players_folded_list"],
-                player_data : data["game_update"]["player_data"],
-                player_order : data["game_update"]["player_order"],
-                current_turn : data["game_update"]["current_turn"],
-                flop_bets_completed : data["game_update"]["flop_bets_completed"],
-                flop_bets_taken : data["game_update"]["flop_bets_taken"],
-                pregame_bets_taken: data["game_update"]["pregame_bets_taken"],
-                pregame_bets_completed: data["game_update"]["pregame_bets_completed"],
-                turn_bets_taken: data["game_update"]["turn_bets_taken"],
-                turn_bets_completed: data["game_update"]["turn_bets_completed"],
-                river_bets_taken: data["game_update"]["river_bets_taken"],
-                river_bets_completed: data["game_update"]["river_bets_completed"]
-                // ...data["game_update"]
+                // last_raise : data["game_update"]["last_raise"],
+                // raise_occurred : data["game_update"]["raise_occurred"],
+                // betting_round : data["game_update"]["betting_round"],
+                // min_bet : data["game_update"]["min_bet"],
+                // players_folded_list : data["game_update"]["players_folded_list"],
+                // player_data : data["game_update"]["player_data"],
+                // player_order : data["game_update"]["player_order"],
+                // current_turn : data["game_update"]["current_turn"],
+                // flop_bets_completed : data["game_update"]["flop_bets_completed"],
+                // flop_bets_taken : data["game_update"]["flop_bets_taken"],
+                // pregame_bets_taken: data["game_update"]["pregame_bets_taken"],
+                // pregame_bets_completed: data["game_update"]["pregame_bets_completed"],
+                // turn_bets_taken: data["game_update"]["turn_bets_taken"],
+                // turn_bets_completed: data["game_update"]["turn_bets_completed"],
+                // river_bets_taken: data["game_update"]["river_bets_taken"],
+                // river_bets_completed: data["game_update"]["river_bets_completed"]
+                ...data["game_update"]
 
             }))
     
@@ -420,29 +421,29 @@ function Game({gameData, socket, restoreGameData}) {
         //     status = "standard_bet"
         // }
         console.log(status);
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: status, bet: myBet })
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: status, bet: myBet })
         setDisplayBetting(false)
     }
 
     function handleCallButton() {
         if (game["min_bet"] !== 0) {
-            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "call", bet: game["bet_difference"] })
+            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "call", bet: game["bet_difference"] })
             setDisplayBetting(false)
         }
     }
 
     function handleFoldButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "fold", bet: 0})
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "fold", bet: 0})
         setDisplayBetting(false)
     }
 
     function handleAllInButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "all_in", bet: game["player_data"][gameData["user"]]["cash"] })
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "all_in", bet: game["player_data"][gameData["user"]]["cash"] })
         setDisplayBetting(false)
     }
 
     function handleCheckButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], bet_status: "check", bet: 0})
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "check", bet: 0})
         setDisplayBetting(false)
     }
 
@@ -566,23 +567,47 @@ function Game({gameData, socket, restoreGameData}) {
         const currCash = playerData["cash"];
         const currStatus = playerData["status"];
 
-        // let card1 = playerData["cards"][0];
-        // let card2 = playerData["cards"][1];
+        let card1 = playerData["cards"][0];
+        let card2 = playerData["cards"][1];
         
+        const playerTurn = playerData["myTurn"]
+        //
+        
+        // if (playerTurn === true) {
+        //     infoOutline = "3 px solid green";
+        // }
 
         return (
             <div id={player}>
                 {playerId? (
                 <>
-                <div id={player + "icon"}>
+                {playerTurn? ( 
+                <>
+                <div id={player + "icon"} style={{boxShadow: "0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88), 0 0 10px 20px rgba(255, 255, 255, 0.596)"}}>
                     <img id = {player + "img"} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
                 </div>
-                <div id={player + "info"} style={{border: ""}}>
+                <div id={player + "info"} style={{border: "3px solid green"}}>
                     {player}
                     <hr/>
                     <div className="Money">Cash: ${currCash}</div>
-                    <div>{currStatus}</div>         
+                    <div>{card1["name"]} and {card2["name"]}</div>         
                 </div>
+                </>
+                ):
+                (
+                <>
+                <div id={player + "icon"}>
+                    <img id = {player + "img"} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                </div>
+                <div id={player + "info"} >
+                    {player}
+                    <hr/>
+                    <div className="Money">Cash: ${currCash}</div>
+                    <div>{card1["name"]} and {card2["name"]}</div>         
+                </div>
+                </>
+                )
+                }
                 <div id={player + "cards"}>
                     <div className="cards12">
                         <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" className="cardX"/>
@@ -650,32 +675,6 @@ function Game({gameData, socket, restoreGameData}) {
                     {displayTableCards}
                 </div>
                     {displayAllPlayerCards}
-                    {/* <div className="imgBx4" style={{"--q": "4"}}>
-                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div> */}
-                    {/* <div className="imgBx5" style={{"--q": "5"}}>
-                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div> */}
-                    {/* <div className="imgBx6" style={{"--q": "6"}}>
-                        <img className="playerImg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                    </div> */}
-                    {/* <div id="player7">
-                        <div id="player7icon">
-                            <img id = "player7img"src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
-                        </div>
-                        <div id="player7info">
-                            
-                        </div>
-                        <div id="player7cards">
-                            <div className="cards12">
-                                <img className="cardX" src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" alt="pokerCard"/>
-                            </div>
-                            <div className="cards12">
-                                <img className="cardX" src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" alt="pokerCard"/>
-                            </div>
-                        </div>
-                        
-                    </div> */}
                 </div>
             </div>
             <div>
