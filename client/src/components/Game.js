@@ -124,12 +124,6 @@ function Game({gameData, socket, restoreGameData}) {
 
         
         socket.on('starting', (data) => {
-            // const user = gameData["user"]
-            // const money = data["player_data"][user]["cash"]
-            
-            //Keeping playercards within the gamedata
-
-            // const updatedGame = {...game, ...data, player_cash: money}
             console.log("starting game and updating on frontend")
             setGame(prevGame => ({
                 ...prevGame,
@@ -190,6 +184,7 @@ function Game({gameData, socket, restoreGameData}) {
                 //SET GAME flops bets taken to true
                 //Bet difference needed to determine minimum needed to achieve call
             } else {
+                console.log("Someone is betting....")
                 setGame(prevGame => ({...prevGame, ...data["game_update"]}))
             }
         })

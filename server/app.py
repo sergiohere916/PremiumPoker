@@ -12,6 +12,7 @@ from string import ascii_uppercase
 from itertools import combinations
 import time
 import uuid
+import threading
 
 # Local imports
 from config import app, db, api
@@ -557,15 +558,53 @@ def initiate_betting(data):
             else:
                 min_bet_difference = game["min_bet"] - game["player_data"][player][round]
 
-                current_bet_id = game["betting_index"]
+                
                 user_id = game["player_data"][player]["userId"]
                 player_bankroll = game["player_data"][player]["cash"]
                 game["player_data"][player]["myTurn"] = True
 
                 game[round + "_bets_taken"] = True
+
+                #SOLUTION TO TIMING OUT
+                game["time"] = 15
+                game["betting_index"] = 0
+                current_bet_id = game["betting_index"]
+
                 socketio.emit("take_bet", {"game_update": game, "player_cash": player_bankroll, "user": user_id, "bet_difference": min_bet_difference}, room = room)
+                while game["time"] > -1:
+                    if game["betting_index"] != current_bet_id:
+                        break
+                    game["time"] -=1
+                    if game["time"] == 0:
+                        print("OUT OF TIME EXECUTE FUNCTION!!! CLOSE BETTING!")
+                    print(game["time"])
+                    time.sleep(1)
                 
-    
+
+def auto_fold():
+    #THINKING
+        #When a player refreses they disconnect and using socket id we can still get game info and swap hosts and put playerid in disconnected players
+            #Then delete player from player in game
+            #If player rejoins game the game will again add the id to players in games
+            #If this player is called to bet the game will auto fold them
+
+
+        #when a player refreshes if host swap the host and help them reconnect
+
+        #If last player disconnects and nobody left to be host
+            #Maybe here can set timer for 5 sec to see if anyone comes back if nobody back using ids
+                #if nobody returns emit a game closed to to many disconnected players 
+                #alternatively if one returns can (prob not the one to go with ) set all variables to complete with this person as winner and set game start to false....idk bout this one... 
+
+
+    #IF BETTER IS NOT IN DISCONNECTED PLAYERS
+        #SHOULD set display to FALSE
+        #SHOULD EMIT BET AS A FOLD
+    #IF BETTER IS IN DISCONNECTED PLAYERS
+        #SHOULD  
+    print("OUT OF TIME!!!!!!!")
+
+
 @socketio.on("handle_bet_action")
 def handle_bet_action(data):
     #2/17 addeding updates to all player cards sections for cash and status
