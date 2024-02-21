@@ -32,6 +32,7 @@ function Game({gameData, socket, restoreGameData}) {
         turn_number: 0,
         player_cards_dealt: false,
         player_cards_dealing: false,
+        player_cards_dealing: false,
         flop_dealt: false,
         turn_dealt: false,
         river_dealt: false,
@@ -50,6 +51,12 @@ function Game({gameData, socket, restoreGameData}) {
         turn_bets_completed: false,
         river_bets_taken: false,
         river_bets_completed: false,
+
+        min_all_in: [],
+        pots: [],
+        bets: [],
+        main_pot: true,
+
         bet_difference: 0,
         disconnected_players: [],
         betting_index: 0,
@@ -57,6 +64,7 @@ function Game({gameData, socket, restoreGameData}) {
         winners: [],
         game_over: false
     })
+    
     
     const [myBet, setMyBet] = useState(0)
     const [displayBetting, setDisplayBetting] = useState(false)
@@ -232,8 +240,11 @@ function Game({gameData, socket, restoreGameData}) {
                 // turn_bets_completed: data["game_update"]["turn_bets_completed"],
                 // river_bets_taken: data["game_update"]["river_bets_taken"],
                 // river_bets_completed: data["game_update"]["river_bets_completed"]
-                ...data["game_update"]
-
+                ...data["game_update"],
+                min_all_in: data["game_update"]["min_all_in"],
+                pots: data["game_update"]["pots"],
+                bets: data["game_update"]["bets"],
+                main_pot: data["game_update"]["main_pot"]
             }))
     
         })
@@ -261,6 +272,11 @@ function Game({gameData, socket, restoreGameData}) {
     // }, [])
 
 
+    // useEffect(() => {
+    //     socket.emit('join_room', gameData);
+    // }, [])
+
+
     
     //FUNCTIONS ------------------------------------------------
     function startGame() {
@@ -269,6 +285,7 @@ function Game({gameData, socket, restoreGameData}) {
             .then(res => res.json())
             .then(cards => {
                 //Fisher-Yates alorith
+                console.log(cards)
                 console.log(cards)
                 for (let i = cards.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -394,6 +411,17 @@ function Game({gameData, socket, restoreGameData}) {
         // }
 
 
+        // if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
+        //     status = "raise"
+        // } else if (myBet > game["bet_difference"]) {
+        //     status = "standard_bet"
+        // } 
+        
+        // if (myBet === game["player_cash"]) {
+        //     status = "all_in"
+        // }
+
+
         if (myBet === game["player_cash"]) {
             status = "all_in";
         } else if (myBet > game["bet_difference"]) {
@@ -403,23 +431,11 @@ function Game({gameData, socket, restoreGameData}) {
         } else if (myBet === game["bet_difference"] && game["bet_difference"] === 0) {
             status = "check";
         }
-       
         // console.log(myBet)
         // console.log(typeof(myBet))
         // console.log(status)
         // console.log(game["player_cash"])
 
-        // if (myBet === game["player_cash"]) {
-        //     status = "all_in"
-        // } else if (myBet > game["bet_difference"] && game["min_bet"] !== 0 ) {
-        //     status = "raise"
-        // } else if (myBet === game["bet_difference"] && myBet !== 0 ) {
-        //     status = "call"
-        // } else if (myBet === 0) {
-        //     status = "check"
-        // } else if (myBet > game["bet_difference"]) {
-        //     status = "standard_bet"
-        // }
         console.log(status);
         socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: status, bet: myBet })
         setDisplayBetting(false)
@@ -473,6 +489,7 @@ function Game({gameData, socket, restoreGameData}) {
     }
 
     //GAME LOGIC -------------------------------------------------
+    
     
     if (game["game_started"] && game["host"] === gameData["user"]) {
         // PLAYER CARDS DEALING
@@ -571,6 +588,18 @@ function Game({gameData, socket, restoreGameData}) {
         let card2 = playerData["cards"][1];
         
         const playerTurn = playerData["myTurn"]
+
+        let betAmount = 0
+
+        if (game["betting_round"] == "pregame") {
+            betAmount = game["player_data"][playerName]["pregame"]
+        } else if (game["betting_round"] == "flop") {
+            betAmount = game["player_data"][playerName]["flop"]
+        } else if (game["betting_round"] == "turn") {
+            betAmount = game["player_data"][playerName]["turn"]
+        } else if (game["betting_round"] == "river") {
+            betAmount = game["player_data"][playerName]["river"]
+        }
         //
         
         // if (playerTurn === true) {
@@ -677,6 +706,7 @@ function Game({gameData, socket, restoreGameData}) {
                     {displayAllPlayerCards}
                 </div>
             </div>
+            <hr/>
             <div>
                 {/* {displayAllPlayerCards} */}
             </div>
@@ -697,6 +727,8 @@ function Game({gameData, socket, restoreGameData}) {
                     </form>
                     <button onClick={handleAllInButton}>ALL IN</button>
                     <button onClick={handleFoldButton}>FOLD</button>
+                    <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
+                    {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
                     <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
                     {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
                 </div>):

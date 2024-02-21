@@ -4,7 +4,9 @@ import Game from "./Game";
 import Homepage from "./Homepage";
 import io from "socket.io-client";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
+const socket = io("http://localhost:5555");
 const socket = io("http://localhost:5555");
 function App() {
   
@@ -43,6 +45,7 @@ function App() {
   <div>
     <Switch>
       <Route path="/game">
+        <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
       </Route>
       <Route path="/">

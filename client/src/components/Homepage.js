@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom/cjs/react-router-dom.min";
 
 
 function Homepage({fillGameData}) {
+
+    const [rooms, setRooms] = useState([])
 
     const [roomCode, setRoomCode] = useState("")
     const [joinCode, setJoinCode] = useState("")
@@ -50,7 +52,6 @@ function Homepage({fillGameData}) {
         <br/>
         <input type="text" name="joinCode" value={joinCode} onChange={(e) => setJoinCode(e.target.value)}/>
         <button onClick={addGameData}>Join Game using Code</button>
-       
     </div>)
 }
 
