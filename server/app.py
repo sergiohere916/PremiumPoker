@@ -375,6 +375,14 @@ def handle_bet_action(data):
         if next_player_data["status"] == "fold":
             game["current_turn"] +=1
         elif next_player_data["status"] == "all_in":
+            if (game["last_raise"] == next_player):
+                game["bets"] = []
+                game["min_all_in"] = []
+                game[round + "_bets_taken"] = True
+                game[round + "_bets_completed"] = True
+
+                reset_betting(room, game)
+                socketio.emit("end_betting_round", {"game_update": game}, room = room)
             # If this person is the last person to raise
             # We want to end the betting round
             game["current_turn"] +=1
@@ -460,6 +468,14 @@ def handle_bet_action(data):
             if next_player_data["status"] == "fold":
                 game["current_turn"] +=1
             elif next_player_data["status"] == "all_in":
+                if (game["last_raise"] == next_player):
+                    game["bets"] = []
+                    game["min_all_in"] = []
+                    game[round + "_bets_taken"] = True
+                    game[round + "_bets_completed"] = True
+
+                    reset_betting(room, game)
+                    socketio.emit("end_betting_round", {"game_update": game}, room = room)
                 game["current_turn"] +=1
             elif next_player_data["status"] == "raise" and next_player == game["last_raise"]:
                 print(f"{player_name} was last to raise game should stop here")
