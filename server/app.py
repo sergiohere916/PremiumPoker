@@ -585,8 +585,8 @@ def auto_fold():
     #THINKING
         #When a player refreses they disconnect and using socket id we can still get game info and swap hosts and put playerid in disconnected players
             #Then delete player from player in game
-            #If player rejoins game the game will again add the id to players in games
             #If this player is called to bet the game will auto fold them
+                #If player rejoins game the game will again add the id to players in games
 
 
         #when a player refreshes if host swap the host and help them reconnect
