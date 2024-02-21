@@ -15,11 +15,15 @@ function Homepage({fillGameData}) {
     }
 
     function saveGameData() {
-        fillGameData(userName, roomCode)
+        if (roomCode !== "" && userName !== "") {
+            fillGameData(userName, roomCode);
+        } 
     }
 
     function addGameData() {
-        fillGameData(userName, joinCode)
+        if (joinCode !== "" && userName !== "") {
+            fillGameData(userName, joinCode);
+        }
     }
 
     return (
@@ -27,12 +31,12 @@ function Homepage({fillGameData}) {
         <label>Create UserName: </label>
         <input type="text" name="userName" value={userName} onChange={(e) => setUserName(e.target.value)}/>
         <br/>
-        <input type="text" name="roomCode" value={roomCode}/>
+        <input type="text" name="roomCode" value={roomCode} readOnly={true}/>
         <button onClick={generateCode}>Generate Room Code</button>
-        <NavLink to="/game"><button onClick={saveGameData}>Start A Game</button></NavLink>
+        <button onClick={saveGameData}>Start A Game</button>
         <br/>
         <input type="text" name="joinCode" value={joinCode} onChange={(e) => setJoinCode(e.target.value)}/>
-        <NavLink to="/game"><button onClick={addGameData}>Join Game using Code</button></NavLink>
+        <button onClick={addGameData}>Join Game using Code</button>
        
     </div>)
 }
