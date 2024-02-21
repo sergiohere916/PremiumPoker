@@ -493,7 +493,9 @@ def initiate_betting(data):
         print("THIS IS THE BIG BLIND : " + str(big_blind))
 
         game["player_data"][small_blind]["cash"] -= 5
+        game["player_data"][small_blind][round] = 5
         game["player_data"][big_blind]["cash"] -= 10
+        game["player_data"][big_blind][round] = 10
         game["min_bet"] = 10
 
         print("THESE ARE THE PLAYRES CASH AFTER BLINDS : ")

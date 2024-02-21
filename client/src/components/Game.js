@@ -592,13 +592,13 @@ function Game({gameData, socket, restoreGameData}) {
         let betAmount = 0
 
         if (game["betting_round"] == "pregame") {
-            betAmount = game["player_data"][playerName]["pregame"]
+            betAmount = game["player_data"][player]["pregame"]
         } else if (game["betting_round"] == "flop") {
-            betAmount = game["player_data"][playerName]["flop"]
+            betAmount = game["player_data"][player]["flop"]
         } else if (game["betting_round"] == "turn") {
-            betAmount = game["player_data"][playerName]["turn"]
+            betAmount = game["player_data"][player]["turn"]
         } else if (game["betting_round"] == "river") {
-            betAmount = game["player_data"][playerName]["river"]
+            betAmount = game["player_data"][player]["river"]
         }
         //
         
@@ -695,14 +695,14 @@ function Game({gameData, socket, restoreGameData}) {
             </div> */}
             <hr/>
             <div className="container">
-            <div className="icon">
-                
-                <div id="pokerLogoContainer">
-                    <img id="pokerLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png" alt="pokerTableLogo" />
-                </div>
-                <div id="newTableCards">
-                    {displayTableCards}
-                </div>
+                <div className="icon">
+                    
+                    <div id="pokerLogoContainer">
+                        <img id="pokerLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/World_Series_of_Poker_logo.svg/480px-World_Series_of_Poker_logo.svg.png" alt="pokerTableLogo" />
+                    </div>
+                    <div id="newTableCards">
+                        {displayTableCards}
+                    </div>
                     {displayAllPlayerCards}
                 </div>
             </div>
@@ -711,7 +711,7 @@ function Game({gameData, socket, restoreGameData}) {
                 {/* {displayAllPlayerCards} */}
             </div>
             {/* Set constraint on form to not allow lower bet than needed */}
-            
+        
             {/* <div>
                 {"CASH: " + game["player_cash"]}
             </div> */}
@@ -729,11 +729,8 @@ function Game({gameData, socket, restoreGameData}) {
                     <button onClick={handleFoldButton}>FOLD</button>
                     <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
                     {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
-                    <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
-                    {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
                 </div>):
-            <>
-            </>
+            (<></>)
             }
             {displayWinners}
             </div>
