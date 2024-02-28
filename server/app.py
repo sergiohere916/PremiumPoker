@@ -38,21 +38,21 @@ class StoreRoomData(Resource):
     def post(self):
         user = request.json["user"]
         code = request.json["room"]
-        session["user"] = user
-        session["room"] = code
+        # session["user"] = user
+        # session["room"] = code
 
         print("stored data")
         return {"user": user, "room": code }, 200
     
 api.add_resource(StoreRoomData, "/storeData")
 
-class CheckSession(Resource):
-    def get(self):
-        user = session["user"]
-        code = session["room"]
-        if user and code:
-            return {"user": user, "room": code}, 200
-api.add_resource(CheckSession, "/checkSession")
+# class CheckSession(Resource):
+#     def get(self):
+#         user = session["user"]
+#         code = session["room"]
+#         if user and code:
+#             return {"user": user, "room": code}, 200
+# api.add_resource(CheckSession, "/checkSession")
 
 class Cards(Resource):
     def get(self):
@@ -362,6 +362,27 @@ def initiate_betting(data):
     round_key = str(round) + "_bets_taken"
     print(round_key)
     print("\ninitiating betting is running")
+    if (round == "pregame"):
+        small_blind = game["player_order"][len(game["player_order"]) - 2]
+        big_blind = game["player_order"][len(game["player_order"]) - 1]
+
+        print("THIS IS THE SMALL BLIND : " + str(small_blind))
+        print("THIS IS THE BIG BLIND : " + str(big_blind))
+
+        game["player_data"][small_blind]["cash"] -= 5
+        game["player_data"][big_blind]["cash"] -= 10
+        game["min_bet"] = 10
+
+        print("THESE ARE THE PLAYRES CASH AFTER BLINDS : ")
+        print(game["player_data"][small_blind])
+        print(game["player_data"][big_blind])
+
+        print("THIS IS THE MIN BET NOW : " + str(game["min_bet"]))
+
+        game["pot"] += 15        
+
+        print("THIS IS THE MAIN POT AFTER BLINDS : " + str(game["pot"]))
+
     if not game[round + "_bets_taken"]:
         starting_player = game["current_turn"]
         player = game["player_order"][starting_player]
@@ -441,7 +462,7 @@ def initiate_betting(data):
                 current_bet_id = game["betting_index"]
 
                 game[round + "_bets_taken"] = True
-                socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference}, room = room)
+                socketio.emit("take_bet", {"game_update": game, "user": player, "bet_difference": min_bet_difference, "bets" : game["bets"]}, room = room)
 
                 # #LOGIC FOR HANDLING TIME OUTS ON BETTING ---------------------------------------------------------------------
                 # time.sleep(15)
@@ -480,7 +501,7 @@ def handle_bet_action(data):
     #increment current_turn
 
     # game["pot"] += bet_amount
-
+    print("THIS IS THE BET AMOUNT : " + str(bet_amount))
     player_data[round] += bet_amount
     game["player_data"][player_name]["cash"] -= bet_amount
 
@@ -489,7 +510,9 @@ def handle_bet_action(data):
     #if this is a restarted round because of raise my bet minimum will be the difference
     #between last raise and my last bet so if 20 and 10 i must bet at least 10 which is
     #the amount registerd as bet amount but I'm actually betting a total of 20
-    bet_amount = player_data[round]
+
+    # THIS CAUSED A BUG
+    # bet_amount = player_data[round]
 
     # if bet_amount > game["min_bet"]:
     #     game["min_bet"] = bet_amount
@@ -543,7 +566,19 @@ def handle_bet_action(data):
     #INTEGRATION 2/20/24 --------------------------
     print("min_all_in" + str(game["min_all_in"]))
     print(game["pots"])
+    # player_index = -1
+    # for index, player_info in enumerate(game["bets"]):
+    #     if player_info["player_name"] == player_name:
+    #         player_index = index
+    #         break
+    
+    # if player_index == -1:
+    print("THIS IS THE BEST AMOUNT PART 2 : " + str(bet_amount))
     game["bets"].append({"player_name" : player_name, "bet" : bet_amount})
+    # else:
+    #     game["bets"][player_index]["bet"] += bet_amount
+
+    print("THESE ARE THE BETS : " + str(game["bets"]))
     print("Line 542, These are all the games bets: ")
     print(game["bets"])
     # ----------------------------------------------

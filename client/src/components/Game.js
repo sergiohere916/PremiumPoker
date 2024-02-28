@@ -48,6 +48,12 @@ function Game({gameData, socket, restoreGameData}) {
         turn_bets_completed: false,
         river_bets_taken: false,
         river_bets_completed: false,
+
+        min_all_in: [],
+        pots: [],
+        bets: [],
+        main_pot: true,
+
         bet_difference: 0,
         disconnected_players: [],
         betting_index: 0,
@@ -175,7 +181,7 @@ function Game({gameData, socket, restoreGameData}) {
         socket.on("take_bet", (data) => {
             if (data["user"] === gameData["user"]) {
                 console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
-                setGame(prevGame => ({...prevGame, ...data["game_update"], bet_difference: data["bet_difference"]}))
+                setGame(prevGame => ({...prevGame, ...data["game_update"], bet_difference: data["bet_difference"], bets: data["bets"]}))
                 setDisplayBetting(true)
                 setMyBet(Number(data["bet_difference"]))
                 //SHOW THE FORM
@@ -223,9 +229,12 @@ function Game({gameData, socket, restoreGameData}) {
                 turn_bets_taken: data["game_update"]["turn_bets_taken"],
                 turn_bets_completed: data["game_update"]["turn_bets_completed"],
                 river_bets_taken: data["game_update"]["river_bets_taken"],
-                river_bets_completed: data["game_update"]["river_bets_completed"]
+                river_bets_completed: data["game_update"]["river_bets_completed"],
                 // ...data["game_update"]
-
+                min_all_in: data["game_update"]["min_all_in"],
+                pots: data["game_update"]["pots"],
+                bets: data["game_update"]["bets"],
+                main_pot: data["game_update"]["main_pot"]
             }))
     
         })
@@ -525,7 +534,7 @@ function Game({gameData, socket, restoreGameData}) {
         return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
     })
 
-    
+    console.log(game["player_data"])
     // Cards to display but will need to keep hidden until end of game if player decides to show cards
     const displayAllPlayerCards = game["all_player_cards"].map((playerData) => {
         const playerName = Object.keys(playerData)[0]
@@ -534,11 +543,24 @@ function Game({gameData, socket, restoreGameData}) {
             let card2 = playerData[playerName][1]
             const currCash = game["player_data"][playerName]["cash"]
             const currStatus = game["player_data"][playerName]["status"]
+            let betAmount = 0
+
+            if (game["betting_round"] == "pregame") {
+                betAmount = game["player_data"][playerName]["pregame"]
+            } else if (game["betting_round"] == "flop") {
+                betAmount = game["player_data"][playerName]["flop"]
+            } else if (game["betting_round"] == "turn") {
+                betAmount = game["player_data"][playerName]["turn"]
+            } else if (game["betting_round"] == "river") {
+                betAmount = game["player_data"][playerName]["river"]
+            }
+
             if (playerName !== gameData["user"]) {
                 card1 = {name: "?", suit: ""};
                 card2 = {name: "?", suit: ""};
             }
             return (<><div key={card1["name"] + card1["suit"]}>
+                <div>BET : {betAmount}</div>
                 <div>{playerName}: {currStatus} </div>
                 <div>${currCash}</div>
                 <div>
