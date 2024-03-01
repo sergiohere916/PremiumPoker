@@ -12,7 +12,7 @@ class Card(db.Model, SerializerMixin):
     suit = db.Column(db.String)
     value = db.Column(db.Integer)
     # This is the image column
-    image = db.Column(db.Integer)
+    image = db.Column(db.String)
 
     def __repr__(self):
         return f'<Card: {self.name}, suit: {self.suit}, id: {self.id}>'
