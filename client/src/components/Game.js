@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-
 //RESET POINT ALL THE WAY BACK TO START OF 2/7/24
 //Re add socket back here as the prop passed down if necessary
 function Game({gameData, socket, restoreGameData}) {

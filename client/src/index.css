@@ -5,6 +5,10 @@
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
+html {
+  background-color: black;
+}
+
 #table {
   height: 500px;
   width: 500px;
