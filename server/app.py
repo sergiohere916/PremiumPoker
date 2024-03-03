@@ -979,7 +979,7 @@ def winner_winner_chicken_dinner(data):
 
             game["winners"] = winning_players
             # game["winners_declared"] = True
-            socketio.emit("returning_winners", {"winners": game["winners"], "game_update": game}, room = room)
+            socketio.emit("returning_winners", {"winners": game["winners"]  , "game_update": game}, room = room)
 
         # if no small pots exists then we will just run the main pot
         else:
