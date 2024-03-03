@@ -507,6 +507,7 @@ def initiate_betting(data):
         print("THIS IS THE MAIN POT AFTER BLINDS : " + str(game["pot"]))
 
     if not game[round + "_bets_taken"]:
+        print("IS THIS BEING RAN????????????")
         starting_player = game["current_turn"]
         player = game["round_order"][starting_player]
         #player1 or player2 or ....etc
@@ -516,6 +517,7 @@ def initiate_betting(data):
         #ADDED 2/17 to account for all players either all in or folded or mix of both
         #4 in player order                      0                                   3
         if (len(game["round_order"]) - len(game["players_folded_list"]) <= 1):
+            print("SECOND IS THIS BEING RAN?????")
             #ALL BUT ONE PLAYER HAS FOLDED NO MORE BETTING WINNER CAN NOW BE DECLARED
             print(len(game["round_order"]))
             print(len(game["players_folded_list"]))
@@ -530,6 +532,7 @@ def initiate_betting(data):
             #SHOULD SET ALL CARDS AS DEALT AND ALL BETS AS TAKEN TO END GAME AND RUN NO MORE LOGIC...
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
         elif (len(game["round_order"]) - (len(game["players_folded_list"]) + len(game["players_all_in"])) == 0):
+            print("THIRD IS THIS BEING RAN????")
             #ALL PLAYERS ARE EITHER FOLDED OR ALL IN
             print("all are either folded or all in so end round end game")
             game["bets"] = []
@@ -540,6 +543,7 @@ def initiate_betting(data):
             reset_betting(room, game)
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
         elif (len(game["round_order"]) - (len(game["players_all_in"]) + len(game["players_folded_list"])) == 1):
+            print("FOURTH IS THIS BRING RAN??????")
             #THIS SHOULD CAPTURE IF ALL PLAYERS ARE ALL IN AND ONE PLAYER JUST CALLED
             print("all but one have gone all in but that player called or raised previously so end round end game")
             game["bets"] = []
@@ -550,9 +554,12 @@ def initiate_betting(data):
             reset_betting(room, game)
             socketio.emit("end_betting_round", {"game_update": game}, room = room)
         else:
+            print("FIFTH IS THIS BEING RAN?????")
             if player_status == "all_in" or player_status == "fold":
+                print("SIXT IS THIS BEING RAN?????")
                 game["current_turn"] +=1
                 while game["current_turn"] < len(game["round_order"]):
+                    print("SEEVENTH IS THIS BEING TAN???????")
                     # next_player = game["player_order"][game["current_turn"]]
                     # next_player_data = game["player_data"][next_player]
                     starting_player = game["current_turn"]
@@ -581,6 +588,7 @@ def initiate_betting(data):
                 game[round + "_bets_taken"] = True
                 socketio.emit("end_betting_round", {"game_update": game}, room = room)
             else:
+                print("IDK IF THIS BEING RAN???")
                 min_bet_difference = game["min_bet"] - game["player_data"][player][round]
 
                 current_bet_id = game["betting_index"]
@@ -906,7 +914,7 @@ def winner_winner_chicken_dinner(data):
 
                 # Gets the winning players as a list
                 winning_players = determine_winner(game, players_playing)
-
+                game["winners"].append(winning_players)
                 print("THESE ARE THE WINNING PLAYERS OF THE POT IN PLAY : " + str(winning_players))
 
                 # Adds the losers to the not in play list
@@ -959,7 +967,7 @@ def winner_winner_chicken_dinner(data):
 
             # Getting back a list of winning players
             winning_players = determine_winner(game, players_playing)
-
+            game["winners"].append(winning_players)
             print("THESE ARE THE WINNERS OF THE MAIN POT : " + str(winning_players))
 
             print("THIS IS THE AMOUNT THE MAIN POT HAS : " + str(game["pot"]))
@@ -976,8 +984,6 @@ def winner_winner_chicken_dinner(data):
 
             game["pot"] = 0
             
-
-            game["winners"] = winning_players
             # game["winners_declared"] = True
             socketio.emit("returning_winners", {"winners": game["winners"]  , "game_update": game}, room = room)
 
@@ -1016,7 +1022,7 @@ def winner_winner_chicken_dinner(data):
 
         #PRE INTEGRATION GAME WINNNERS LIST
         # game["winners"] = game_winners
-            game["winners"] = winning_players
+            game["winners"].append(winning_players)
             # game["winners_declared"] = True
             # socketio.emit("returning_winners", {"winners": game["winners"], "winners_declared": game["winners_declared"]}, room = room)
             socketio.emit("returning_winners", {"winners": game["winners"], "game_update": game}, room = room)
