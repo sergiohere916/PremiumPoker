@@ -561,6 +561,7 @@ function Game({gameData, socket, restoreGameData}) {
         const playerName = playerData["user"];
         const currCash = playerData["cash"];
         const currStatus = playerData["status"];
+        const playerIcon = playerData["image"]
 
         let card1 = playerData["cards"][0];
         let card2 = playerData["cards"][1];
@@ -579,7 +580,7 @@ function Game({gameData, socket, restoreGameData}) {
                 {playerTurn? ( 
                 <>
                 <div id={player + "icon"} style={{boxShadow: "0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88), 0 0 10px 20px rgba(255, 255, 255, 0.596)"}}>
-                    <img id = {player + "img"} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    <img id = {player + "img"} src={playerIcon}/>
                 </div>
                 <div id={player + "info"} style={{border: "3px solid green"}}>
                     {player}
@@ -592,7 +593,7 @@ function Game({gameData, socket, restoreGameData}) {
                 (
                 <>
                 <div id={player + "icon"}>
-                    <img id = {player + "img"} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    <img id = {player + "img"} src={playerIcon}/>
                 </div>
                 <div id={player + "info"} >
                     {player}
@@ -646,12 +647,21 @@ function Game({gameData, socket, restoreGameData}) {
 
 
     return (
+        <>
+        <div className="menuBar">
+            <div id="exitGame">Leave Room</div>
+            <div id="playerCount">Total Players:  {game["player_ids"].length} / 6</div>
+            <div id="gameInfo">
+                <div>Premium Poker: No Limit Holdem 5/10</div>
+                <div>Room Code: {gameData["room"]}</div>
+            </div>
+        </div>
         <div id="gamePage">
-        <div id="leftBorder"></div>
         <div id="game">
             {/* {game["game_started"]? (<button>End Game</button>): (<button className="startButton" onClick={startGame}>Start Game</button>)} */}
             {/* This is our game page. */}
             {/* <hr/> */}
+            
             <div className="container">
                 <div className="icon">
                     
@@ -707,8 +717,8 @@ function Game({gameData, socket, restoreGameData}) {
                 {displayWinners}
                 </div> */}
         </div>
-        <div id="rightBorder"></div>
         </div>
+        </>
     )
 }
 
