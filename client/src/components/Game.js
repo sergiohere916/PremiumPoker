@@ -147,7 +147,7 @@ function Game({gameData, socket, restoreGameData}) {
 
         socket.on('add_player', (data) => {
             console.log(data)
-            setGame(prevGame => ({...prevGame, player_data: data["player_data"], all_player_cards: data["all_player_cards"]}))
+            setGame(prevGame => ({...prevGame, player_data: data["player_data"], all_player_cards: data["all_player_cards"], player_ids: data["ids"]}))
         })
 
 

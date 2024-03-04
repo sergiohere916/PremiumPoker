@@ -129,12 +129,15 @@ def handle_join_room(room_data):
     join_room(room)
     if game_rooms.get(room) is not None:
         #game room exists....
+        #Added 3/4
+        game = game_rooms[room]
         #old model before 2/28 ---------------
-        if userId not in game_rooms.get(room)["player_ids"] and len(game_rooms.get(room)["player_ids"]) < 6:
+        if userId not in game["player_ids"] and len(game["player_ids"]) < 6 and not game["game_started"]:
             #THIS RUNS IF GAME EXISTS AND NEW PLAYER JOINING AND IS NOT FULL OF PLAYERS....maybe add if not game started....
             #Maybe add one more condition to ensure game hasn't started and handle other conditions elsewhere...
             #Look through game for available player seats, if seat is available user is assigned this player/seat ----
-            game = game_rooms[room]
+
+            # game = game_rooms[room]
             player_data = game["player_data"]
             if player_data["player1"]["userId"] == "":
                 #add the player here
@@ -143,7 +146,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 game["player_order"].append("player1")
                 game["player_map"][userId] = "player1"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "ids": game["player_ids"]}, room = room )
                 
             elif player_data["player2"]["userId"] == "":
                 print("new player has joined the room")
@@ -151,7 +154,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 game["player_order"].append("player2")
                 game["player_map"][userId] = "player2"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "ids": game["player_ids"]}, room = room )
                 
             elif player_data["player3"]["userId"] == "":
                 print("new player has joined the room")
@@ -159,7 +162,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 game["player_order"].append("player3")
                 game["player_map"][userId] = "player3"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "ids": game["player_ids"]}, room = room )
                 
             elif player_data["player4"]["userId"] == "":
                 print("new player has joined the room")
@@ -167,7 +170,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 game["player_order"].append("player4")
                 game["player_map"][userId] = "player4"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "ids": game["player_ids"]}, room = room )
                 
             elif player_data["player5"]["userId"] == "":
                 print("new player has joined the room")
@@ -175,7 +178,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 game["player_order"].append("player5")
                 game["player_map"][userId] = "player5"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "ids": game["player_ids"]}, room = room )
 
             elif player_data["player6"]["userId"] == "":
                 print("new player has joined the room")
@@ -183,7 +186,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 game["player_order"].append("player6")
                 game["player_map"][userId] = "player6"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "ids": game["player_ids"]}, room = room )
 
         else:
             #IF GAME EXISTS AND PLAYER IS IN THE LIST OF IDS THEY CAN JUST REJOIN IF IN SAME ROUND
@@ -260,7 +263,7 @@ def handle_join_room(room_data):
         game_rooms[room] = {
             "id": room,
             "host": user,
-            "game_started": True,
+            "game_started": False,
             "player_map": {userId: "player1"},
             "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"},
                             "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image": "https://images.immediate.co.uk/production/volatile/sites/3/2023/03/Untitled-dfa3422.jpg?quality=90&resize=667,445"},
@@ -313,7 +316,7 @@ def handle_join_room(room_data):
         players_in_games[request.sid] = [room, user, request.sid]
         game = game_rooms[room]
 
-        socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+        socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "ids": game["player_ids"]}, room = room )
     # print(game_rooms.get(room))
     # print("User was added or rejoined a room")
     print(players_in_games)
@@ -332,7 +335,8 @@ def handle_game_start(data):
     room = data["room"]
     game = game_rooms.get(room)
     game["deck"] = data["deck"]
-
+    #added 3/4 ----
+    game["game_started"] = True
     print("\nserver letting players know game is starting...and shuffling deck")
     print(data["deck"][0])
     socketio.emit('starting', game, room = room)
@@ -402,9 +406,10 @@ def deal_cards(data):
             #player1, player2...
             player_data = game["player_data"][player]
             player_id = player_data["userId"]
+            player_cash = player_data["cash"]
 
             # game["current_turn"] = player_name
-            if player_id: 
+            if player_id and player_cash > 0: 
                 game["round_order"].append(player)
                 player_data["cards"] = []
                 player_data["cards"].append(cards[game["last_card_dealt"]])
@@ -412,6 +417,9 @@ def deal_cards(data):
 
 
             # game["all_player_cards"].append({player_name: player_data["cards"]})
+                
+            
+                #Not enough players to properly play 
 
             #adding in security so game at player cards dealt is only set to true once last set of cards have been emitted
             game["last_card_dealt"] += 2
