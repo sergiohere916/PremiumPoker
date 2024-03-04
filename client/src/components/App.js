@@ -40,7 +40,7 @@ function App() {
 
   
   return (
-  <div>
+  <div id="page">
     <Switch>
       <Route path="/game">
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>

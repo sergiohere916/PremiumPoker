@@ -9,8 +9,6 @@ function Game({gameData, socket, restoreGameData}) {
     const [cash, setCash] = useState(0)
 
     //INITIATING NEW GAME SET UP
-    //Player cards only exists on the front end on back they are stored
-    //within playerlist
     const [game, setGame] = useState({
         id: "",
         game_started: false,
@@ -269,13 +267,6 @@ function Game({gameData, socket, restoreGameData}) {
     // useEffect(() => {
     //     socket.emit('join_room', gameData);
     // }, [])
-
-
-    // useEffect(() => {
-    //     socket.emit('join_room', gameData);
-    // }, [])
-
-
     
     //FUNCTIONS ------------------------------------------------
     function startGame() {
@@ -541,13 +532,17 @@ function Game({gameData, socket, restoreGameData}) {
     }
 
     //LOGIC FOR PLAYER HAND IF NEEDS TO BE ISOLATED -------
-    const displayPlayerHand = game["player_cards"].map((card) => {
-        return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
-    })
+    // const displayPlayerHand = game["player_cards"].map((card) => {
+    //     return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
+    // })
     // ----------------------------------------------------------------
 
     const displayTableCards = game["table_cards"].map((card) => {
-        return <div key={card["value"] + card["suit"]}>{card["name"] + " " + card["suit"]}</div>
+        const tableCard = card["image"];
+
+        return <div className="tableCard" key={card["value"] + card["suit"]}>
+            <img src={tableCard} alt="tableCard"/>
+        </div>
     })
 
     
@@ -583,8 +578,14 @@ function Game({gameData, socket, restoreGameData}) {
         const currCash = playerData["cash"];
         const currStatus = playerData["status"];
 
-        let card1 = playerData["cards"][0];
-        let card2 = playerData["cards"][1];
+        let card1 = playerData["cards"][0]["image"];
+        let card2 = playerData["cards"][1]["image"];
+
+        //Need another variable to be false that way at somepoint we can switch to true and show opponents cards
+        if (playerId !== gameData["userId"]) {
+            card1 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
+            card2 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
+        }
         
         const playerTurn = playerData["myTurn"]
 
@@ -618,7 +619,7 @@ function Game({gameData, socket, restoreGameData}) {
                     {player}
                     <hr/>
                     <div className="Money">Cash: ${currCash}</div>
-                    <div>{card1["name"]} and {card2["name"]}</div>         
+                    <div>Last Bet: </div>         
                 </div>
                 </>
                 ):
@@ -631,17 +632,17 @@ function Game({gameData, socket, restoreGameData}) {
                     {player}
                     <hr/>
                     <div className="Money">Cash: ${currCash}</div>
-                    <div>{card1["name"]} and {card2["name"]}</div>         
+                    <div>Last Bet: </div>         
                 </div>
                 </>
                 )
                 }
                 <div id={player + "cards"}>
                     <div className="cards12">
-                        <img src="https://deckofcardsapi.com/static/img/JS.png" className="cardX"/>
+                        <img src={card1} className="cardX"/>
                     </div>
                     <div className="cards12">
-                        <img src="https://cdn.discordapp.com/attachments/1181410295135092746/1206706690649751602/jack_of_spades2.png?ex=65ef712e&is=65dcfc2e&hm=7373674775048a7a6571b95eaa8ce577ff9a56be8b3f12c724e59696d4ed1181&" className="cardX"/>
+                        <img src={card2} className="cardX"/>
                     </div>
                 </div>
                 </>): (
@@ -657,10 +658,10 @@ function Game({gameData, socket, restoreGameData}) {
                 </div>
                 {/* <div id={player + "cards"}>
                     <div className="cards12">
-                        <img src="https://orig10.deviantart.net/69f2/f/2016/289/4/1/ygo_card_backing__final__by_icycatelf-dal6wsb.png" className="cardX"/>
+                        <img src="https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png" className="cardX"/>
                     </div>
                     <div className="cards12">
-                        <img src="https://orig10.deviantart.net/69f2/f/2016/289/4/1/ygo_card_backing__final__by_icycatelf-dal6wsb.png" className="cardX"/>
+                        <img src="https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png" className="cardX"/>
                     </div>
                 </div> */}
                 </>)}
@@ -668,6 +669,7 @@ function Game({gameData, socket, restoreGameData}) {
         )
         
     })
+    //yugioh image https://orig10.deviantart.net/69f2/f/2016/289/4/1/ygo_card_backing__final__by_icycatelf-dal6wsb.png
 
     // useEffect(() => {
     //     // This checks if the winners list of lists is greater than 0
@@ -702,9 +704,19 @@ function Game({gameData, socket, restoreGameData}) {
 
     
     return (
+        <>
+        <div className="menuBar">
+            <div id="exitGame">Leave Room</div>
+            <div id="playerCount">Total Players:  {game["player_ids"].length} / 6</div>
+            <div id="gameInfo">
+                <div>Premium Poker: No Limit Holdem 5/10</div>
+                <div>Room Code: {gameData["room"]}</div>
+            </div>
+        </div>
+        <div id="gamePage">
         <div id="game">
-            This is our game page.
-            {game["game_started"]? (<button>End Game</button>): (<button onClick={startGame}>Start Game</button>)}
+            {/* This is our game page. */}
+            {/* {game["game_started"]? (<button>End Game</button>): (<button onClick={startGame}>Start Game</button>)} */}
             
             {/* <div id="table">
                 <div id="tableCards">
@@ -714,7 +726,7 @@ function Game({gameData, socket, restoreGameData}) {
             {/* <div id="playerHand">
                 {displayPlayerHand}
             </div> */}
-            <hr/>
+            {/* <hr/> */}
             <div className="container">
                 <div className="icon">
                     
@@ -726,36 +738,31 @@ function Game({gameData, socket, restoreGameData}) {
                     </div>
                     {displayAllPlayerCards}
                 </div>
-            </div>
-            <hr/>
-            <div>
-                {/* {displayAllPlayerCards} */}
-            </div>
-            {/* Set constraint on form to not allow lower bet than needed */}
-        
-            {/* <div>
-                {"CASH: " + game["player_cash"]}
-            </div> */}
-            <div className="box" style={{"--c": "5px solid blue"}}>
-                {/* {displayAllPlayerCards} */}
-                {displayBetting ?
-                (
-                <div>
-                    <form onSubmit={handleBetSubmit}>
-                        <label>Bet Amount:</label>
-                        <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
-                        <button type="submit">Place Bet</button>
-                    </form>
-                    <button onClick={handleAllInButton}>ALL IN</button>
-                    <button onClick={handleFoldButton}>FOLD</button>
-                    <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
-                    {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
-                </div>):
-            (<></>)
-            }
-            {winnersDisplay}
+            
+                {game["game_started"]? (<button>End Game</button>): (<div className="startButtonContainer"><button className="startButton" onClick={startGame}>Start Game</button></div>)}
+                <div className="box" style={{"--c": "5px solid blue"}}>
+                    {/* {displayAllPlayerCards} */}
+                    {displayBetting ?
+                    (
+                    <div>
+                        <form onSubmit={handleBetSubmit}>
+                            <label>Bet Amount:</label>
+                            <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
+                            <button type="submit">Place Bet</button>
+                        </form>
+                        <button onClick={handleAllInButton}>ALL IN</button>
+                        <button onClick={handleFoldButton}>FOLD</button>
+                        <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
+                        {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
+                    </div>):
+                (<></>)
+                }
+                    {winnersDisplay}
+                </div>
             </div>
         </div>
+        </div>
+        </>
     )
 }
 
