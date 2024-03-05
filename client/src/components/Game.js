@@ -7,8 +7,6 @@ function Game({gameData, socket, restoreGameData}) {
 
     // const [shuffledDeck, setShuffledDeck] = useState([]);
     const [cash, setCash] = useState(0)
-    const [winners, setWinners] = useState([])
-
 
     //INITIATING NEW GAME SET UP
     //Player cards only exists on the front end on back they are stored
@@ -214,6 +212,7 @@ function Game({gameData, socket, restoreGameData}) {
         })
 
         socket.on("returning_winners", (data) => {
+            console.log(data)
             setGame(prevGame => ({
                 ...prevGame, winners: data["winners"],
                 ...data["game_update"]
@@ -670,15 +669,38 @@ function Game({gameData, socket, restoreGameData}) {
         
     })
 
-    const displayWinners = game["winners"].map((playerName) => {
-        return (
-            <div id="gameWinner">
-                {"Winner/s: " + playerName}
-            </div>
-        )
+    // useEffect(() => {
+    //     // This checks if the winners list of lists is greater than 0
+    //     if (game["winners"].length > 0) {
+    //         const interval = setInterval(() => {
+    //             if (displayedWinnerIndex < game["winners"].length) {
+    //                 setDisplayedWinner(game["winners"][displayedWinnerIndex]);
+    //                 setDisplayedWinnerIndex(prevIndex => prevIndex + 1);
+    //             } else {
+    //                 setDisplayedWinner(null);
+    //                 setDisplayedWinnerIndex(0);
+    //                 setGame(prevGame => ({...prevGame, winners_declared: true}));
+    //             }
+    //         }, 3000);
+    //         return () => clearInterval(interval);
+    //     }
+    // }, [gameData, displayedWinnerIndex]);
+
+    const winnersDisplay = game["winners"].map((winnersList, index) => {
+        console.log("THIS IS THE INDEX : " + index)
+        
+        let winnerdinner = ""
+
+        for (let i = 0; i < game["winners"][index].length; i++) {
+            winnerdinner += game["player_data"][game["winners"][index][i]]["user"] + " "
+        }
+
+        return (<div>
+            <div>{index === game["winners"].length - 1 ? "main pot " : "side pot " + parseInt(index + 1)} : {winnerdinner}</div>
+        </div>)
     })
 
-
+    
     return (
         <div id="game">
             This is our game page.
@@ -688,7 +710,6 @@ function Game({gameData, socket, restoreGameData}) {
                 <div id="tableCards">
                     
                 </div>
-                {displayWinners}
             </div> */}
             {/* <div id="playerHand">
                 {displayPlayerHand}
@@ -729,12 +750,10 @@ function Game({gameData, socket, restoreGameData}) {
                     <button onClick={handleFoldButton}>FOLD</button>
                     <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
                     {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
-                    <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
-                    {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
                 </div>):
             (<></>)
             }
-            {displayWinners}
+            {winnersDisplay}
             </div>
         </div>
     )
