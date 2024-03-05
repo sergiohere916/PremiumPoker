@@ -908,7 +908,7 @@ def winner_winner_chicken_dinner(data):
 
                 # Gets the winning players as a list
                 winning_players = determine_winner(game, players_playing)
-
+                game["winners"].append(winning_players)
                 print("THESE ARE THE WINNING PLAYERS OF THE POT IN PLAY : " + str(winning_players))
 
                 # Adds the losers to the not in play list
@@ -961,7 +961,7 @@ def winner_winner_chicken_dinner(data):
 
             # Getting back a list of winning players
             winning_players = determine_winner(game, players_playing)
-
+            game["winners"].append(winning_players)
             print("THESE ARE THE WINNERS OF THE MAIN POT : " + str(winning_players))
 
             print("THIS IS THE AMOUNT THE MAIN POT HAS : " + str(game["pot"]))
@@ -978,9 +978,8 @@ def winner_winner_chicken_dinner(data):
 
             game["pot"] = 0
             
-
-            game["winners"] = winning_players
             # game["winners_declared"] = True
+            print("THESE ARE THE WINNERS BEFORE THE SOCKET : " + str(game["winners"]))
             socketio.emit("returning_winners", {"winners": game["winners"], "game_update": game}, room = room)
 
         # if no small pots exists then we will just run the main pot
@@ -998,7 +997,7 @@ def winner_winner_chicken_dinner(data):
 
             # Getting back a list of winning players
             winning_players = determine_winner(game, players_playing)
-
+            game["winners"].append(winning_players)
             print("THESE ARE THE WINNING PLAYERS : " + str(winning_players))
 
             print("THIS IS THE MAIN POT : " + str(game["pot"]))
@@ -1018,9 +1017,9 @@ def winner_winner_chicken_dinner(data):
 
         #PRE INTEGRATION GAME WINNNERS LIST
         # game["winners"] = game_winners
-            game["winners"] = winning_players
             # game["winners_declared"] = True
             # socketio.emit("returning_winners", {"winners": game["winners"], "winners_declared": game["winners_declared"]}, room = room)
+            print(game["winners"])
             socketio.emit("returning_winners", {"winners": game["winners"], "game_update": game}, room = room)
    
 @socketio.on("restart_the_game")
