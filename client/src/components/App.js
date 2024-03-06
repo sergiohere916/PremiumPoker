@@ -4,6 +4,9 @@ import Game from "./Game";
 import Homepage from "./Homepage";
 import io from "socket.io-client";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import Login from "./Login"
+import Signup from "./Signup";
+
 
 const socket = io("http://localhost:5555");
 function App() {
@@ -45,9 +48,15 @@ function App() {
       <Route path="/game">
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
       </Route>
-      <Route path="/">
+      <Route exact path="/">
         <Homepage fillGameData={fillGameData}/>
       </Route> 
+      <Route exact path="/login">
+        <Login></Login>
+      </Route>
+      <Route exact path="/signup">
+        <Signup></Signup>
+      </Route>
     </Switch>
   </div>
   )
