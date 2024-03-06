@@ -144,7 +144,7 @@ class Signup(Resource):
 
         user = User(
             username = username,
-            image_url = whatever the default is,
+            image_url = None,
         )
 
         user.password_hash = password
@@ -154,7 +154,7 @@ class Signup(Resource):
 
         session["user_id"] = user.id
 
-        make_response(user.to_dict(), 201)
+        return make_response(user.to_dict(), 201)
 
 api.add_resource(Signup, "/signup", endpoint="signup")
 
@@ -164,9 +164,10 @@ class Login(Resource):
 
         username = request_json.get("username")
         password = request_json.get("password")
+        print(username)
 
         user = User.query.filter(User.username == username).first()
-
+        print(user)
         if user:
             if user.authenticate(password):
 
