@@ -12,6 +12,7 @@ from string import ascii_uppercase
 from itertools import combinations
 import time
 import uuid
+from models import *
 
 # Local imports
 from config import app, db, api
@@ -91,6 +92,90 @@ class Player_ids(Resource):
             return make_response({"error": "Failed to generate unique id"}, 500)
     
 api.add_resource(Player_ids, "/player_ids")
+
+# User Routes
+class Users(Resource):
+    def get(self):
+        users = [user.to_dict() for user in User.query.all()]
+        return make_response(users, 200)
+    
+    def post(self):
+        new_user = User(
+            username = request.json["username"]
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        return make_response(new_user.to_dict(), 200)
+    
+api.add_resource(Users, "/users")
+
+class UsersById(Resource):
+    def get(self, id):
+        user = User.query.filter_by(id = id).one_or_none()
+        if user is None:
+            return make_response({"error" : "User does not exist"}, 404)
+        
+        return make_response(user.to_dict(), 200)
+
+    def patch(self, id):
+        try:
+            user = User.query.filter_by(id = id).one_or_none()
+            if user is None:
+                return make_response({"error" : "User does not exist"}, 404)
+            request_json = request.get_json()
+            for key in request_json:
+                setattr(user, key, request_json[key])
+            db.session.add(user)
+            db.session.commit()
+            return make_response(user.to_dict(), 200)
+        except:
+            return make_response({"error" : "PATCH UserById"}, 404)
+
+api.add_resource(UsersById, "/users/<int:id>")
+
+class Signup(Resource):
+    def post(self):
+        request_json = request.get_json()
+
+        username = request_json.get("username")
+        password = request_json.get("password")
+
+        user = User(
+            username = username,
+            image_url = whatever the default is,
+        )
+
+        user.password_hash = password
+
+        db.session.add(user)
+        db.session.commit()
+
+        session["user_id"] = user.id
+
+        make_response(user.to_dict(), 201)
+
+api.add_resource(Signup, "/signup", endpoint="signup")
+
+class Login(Resource):
+    def post(self):
+        request_json = request.get_json()
+
+        username = request_json.get("username")
+        password = request_json.get("password")
+
+        user = User.query.filter(User.username == username).first()
+
+        if user:
+            if user.authenticate(password):
+
+                session["user_id"] = user.id
+                return make_response(user.to_dict(), 200)
+            
+            return make_response({"error" : "401 Unauthorized"}, 401)
+
+api.add_resource(Login, "/login", endpoint="login")
 
 @socketio.on('connect')
 def handle_connect(socket):
