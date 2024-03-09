@@ -52,6 +52,9 @@ function Game({gameData, socket, restoreGameData}) {
         pots: [],
         bets: [],
         main_pot: true,
+        small_blind_bet: "",
+        big_blind_bet: "",
+        time: 15,
 
         bet_difference: 0,
         disconnected_players: [],
@@ -62,8 +65,9 @@ function Game({gameData, socket, restoreGameData}) {
     })
     
     
-    const [myBet, setMyBet] = useState(0)
-    const [displayBetting, setDisplayBetting] = useState(false)
+    const [myBet, setMyBet] = useState(0);
+    const [displayBetting, setDisplayBetting] = useState(false);
+    const [timer, setTimer] = useState("15");
     //SOCKET COMMANDS -----------------------------------------
     // useEffect(() => {
     //     if (Object.keys(gameData).length === 0) {
@@ -104,11 +108,12 @@ function Game({gameData, socket, restoreGameData}) {
     useEffect(() => {
         socket.on('rejoin_at_bet', (data) => {
             console.log("received rejoin at bet")
-            console.log(data["game"])
+            // console.log(data["game"])
             if (gameData["user"] === data["userId"]) {
                 console.log("you have rejoined...")
                 setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
                 setDisplayBetting(true)
+                setTimer(Number(data["time"]))
             }
         })
 
@@ -190,6 +195,8 @@ function Game({gameData, socket, restoreGameData}) {
                 setGame(prevGame => ({...prevGame, ...data["game_update"], player_cash: data["player_cash"], bet_difference: data["bet_difference"]}))
                 setDisplayBetting(true)
                 setMyBet(Number(data["bet_difference"]))
+                setTimer(Number(data["time"]))
+                
                 //SHOW THE FORM
                 //SET GAME flops bets taken to true
                 //Bet difference needed to determine minimum needed to achieve call
@@ -458,6 +465,115 @@ function Game({gameData, socket, restoreGameData}) {
         socket.emit("handle_bet_action", {room: gameData["room"], user: playerName, bet_status: "fold", bet: 0});
     }
 
+    //NEW 3/7
+
+    useEffect(() => {
+        // if (displayBetting === true) {
+        //     let intervalId;
+        //     let currBetDisplay = displayBetting
+        //     let newTime = game["time"] -1;
+        //     console.log("timer is running...")
+        //     console.log(currBetDisplay)
+        //     // Start the timer
+        //     intervalId = setInterval(() => {
+        //         // Check if betting is still displayed
+        //         currBetDisplay = displayBetting
+        //         console.log(currBetDisplay)
+        //         if (test === true) {
+        //             // If not, clear the interval and exit the function
+        //             console.log("YOU BETTED IN TIME!!")
+        //             clearInterval(intervalId);
+        //             return;
+        //         }
+        
+        //         // Check if playerTimer has reached zero
+        //         if (newTime === 0) {
+        //             // If so, display alert and clear the interval
+        //             alert("OUT OF TIME!!!!!");
+        //             clearInterval(intervalId);
+        //             return;
+        //         }
+        
+        //         // Update the game time
+        //         newTime -= 1
+        //         console.log(newTime)
+        //         setGame(prevGame => ({...prevGame, time: newTime }));
+        //     }, 1000);
+        // }
+
+        // console.log("DID THIS RUN???")
+
+        // if (displayBetting === true) {
+        //     let intervalId;
+        //     let newTime = timer - 1;
+        //     console.log("timer is running...")
+        //     console.log(newTime);
+        //     // Start the timer
+        //     if (newTime === 0) {
+        //         console.log("OUT OF TIME!!!")
+        //     } else {
+        //         setTimeout(() => {
+        //             setTimer(newTime)
+        //         }, 1000);
+        //     }
+        // }
+
+        if (displayBetting === true) {
+            let updateTimer;
+            console.log(timer)
+            if (timer === 0) {
+                console.log("OUT OF TIMEEEE!!!")
+            } else {
+                updateTimer = setTimeout(() => {
+                    setTimer(prevTimer => prevTimer - 1);
+                }, 1000);
+            }
+            // Clear the timer when displayBetting becomes false
+            return () => clearTimeout(updateTimer);
+        }
+
+    }, [timer])
+
+
+
+
+
+    function run_timer() {
+        let intervalId;
+        let currBetDisplay = displayBetting
+        let newTime = game["time"] -1;
+        console.log("timer is running...")
+        console.log(currBetDisplay)
+        // Start the timer
+        intervalId = setInterval(() => {
+            // Check if betting is still displayed
+            console.log(currBetDisplay)
+            if (currBetDisplay === false) {
+                // If not, clear the interval and exit the function
+                console.log("YOU BETTED IN TIME!!")
+                clearInterval(intervalId);
+                return;
+            }
+    
+            // Check if playerTimer has reached zero
+            if (newTime === 0) {
+                // If so, display alert and clear the interval
+                alert("OUT OF TIME!!!!!");
+                clearInterval(intervalId);
+                return;
+            }
+    
+            // Update the game time
+            newTime -= 1
+            console.log(newTime)
+            setGame(prevGame => ({...prevGame, time: newTime }));
+        }, 1000);
+
+
+
+
+    }
+
     function shuffleAndRestart() {
             fetch("/cards")
             .then(res => res.json())
@@ -582,10 +698,10 @@ function Game({gameData, socket, restoreGameData}) {
         let card2 = playerData["cards"][1]["image"];
 
         //Need another variable to be false that way at somepoint we can switch to true and show opponents cards
-        if (playerId !== gameData["userId"]) {
+        if (card1 && card2 && (playerId !== gameData["userId"])) {
             card1 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
             card2 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
-        }
+        } 
         
         const playerTurn = playerData["myTurn"]
 
@@ -639,10 +755,10 @@ function Game({gameData, socket, restoreGameData}) {
                 }
                 <div id={player + "cards"}>
                     <div className="cards12">
-                        <img src={card1} className="cardX"/>
+                        {card1? (<img src={card1} className="cardX" alt="playerCard"/>): (<></>)}
                     </div>
                     <div className="cards12">
-                        <img src={card2} className="cardX"/>
+                    {card2? (<img src={card2} className="cardX" alt="playerCard"/>): (<></>)}
                     </div>
                 </div>
                 </>): (
@@ -758,6 +874,7 @@ function Game({gameData, socket, restoreGameData}) {
                 (<></>)
                 }
                     {winnersDisplay}
+                    {timer >= 10? (<>{`00:${timer}`}</>): (<>{`00:0${timer}`}</>)}
                 </div>
             </div>
         </div>
