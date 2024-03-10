@@ -26,12 +26,20 @@ class Icon(db.Model, SerializerMixin):
     content = db.Column(db.String)
     price = db.Column(db.Integer)
 
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+    serialize_rules = ("-user.icons")
+
 class Tag(db.Model, SerializerMixin):
     __tablename__ = "tags"
 
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String)
     price = db.Column(db.Integer)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+    serialize_rules = ("-user.tags")
 
 class User(db.Model):
     __tablename__ = "users"
@@ -43,6 +51,11 @@ class User(db.Model):
     user_id = db.Column(db.String)
     points = db.Column(db.Integer)
     total_points = db.Column(db.Integer)
+
+    icons = db.relationship("Icon",  backref="user", cascade="all, delete-orphan")
+    tags = db.relationship("Tag", backref="user", cascade="all, delete-orphan")
+
+    serialize_rules = ("-icons.user", "-tags.user",)
 
     @hybrid_property
     def password_hash(self):
