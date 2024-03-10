@@ -142,9 +142,27 @@ class Signup(Resource):
         username = request_json.get("username")
         password = request_json.get("password")
 
+        user_ids = [user.user_id for user in User.query.all()]
+        print("these are the user_id's : " + str(user_ids))
+        unique_id = ""
+
+        while (True):
+            random_id = uuid.uuid1()
+            if random_id:
+                if random_id not in user_ids:
+                    unique_id = random_id
+                    break
+            else:
+                print("Failed to make a random id, retrying...")
+                continue
+
+        print("THIS IS THE UNIQUE ID : " + str(unique_id))
+        print("this is the type of the user_id : " + str(type(unique_id)))
+        
         user = User(
             username = username,
             image_url = None,
+            user_id = str(unique_id)
         )
 
         user.password_hash = password
@@ -152,7 +170,8 @@ class Signup(Resource):
         db.session.add(user)
         db.session.commit()
 
-        session["user_id"] = user.id
+        session["userId"] = user.user_id
+        session["user"] = user
 
         return make_response(user.to_dict(), 201)
 
@@ -171,7 +190,8 @@ class Login(Resource):
         if user:
             if user.authenticate(password):
 
-                session["user_id"] = user.id
+                session["userId"] = user.user_id
+                session["user"] = user
                 return make_response(user.to_dict(), 200)
             
             return make_response({"error" : "401 Unauthorized"}, 401)

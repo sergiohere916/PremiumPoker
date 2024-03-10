@@ -8,7 +8,7 @@ from faker import Faker
 
 # Local imports
 from app import app
-from models import db, Card
+from models import db, Card, User
 
 def create_cards():
 
@@ -166,6 +166,8 @@ if __name__ == '__main__':
         # Seed code goes here!
         print("clearing db...")
         Card.query.delete()
+        db.session.commit()
+        User.query.delete()
         db.session.commit()
 
         print("seeding cards...")

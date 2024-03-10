@@ -18,6 +18,21 @@ class Card(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Card: {self.name}, suit: {self.suit}, id: {self.id}>'
 
+class Icon(db.Model, SerializerMixin):
+    __tablename__ = "icons"
+
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String)
+    content = db.Column(db.String)
+    price = db.Column(db.Integer)
+
+class Tag(db.Model, SerializerMixin):
+    __tablename__ = "tags"
+
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String)
+    price = db.Column(db.Integer)
+
 class User(db.Model):
     __tablename__ = "users"
 
@@ -25,6 +40,9 @@ class User(db.Model):
     username = db.Column(db.String, unique = True)
     _password_hash = db.Column(db.String)
     image_url = db.Column(db.String)
+    user_id = db.Column(db.String)
+    points = db.Column(db.Integer)
+    total_points = db.Column(db.Integer)
 
     @hybrid_property
     def password_hash(self):
