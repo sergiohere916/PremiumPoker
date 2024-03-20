@@ -9,6 +9,24 @@ function Signup() {
 
     const [user, setUser] = useState(initial)
 
+    function handleSubmit(e) {
+        e.preventDefault()
+        
+        fetch("/signup", {
+            method : "POST",
+            headers : {"Content-Type" : "application/json"},
+            body : JSON.stringify(user)
+        })
+        .then((response) => {
+            if (response.ok) {
+                response.json().then((userData) => {
+                    console.log(userData)
+                    setUser(initial)
+                })
+            }
+        })
+    }
+
     function handleChange(e) {
         const {name, value} = e.target
 
@@ -19,7 +37,7 @@ function Signup() {
     }
 
     return (<div>
-        <form>
+        <form onSubmit={handleSubmit}>
             <h3>Sign up</h3>
             <input
                 type="text"

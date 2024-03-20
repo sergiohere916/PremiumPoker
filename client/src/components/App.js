@@ -41,6 +41,14 @@ function App() {
     setGameData({"user": user, "room": code, "userId": userId})
   }
 
+  useEffect(() => {
+    fetch("/icons")
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+  }, [])
+
   
   return (
   <div id="page">
@@ -56,6 +64,9 @@ function App() {
       </Route>
       <Route exact path="/signup">
         <Signup></Signup>
+      </Route>
+      <Route>
+        
       </Route>
     </Switch>
   </div>

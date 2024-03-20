@@ -338,10 +338,13 @@ if __name__ == '__main__':
         db.session.commit()
         User.query.delete()
         db.session.commit()
+        Tag.query.delete()
+        db.session.commit()
+        Icon.query.delete()
+        db.session.commit()
 
         print("seeding tags... ")
         all_tags = create_tags()
-        print(all_tags)
         db.session.add_all(all_tags)
         db.session.commit()
 

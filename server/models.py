@@ -27,8 +27,20 @@ class Icon(db.Model, SerializerMixin):
     price = db.Column(db.Integer)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    # users = db.relationship("User", back_populates="icon")
 
-    serialize_rules = ("-user.icons")
+    serialize_rules = ("-user.icons",)
+
+    # Manual to_dicts
+    # def to_dict(self):
+    #     return {
+    #         'id': self.id,
+    #         'name': self.name,
+    #         'content': self.content,
+    #         'price': self.price,
+    #         'users': [user.to_dict() for user in self.users] if self.users else []  # Include users relationship as an array
+    #         # Add more attributes or relationships as needed
+    #     }
 
 class Tag(db.Model, SerializerMixin):
     __tablename__ = "tags"
@@ -39,7 +51,7 @@ class Tag(db.Model, SerializerMixin):
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    serialize_rules = ("-user.tags")
+    serialize_rules = ("-user.tags",)
 
 class User(db.Model):
     __tablename__ = "users"
@@ -55,7 +67,8 @@ class User(db.Model):
     icons = db.relationship("Icon",  backref="user", cascade="all, delete-orphan")
     tags = db.relationship("Tag", backref="user", cascade="all, delete-orphan")
 
-    serialize_rules = ("-icons.user", "-tags.user",)
+    serialize_rules = ("-icons.user",)
+    serialize_rules = ("-tags.user",)
 
     @hybrid_property
     def password_hash(self):
@@ -69,7 +82,7 @@ class User(db.Model):
     def authenticate(self, password):
         return bcrypt.check_password_hash(self._password_hash, password.encode("utf-8"))
     
-
+    # Manual to_dict
     def to_dict(self):
         return {
             "id" : self.id,

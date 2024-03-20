@@ -12,12 +12,11 @@ from string import ascii_uppercase
 from itertools import combinations
 import time
 import uuid
-from models import *
+from models import User, Tag, Icon
 
 # Local imports
 from config import app, db, api
 # Add your model imports
-from models import Card
 
 
 # Instantiate Socket Io
@@ -197,6 +196,33 @@ class Login(Resource):
             return make_response({"error" : "401 Unauthorized"}, 401)
 
 api.add_resource(Login, "/login", endpoint="login")
+
+# ENDPOINTS FOR TAGS
+
+# class Tags(Resource):
+#     def get(self):
+#         tags = [tag.to_dict() for tag in Tag.query.all()]
+#         return make_response(tags, 200)
+
+# api.add_resource(Tags, "/tags")
+# ENDPOINTS FOR ICONS
+
+class Icons(Resource):
+     def get(self):
+         icons = [icon.to_dict() for icon in Icon.query.all()]
+         print(icons)
+         return make_response(icons, 200)
+    
+api.add_resource(Icons, "/icons")
+
+# Create icons here
+
+class Tags(Resource):
+    def get(self):
+        tags = [tag.to_dict() for tag in Tag.query.all()]
+        return make_response(tags, 200)
+
+api.add_resource(Tags, "/tags")
 
 @socketio.on('connect')
 def handle_connect(socket):

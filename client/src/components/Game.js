@@ -213,8 +213,22 @@ function Game({gameData, socket, restoreGameData}) {
             console.log(data)
             setGame(prevGame => ({
                 ...prevGame, winners: data["winners"],
-                ...data["game_update"]
+                ...data["game_update"] 
             }))
+            // for (let i = 0; i < data['winners'].length; i++) {
+            //     // need to add id to player_data for every player
+            //     fetch(`users/${game["player_data"][data["winners"][i]]["id"]}`, {
+            //         method: "PATCH",
+            //         headers: {"Content-Type" : "application/json"},
+            //         body : JSON.stringify({points : user.points + 1, total_points : user.total_points + 1})
+            //     })
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         // this should set the user to the updated user
+            //         // this setUser is just a prototype for now, but we will probably use a callback function
+            //         setUser(data)
+            //     })
+            // }
         } )
 
         socket.on("end_betting_round", (data) => {
