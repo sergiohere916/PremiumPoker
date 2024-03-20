@@ -26,21 +26,10 @@ class Icon(db.Model, SerializerMixin):
     content = db.Column(db.String)
     price = db.Column(db.Integer)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    usericons = db.relationship("UserIcon", backref="icon", cascade="all, delete-orphan")
     # users = db.relationship("User", back_populates="icon")
 
-    serialize_rules = ("-user.icons",)
-
-    # Manual to_dicts
-    # def to_dict(self):
-    #     return {
-    #         'id': self.id,
-    #         'name': self.name,
-    #         'content': self.content,
-    #         'price': self.price,
-    #         'users': [user.to_dict() for user in self.users] if self.users else []  # Include users relationship as an array
-    #         # Add more attributes or relationships as needed
-    #     }
+    serialize_rules = ("-usericons.icon",)
 
 class Tag(db.Model, SerializerMixin):
     __tablename__ = "tags"
@@ -49,9 +38,10 @@ class Tag(db.Model, SerializerMixin):
     name = db.Column(db.String)
     price = db.Column(db.Integer)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    usertags = db.relationship("UserTag", backref="tag", cascade="all, delete-orphan")
 
-    serialize_rules = ("-user.tags",)
+    serialize_rules = ("-usertags.tag")
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -64,11 +54,11 @@ class User(db.Model):
     points = db.Column(db.Integer)
     total_points = db.Column(db.Integer)
 
-    icons = db.relationship("Icon",  backref="user", cascade="all, delete-orphan")
-    tags = db.relationship("Tag", backref="user", cascade="all, delete-orphan")
+    usericons = db.relationship("UserIcon",  backref="user", cascade="all, delete-orphan")
+    usertags = db.relationship("UserTag", backref="user", cascade="all, delete-orphan")
 
-    serialize_rules = ("-icons.user",)
-    serialize_rules = ("-tags.user",)
+    serialize_rules = ("-usericons.user",)
+    serialize_rules = ("-usertags.user",)
 
     @hybrid_property
     def password_hash(self):
@@ -81,12 +71,23 @@ class User(db.Model):
 
     def authenticate(self, password):
         return bcrypt.check_password_hash(self._password_hash, password.encode("utf-8"))
-    
-    # Manual to_dict
-    def to_dict(self):
-        return {
-            "id" : self.id,
-            "username" : self.username
-        }
 
-    
+class UserIcon(db.Model, SerializerMixin):
+    __tablename__ = "usericons"
+
+    id = db.Column(db.Integer, primary_key = True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    icon_id = db.Column(db.Integer, db.ForeignKey("icons.id"))
+
+    serialize_rules = ("-user.usericons", "-icon.usericons",)
+
+class UserTag(db.Model, SerializerMixin):
+    __tablename__ = "usertags"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    tag_id = db.Column(db.Integer, db.ForeignKey("tags.id"))
+
+    serialize_rules = ("-user.usertags", "-tag.usertags",)

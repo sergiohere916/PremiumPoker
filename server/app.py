@@ -12,7 +12,7 @@ from string import ascii_uppercase
 from itertools import combinations
 import time
 import uuid
-from models import User, Tag, Icon
+from models import *
 
 # Local imports
 from config import app, db, api
@@ -216,6 +216,33 @@ class Icons(Resource):
 api.add_resource(Icons, "/icons")
 
 # Create icons here
+class UserIconsById(Resource):
+    def get(self, user_id):
+        user_icons = UserIcon.query.filter_by(user_id = user_id).all()
+        return make_response(user_icons, 200)
+    
+api.add_resource(UserIconsById, "/usericons/<int:id>")
+
+class UserIcon(Resource):
+    def post(self):
+        try:
+            request_json = request.get_json()
+
+            newUserIcon = UserIcon(
+                icon_id = request_json["icon_id"],
+                user_id = request_json["user_id"]
+            )
+
+            db.session.add(newUserIcon)
+            db.session.commit()
+
+            return make_response(newUserIcon.to_dict(), 200)
+        except:
+            return make_response({"error" : "POST UserIcon"}, 404)
+        
+api.add_resource(UserIcon, "/usericons")
+
+# Write me a code that gets UserIcons that are specific to the user_id.
 
 class Tags(Resource):
     def get(self):
@@ -223,6 +250,32 @@ class Tags(Resource):
         return make_response(tags, 200)
 
 api.add_resource(Tags, "/tags")
+
+class UserTagById(Resource):
+    def get(self, user_id):
+        user_tag = UserTag.query.filter_by(user_id = user_id).all()
+        return make_response(user_tag, 200)
+    
+api.add_resource(UserTagById, "/usertags/<int:id>")
+
+class UserTag(Resource):
+    def post(self):
+        try:
+            request_json = request.get_json()
+
+            newUserTag = UserTag(
+                tag_id = request_json["tag_id"],
+                user_id = request_json["user_id"]
+            )
+
+            db.session.add(newUserTag)
+            db.session.commit()
+
+            return make_response(newUserTag.to_dict(), 200)
+        except:
+            return make_response({"error" : "POST UserIcon"}, 404)
+    
+api.add_resource(UserTag, "/usertags")
 
 @socketio.on('connect')
 def handle_connect(socket):
