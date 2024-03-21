@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 
 //RETURN POINT 2/29 fixing in id into game and players ----- //
 //Re add socket back here as the prop passed down if necessary
 function Game({gameData, socket, restoreGameData}) {
 
+    const history = useHistory();
     // const [shuffledDeck, setShuffledDeck] = useState([]);
     const [cash, setCash] = useState(0)
 
@@ -13,6 +15,7 @@ function Game({gameData, socket, restoreGameData}) {
         id: "",
         game_started: false,
         host: "",
+        total_players: 0,
         player_map: {},
         player_data: {},
         player_cards: [],
@@ -24,6 +27,7 @@ function Game({gameData, socket, restoreGameData}) {
         player_ids: [],
         player_order: [],
         round_order: [],
+        first_better: "",
         current_turn: 0,
         turn_number: 0,
         player_cards_dealt: false,
@@ -57,7 +61,7 @@ function Game({gameData, socket, restoreGameData}) {
         time: 15,
 
         bet_difference: 0,
-        disconnected_players: [],
+        disconnected_players: {},
         betting_index: 0,
         winners_declared: false,
         winners: [],
@@ -68,6 +72,7 @@ function Game({gameData, socket, restoreGameData}) {
     const [myBet, setMyBet] = useState(0);
     const [displayBetting, setDisplayBetting] = useState(false);
     const [timer, setTimer] = useState("15");
+    const [opponentBetting, setOpponentBetting] = useState(false);
     //SOCKET COMMANDS -----------------------------------------
     // useEffect(() => {
     //     if (Object.keys(gameData).length === 0) {
@@ -111,6 +116,7 @@ function Game({gameData, socket, restoreGameData}) {
             // console.log(data["game"])
             if (gameData["user"] === data["userId"]) {
                 console.log("you have rejoined...")
+                console.log(data["game"]["host"])
                 setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
                 setDisplayBetting(true)
                 setTimer(Number(data["time"]))
@@ -161,10 +167,14 @@ function Game({gameData, socket, restoreGameData}) {
         // })
 
         socket.on('add_player', (data) => {
-            console.log(data)
+            console.log("player is joining game...")
             setGame(prevGame => ({...prevGame, player_data: data["player_data"], all_player_cards: data["all_player_cards"]}))
         })
 
+        socket.on("player_left", (data) => {
+            console.log("player left game...")
+            setGame(prevGame => ({...prevGame, ...data["game"]}))
+        })
 
         socket.on('dealing', (data) => {
             console.log("Socket on dealing received on frontend");
@@ -173,11 +183,14 @@ function Game({gameData, socket, restoreGameData}) {
 
         socket.on("dealing_flop", (data) => {
             // console.log("THIS IS THE FLOP ON THE FRONT END: ")
-            console.log(data);
+            // console.log(data);
+            console.log("received deal flop");
             setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], flop_dealt: true}))
         })
 
         socket.on("dealing_turn", (data) => {
+            console.log("TURN HAS BEEN DEALT SOCKET RECEIVED")
+            console.log(game)
             setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], turn_dealt: true}))
 
             // setTableCards(data["table_cards"])
@@ -186,6 +199,7 @@ function Game({gameData, socket, restoreGameData}) {
 
         socket.on("dealing_river", (data) => {
             // console.log(data)
+            console.log("received deal river");
             setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], river_dealt: true}))
         })
 
@@ -201,7 +215,11 @@ function Game({gameData, socket, restoreGameData}) {
                 //SET GAME flops bets taken to true
                 //Bet difference needed to determine minimum needed to achieve call
             } else {
+                console.log("other player is betting receiving prior info...")
                 setGame(prevGame => ({...prevGame, ...data["game_update"]}))
+
+                // setOpponentBetting(true)
+                // setTimer(Number(data["time"]))
             }
         })
 
@@ -217,7 +235,7 @@ function Game({gameData, socket, restoreGameData}) {
         })
 
         socket.on("returning_winners", (data) => {
-            console.log(data)
+            console.log("returning winners")
             setGame(prevGame => ({
                 ...prevGame, winners: data["winners"],
                 ...data["game_update"]
@@ -226,7 +244,7 @@ function Game({gameData, socket, restoreGameData}) {
 
         socket.on("end_betting_round", (data) => {
             console.log("ending bet round")
-            setDisplayBetting(false)
+            // setDisplayBetting(false)
             setGame(prevGame => ({...prevGame, 
                 // last_raise : data["game_update"]["last_raise"],
                 // raise_occurred : data["game_update"]["raise_occurred"],
@@ -253,15 +271,20 @@ function Game({gameData, socket, restoreGameData}) {
     
         })
 
-        socket.on("fold_for_player", (data) => {
-            //MIGHT BE ABLE TO REPLACE THIS condition with synchronized timer that sets displaye betting to false and maybe actually displays words fold
-            run_auto_fold(data["folded_player"]);
-            if (game["user"] === data["folded_player"]) {
-                setDisplayBetting(false)
+        socket.on("auto_fold", (data) => {
+            if (data["host"] === gameData["userId"]) {
+                // const playerUserName = data["user"]
+                // const playerId = data["userId"]
+                socket.emit("handle_bet_action", {room: gameData["room"], user: data["user"], userId: data["userId"], bet_status: "fold", bet: 0})
             }
-            setGame(prevGame => ({...prevGame, player_data: data["updated_player_data"]}));
-            //auto fold function will just use host to send out fold for player that failed to submit response
         })
+
+        socket.on("reassign_host", (data) => {
+            console.log("Host reassigned...")
+            console.log(data)
+            setGame(prevGame => ({...prevGame, host: data["new_host"]}))
+        })
+
     }, [gameData, socket])
 
 
@@ -269,11 +292,8 @@ function Game({gameData, socket, restoreGameData}) {
     // console.log(game["deck"]);
     // console.log(game["player_cards"])
     // console.log(tableCards)
-    console.log(gameData)
+    console.log(game)
     
-    // useEffect(() => {
-    //     socket.emit('join_room', gameData);
-    // }, [])
     
     //FUNCTIONS ------------------------------------------------
     function startGame() {
@@ -440,8 +460,8 @@ function Game({gameData, socket, restoreGameData}) {
 
     function handleCallButton() {
         if (game["min_bet"] !== 0) {
-            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "call", bet: game["bet_difference"] })
             setDisplayBetting(false)
+            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "call", bet: game["bet_difference"] })
         }
     }
 
@@ -456,8 +476,8 @@ function Game({gameData, socket, restoreGameData}) {
     }
 
     function handleCheckButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "check", bet: 0})
         setDisplayBetting(false)
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "check", bet: 0})
     }
 
     function run_auto_fold(playerName) {
@@ -465,114 +485,55 @@ function Game({gameData, socket, restoreGameData}) {
         socket.emit("handle_bet_action", {room: gameData["room"], user: playerName, bet_status: "fold", bet: 0});
     }
 
+    const handlePopState = () => {
+        console.log("hps ran!");
+        // socket.emit("back_buttton", {message: "hello"});
+        socket.emit("back_button", {})
+    }
+
+    // window.onpopstate = () => {
+    //     socket.emit("back_buttton", {message: "hello"});
+    // }
+
     //NEW 3/7
 
     useEffect(() => {
-        // if (displayBetting === true) {
-        //     let intervalId;
-        //     let currBetDisplay = displayBetting
-        //     let newTime = game["time"] -1;
-        //     console.log("timer is running...")
-        //     console.log(currBetDisplay)
-        //     // Start the timer
-        //     intervalId = setInterval(() => {
-        //         // Check if betting is still displayed
-        //         currBetDisplay = displayBetting
-        //         console.log(currBetDisplay)
-        //         if (test === true) {
-        //             // If not, clear the interval and exit the function
-        //             console.log("YOU BETTED IN TIME!!")
-        //             clearInterval(intervalId);
-        //             return;
-        //         }
-        
-        //         // Check if playerTimer has reached zero
-        //         if (newTime === 0) {
-        //             // If so, display alert and clear the interval
-        //             alert("OUT OF TIME!!!!!");
-        //             clearInterval(intervalId);
-        //             return;
-        //         }
-        
-        //         // Update the game time
-        //         newTime -= 1
-        //         console.log(newTime)
-        //         setGame(prevGame => ({...prevGame, time: newTime }));
-        //     }, 1000);
-        // }
-
-        // console.log("DID THIS RUN???")
-
-        // if (displayBetting === true) {
-        //     let intervalId;
-        //     let newTime = timer - 1;
-        //     console.log("timer is running...")
-        //     console.log(newTime);
-        //     // Start the timer
-        //     if (newTime === 0) {
-        //         console.log("OUT OF TIME!!!")
-        //     } else {
-        //         setTimeout(() => {
-        //             setTimer(newTime)
-        //         }, 1000);
-        //     }
-        // }
-
+        console.log("USE EFFECT for timer RUNS")
+        let updateTimer;
         if (displayBetting === true) {
-            let updateTimer;
             console.log(timer)
             if (timer === 0) {
-                console.log("OUT OF TIMEEEE!!!")
+                handleFoldButton();
+                // console.log("OUT OF TIME!")
             } else {
                 updateTimer = setTimeout(() => {
                     setTimer(prevTimer => prevTimer - 1);
                 }, 1000);
             }
             // Clear the timer when displayBetting becomes false
-            return () => clearTimeout(updateTimer);
-        }
+        } 
+        // else if (displayBetting === false && opponentBetting === true) {
+        //     // let updateTimer;
+        //     console.log(timer)
+        //     if (timer === 0) {
+        //         setOpponentBetting(false);
+        //     } else {
+        //         updateTimer = setTimeout(() => {
+        //             setTimer(prevTimer => prevTimer - 1);
+        //         }, 1000);
+        //     }
+        //     // return () => clearTimeout(updateTimer);
+        // }
 
-    }, [timer])
-
-
-
-
-
-    function run_timer() {
-        let intervalId;
-        let currBetDisplay = displayBetting
-        let newTime = game["time"] -1;
-        console.log("timer is running...")
-        console.log(currBetDisplay)
-        // Start the timer
-        intervalId = setInterval(() => {
-            // Check if betting is still displayed
-            console.log(currBetDisplay)
-            if (currBetDisplay === false) {
-                // If not, clear the interval and exit the function
-                console.log("YOU BETTED IN TIME!!")
-                clearInterval(intervalId);
-                return;
-            }
-    
-            // Check if playerTimer has reached zero
-            if (newTime === 0) {
-                // If so, display alert and clear the interval
-                alert("OUT OF TIME!!!!!");
-                clearInterval(intervalId);
-                return;
-            }
-    
-            // Update the game time
-            newTime -= 1
-            console.log(newTime)
-            setGame(prevGame => ({...prevGame, time: newTime }));
-        }, 1000);
+        return () => clearTimeout(updateTimer);
+    }, [timer, displayBetting])
 
 
-
-
-    }
+    useEffect(() => {
+        console.log("CRAPPPP")
+        const listener = history.listen(handlePopState);
+        return () => listener();
+    }, [history])
 
     function shuffleAndRestart() {
             fetch("/cards")
@@ -595,9 +556,11 @@ function Game({gameData, socket, restoreGameData}) {
     }
 
     //GAME LOGIC -------------------------------------------------
+    function sayHi() {
+        console.log("Hi1")
+    }
     
-    
-    if (game["game_started"] && game["host"] === gameData["user"]) {
+    if (game["game_started"] && game["host"] === gameData["userId"]) {
         // PLAYER CARDS DEALING
         if (!game["player_cards_dealt"] && !game["player_cards_dealing"]) {
             console.log("going to run deal cards")
@@ -606,7 +569,8 @@ function Game({gameData, socket, restoreGameData}) {
         // PRE GAME BETTING ROUND
         if (!game["pregame_bets_taken"] && game["player_cards_dealt"]) {
             console.log("going to run allow preflop betting")
-            setTimeout(takeBets, 1000)
+            // setTimeout(takeBets, 1000)
+            takeBets()
         }
         // // FLOP DEALING
         if (!game["flop_dealt"] && game["player_cards_dealt"] && game["pregame_bets_completed"]) {
@@ -616,31 +580,40 @@ function Game({gameData, socket, restoreGameData}) {
         // FLOP BETTING ROUND
         if (!game["flop_bets_taken"] && game["flop_dealt"]) {
             console.log("going to allow post flop betting")
-            setTimeout(takeBets, 1000)
+            // setTimeout(takeBets, 1000)
+            takeBets()
         }
         // TURN DEALING
         if (!game["turn_dealt"] && game["flop_dealt"] && game["flop_bets_completed"]) {
             console.log("going to run deal turn")
+            //WHY DOES THIS RUN TWICE AND WHY IS STATE RESETING???
             setTimeout(dealTurn, 2000)
+            // dealTurn()
         }
         // TURN BETTING ROUND
         if (!game["turn_bets_taken"] && game["turn_dealt"]) {
             console.log("going to allow post turn betting")
-            setTimeout(takeBets, 1000)
+            // setTimeout(takeBets, 1000)
+            takeBets()
         }
         // RIVER DEALING
         if (!game["river_dealt"] && game["turn_dealt"] && game["turn_bets_completed"]) {
             console.log("going to run deal river")
             setTimeout(dealRiver, 2000)
+            // dealRiver()
         }
         // RIVER DEALING ROUND
         if (!game["river_bets_taken"] && game["river_dealt"]) {
-            setTimeout(takeBets, 1000)
+            console.log("allowing post river betting")
+            // setTimeout(takeBets, 1000)
+            takeBets()
         }
         if (!game["winners_declared"] && game["player_cards"] && game["flop_dealt"] && game["river_dealt"] && game["river_bets_completed"]) {
+            console.log("checking win")
             checkWin()
         }
         if (game["winners_declared"] && !game["game_over"]) {
+            console.log("running shuffle and restart....")
             setTimeout(shuffleAndRestart, 5000)
         }
         //Remove player or continue
@@ -871,12 +844,17 @@ function Game({gameData, socket, restoreGameData}) {
                         <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
                         {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
                     </div>):
-                (<></>)
-                }
+                    (<></>)
+                    }
                     {winnersDisplay}
-                    {timer >= 10? (<>{`00:${timer}`}</>): (<>{`00:0${timer}`}</>)}
+                    
                 </div>
             </div>
+                <div id="timer">
+                    <div id="timerTime">
+                        {timer >= 10? (<>{`00:${timer}`}</>): (<>{`00:0${timer}`}</>)}
+                    </div>
+                </div>
         </div>
         </div>
         </>
