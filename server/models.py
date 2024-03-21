@@ -40,10 +40,10 @@ class Tag(db.Model, SerializerMixin):
 
     usertags = db.relationship("UserTag", backref="tag", cascade="all, delete-orphan")
 
-    serialize_rules = ("-usertags.tag")
+    serialize_rules = ("-usertags.tag",)
 
 
-class User(db.Model):
+class User(db.Model, SerializerMixin):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -57,8 +57,7 @@ class User(db.Model):
     usericons = db.relationship("UserIcon",  backref="user", cascade="all, delete-orphan")
     usertags = db.relationship("UserTag", backref="user", cascade="all, delete-orphan")
 
-    serialize_rules = ("-usericons.user",)
-    serialize_rules = ("-usertags.user",)
+    serialize_rules = ("-usericons.user", "-usertags.user",)
 
     @hybrid_property
     def password_hash(self):
@@ -71,7 +70,12 @@ class User(db.Model):
 
     def authenticate(self, password):
         return bcrypt.check_password_hash(self._password_hash, password.encode("utf-8"))
+    
+    def __repr__(self):
+        return f"<username: {self.username}, id: {self.id}, password: {self._password_hash}, image_url: {self.image_url}, user_id: {self.user_id}, points: {self.points}, total_points: {self.total_points}>"
+        
 
+# Join table for User and Icon
 class UserIcon(db.Model, SerializerMixin):
     __tablename__ = "usericons"
 
@@ -82,6 +86,7 @@ class UserIcon(db.Model, SerializerMixin):
 
     serialize_rules = ("-user.usericons", "-icon.usericons",)
 
+# Join table for User and Tag
 class UserTag(db.Model, SerializerMixin):
     __tablename__ = "usertags"
 

@@ -12,7 +12,7 @@ from string import ascii_uppercase
 from itertools import combinations
 import time
 import uuid
-from models import *
+from models import User, Card, Tag, Icon, UserIcon, UserTag
 
 # Local imports
 from config import app, db, api
@@ -138,12 +138,14 @@ class Signup(Resource):
     def post(self):
         request_json = request.get_json()
 
-        username = request_json.get("username")
+        user_name = request_json.get("username")
         password = request_json.get("password")
 
         user_ids = [user.user_id for user in User.query.all()]
         print("these are the user_id's : " + str(user_ids))
         unique_id = ""
+
+        print(request_json)
 
         while (True):
             random_id = uuid.uuid1()
@@ -159,18 +161,25 @@ class Signup(Resource):
         print("this is the type of the user_id : " + str(type(unique_id)))
         
         user = User(
-            username = username,
-            image_url = None,
-            user_id = str(unique_id)
+            username = user_name,
+            image_url = "https://miro.medium.com/v2/resize:fit:1200/1*qzR_zFHUtlkbNkAuk2IVPQ.jpeg",
+            user_id = str(unique_id),
+            points = 0,
+            total_points = 0
         )
+
+        print(user)
 
         user.password_hash = password
 
         db.session.add(user)
+        # this is the problem
+        # session["userId"] = user.user_id
+        # session["user"] = user
+        session["user_id"] = user.id
         db.session.commit()
 
-        session["userId"] = user.user_id
-        session["user"] = user
+        print(user.to_dict())
 
         return make_response(user.to_dict(), 201)
 
@@ -180,33 +189,29 @@ class Login(Resource):
     def post(self):
         request_json = request.get_json()
 
-        username = request_json.get("username")
+        user_name = request_json.get("username")
         password = request_json.get("password")
-        print(username)
 
-        user = User.query.filter(User.username == username).first()
+
+        user = User.query.filter(User.username == user_name).first()
         print(user)
         if user:
             if user.authenticate(password):
 
-                session["userId"] = user.user_id
-                session["user"] = user
+                # Create sessions for every attribute of user
+                # session["userId"] = user.user_id
+                # session["user"] = user
+                session["user_id"] = user.id
                 return make_response(user.to_dict(), 200)
             
             return make_response({"error" : "401 Unauthorized"}, 401)
 
 api.add_resource(Login, "/login", endpoint="login")
 
-# ENDPOINTS FOR TAGS
 
-# class Tags(Resource):
-#     def get(self):
-#         tags = [tag.to_dict() for tag in Tag.query.all()]
-#         return make_response(tags, 200)
-
-# api.add_resource(Tags, "/tags")
 # ENDPOINTS FOR ICONS
 
+# This gets all the icons
 class Icons(Resource):
      def get(self):
          icons = [icon.to_dict() for icon in Icon.query.all()]
@@ -216,14 +221,24 @@ class Icons(Resource):
 api.add_resource(Icons, "/icons")
 
 # Create icons here
+# This one just gets all the icons that the user owns
 class UserIconsById(Resource):
-    def get(self, user_id):
-        user_icons = UserIcon.query.filter_by(user_id = user_id).all()
-        return make_response(user_icons, 200)
-    
+    def get(self, id):
+        # I think I just fixed
+        # I need to get the session of the user and their user.id not user_id
+        # Because user.id and user_id are two different things
+        # user_id is the thing you added for random id's
+        user_id = session["user_id"]
+
+        user_icons = UserIcon.query.filter_by(user_id=id).all()
+        user_icons_dicts = [icon.to_dict() for icon in user_icons]
+        print(user_icons_dicts)
+        return make_response(jsonify(user_icons_dicts), 200)
+
 api.add_resource(UserIconsById, "/usericons/<int:id>")
 
-class UserIcon(Resource):
+# This creates a relationship between the user and a specific icon that is bought
+class UserIconPost(Resource):
     def post(self):
         try:
             request_json = request.get_json()
@@ -240,7 +255,7 @@ class UserIcon(Resource):
         except:
             return make_response({"error" : "POST UserIcon"}, 404)
         
-api.add_resource(UserIcon, "/usericons")
+api.add_resource(UserIconPost, "/usericons")
 
 # Write me a code that gets UserIcons that are specific to the user_id.
 
@@ -252,13 +267,14 @@ class Tags(Resource):
 api.add_resource(Tags, "/tags")
 
 class UserTagById(Resource):
-    def get(self, user_id):
-        user_tag = UserTag.query.filter_by(user_id = user_id).all()
-        return make_response(user_tag, 200)
+    def get(self, id):
+        user_tags = UserTag.query.filter_by(user_id=id).all()
+        user_tag_dicts = [tag.to_dict() for tag in user_tags]
+        return make_response(jsonify(user_tag_dicts), 200)
     
 api.add_resource(UserTagById, "/usertags/<int:id>")
 
-class UserTag(Resource):
+class UserTagPost(Resource):
     def post(self):
         try:
             request_json = request.get_json()
@@ -275,7 +291,7 @@ class UserTag(Resource):
         except:
             return make_response({"error" : "POST UserIcon"}, 404)
     
-api.add_resource(UserTag, "/usertags")
+api.add_resource(UserTagPost, "/usertags")
 
 @socketio.on('connect')
 def handle_connect(socket):

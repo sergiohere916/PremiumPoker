@@ -8,7 +8,7 @@ from faker import Faker
 
 # Local imports
 from app import app
-from models import db, Card, User, Tag, Icon
+from models import db, Card, User, Tag, Icon, UserIcon, UserTag
 
 def create_cards():
 
@@ -342,6 +342,10 @@ if __name__ == '__main__':
         db.session.commit()
         Icon.query.delete()
         db.session.commit()
+        UserIcon.query.delete()
+        db.session.commit()
+        UserTag.query.delete()
+        db.session.commit()
 
         print("seeding tags... ")
         all_tags = create_tags()
@@ -356,4 +360,14 @@ if __name__ == '__main__':
         print("seeding cards...")
         all_cards = create_cards()
         db.session.add_all(all_cards)
+        db.session.commit()
+
+        print("seeding usericons...")
+        userIcon1 = UserIcon(user_id = 1, icon_id = 1)
+        db.session.add(userIcon1)
+        db.session.commit()
+
+        print("seeding tags...")
+        userTag1 = UserTag(user_id = 1, tag_id = 1)
+        db.session.add(userTag1)
         db.session.commit()
