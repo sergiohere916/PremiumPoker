@@ -163,7 +163,7 @@ class Signup(Resource):
             username = user_name,
             image_url = "https://miro.medium.com/v2/resize:fit:1200/1*qzR_zFHUtlkbNkAuk2IVPQ.jpeg",
             user_id = str(unique_id),
-            points = 0,
+            points = 300,
             total_points = 0
         )
 
@@ -177,8 +177,6 @@ class Signup(Resource):
         # session["user"] = user
         session["user_id"] = user.id
         db.session.commit()
-
-        print(user.to_dict())
 
         return make_response(user.to_dict(), 201)
 
@@ -214,7 +212,6 @@ api.add_resource(Login, "/login", endpoint="login")
 class Icons(Resource):
      def get(self):
          icons = [icon.to_dict() for icon in Icon.query.all()]
-         print(icons)
          return make_response(icons, 200)
     
 api.add_resource(Icons, "/icons")
@@ -231,7 +228,6 @@ class UserIconsById(Resource):
 
         user_icons = UserIcon.query.filter_by(user_id=id).all()
         user_icons_dicts = [icon.to_dict() for icon in user_icons]
-        print(user_icons_dicts)
         return make_response(jsonify(user_icons_dicts), 200)
 
 api.add_resource(UserIconsById, "/usericons/<int:id>")
