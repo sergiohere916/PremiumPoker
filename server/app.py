@@ -320,6 +320,7 @@ def handle_disconnect():
             if game["total_players"] == 1:
                 print("deleting room")
                 del game_rooms[room]
+                del players_in_games[sid]
             elif game["game_started"] == False:
                 default_player_dict = {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, 
                                        "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, 

@@ -39,6 +39,11 @@ function Homepage({fillGameData}) {
 
 
     return (
+    <>
+    <div id="homeMenu">
+        <NavLink to="/shop">Store</NavLink>
+        <NavLink to="/login">Login</NavLink>
+    </div>
     <div>
         <label>Create UserName: </label>
         <input type="text" name="userName" value={userName} readOnly={false} onChange={(e) => setUserName(e.target.value)}/>
@@ -52,7 +57,9 @@ function Homepage({fillGameData}) {
         <br/>
         <input type="text" name="joinCode" value={joinCode} onChange={(e) => setJoinCode(e.target.value)}/>
         <button onClick={addGameData}>Join Game using Code</button>
-    </div>)
+    </div>
+    </>
+    )
 }
 
 export default Homepage

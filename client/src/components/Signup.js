@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function Signup() {
+function Signup({onLogin}) {
     const initial = {
         username : "",
         password :  "",
@@ -20,7 +20,7 @@ function Signup() {
         .then((response) => {
             if (response.ok) {
                 response.json().then((userData) => {
-                    console.log(userData)
+                    onLogin(userData)
                     setUser(initial)
                 })
             }

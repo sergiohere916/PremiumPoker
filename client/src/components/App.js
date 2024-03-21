@@ -17,6 +17,14 @@ function App() {
   const history = useHistory()
   const [userIcons, setUserIcons] = useState([])
   const [userTags, setUserTags] = useState([])
+  const [loggedInUser, setLoggedInUser] = useState({
+    icon: "",
+    points: 0,
+    total_points: 0,
+    username: "",
+    user_id: "",
+    type: "GUEST"
+  })
   
   //If idea does not work must return socket={socket} to Game component
   function fillGameData(user, code, userId) {
@@ -70,6 +78,10 @@ function App() {
   function restoreGameData(user, code, userId) {
     setGameData({"user": user, "room": code, "userId": userId})
   }
+
+  function onLogin(thisUser) {
+    setLoggedInUser({...thisUser, type: "MEMBER"})
+  }
   
   return (
   <div id="page">
@@ -81,16 +93,16 @@ function App() {
         <Homepage fillGameData={fillGameData}/>
       </Route> 
       <Route exact path="/login">
-        <Login></Login>
+        <Login onLogin={onLogin}></Login>
       </Route>
       <Route exact path="/signup">
-        <Signup></Signup>
+        <Signup onLogin={onLogin}></Signup>
       </Route>
       <Route exact path="/shop">
-        <Shop userIcons={userIcons} userTags={userTags}></Shop>
+        <Shop loggedInUser={loggedInUser}></Shop>
       </Route>
       <Route exact path="/inventory">
-        <Inventory userIcons={userIcons} userTags={userTags}></Inventory>
+        <Inventory loggedInUser={loggedInUser}></Inventory>
       </Route>
     </Switch>
   </div>
@@ -98,3 +110,4 @@ function App() {
 }
 
 export default App;
+// userIcons={userIcons} userTags={userTags}

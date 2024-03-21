@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-function Login() {
+function Login({onLogin}) {
 
     const history = useHistory()
 
@@ -25,8 +25,9 @@ function Login() {
         .then((response) => {
             if (response.ok) {
                 response.json().then(userData => {
-                    console.log(userData)
-                    history.push("/signup")
+                    // console.log(userData)
+                    onLogin(userData)
+                    history.push("/")
                     setTestUser(initial)
                 })
             }

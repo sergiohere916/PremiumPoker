@@ -18,6 +18,8 @@ function Shop({userIcons, userTags}) {
         })
     }, [])
 
+    
+
     const userIconNames = userIcons.map(icon => icon.name);
     const userTagNames = userTags.map(tag => tag.name)
 
