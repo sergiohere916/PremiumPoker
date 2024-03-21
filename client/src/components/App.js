@@ -6,6 +6,8 @@ import io from "socket.io-client";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import Login from "./Login"
 import Signup from "./Signup";
+import Shop from "./Shop"
+import Inventory from "./Inventory";
 
 
 const socket = io("http://localhost:5555");
@@ -40,15 +42,6 @@ function App() {
   function restoreGameData(user, code, userId) {
     setGameData({"user": user, "room": code, "userId": userId})
   }
-
-  useEffect(() => {
-    fetch("/icons")
-    .then(response => response.json())
-    .then(data => {
-      console.log(data)
-    })
-  }, [])
-
   
   return (
   <div id="page">
@@ -65,8 +58,11 @@ function App() {
       <Route exact path="/signup">
         <Signup></Signup>
       </Route>
-      <Route>
-        
+      <Route exact path="/shop">
+        <Shop></Shop>
+      </Route>
+      <Route exact path="/inventory">
+        <Inventory></Inventory>
       </Route>
     </Switch>
   </div>
