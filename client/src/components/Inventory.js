@@ -1,37 +1,22 @@
 import React, { useEffect, useState } from "react";
 
-function Inventory() {
-    const [icons, setIcons] = useState([])
-    const [tags, setTags] = useState([])
+function Inventory({userIcons, userTags}) {
     const [condition, setCondition] = useState(false)
 
-    useEffect(() => {
-        fetch("/usericons/1")
-        .then(response => response.json())
-        .then(userIconData => {
-            console.log(userIconData)
-            setIcons(userIconData)
-            fetch("/usertags/1")
-            .then(response => response.json())
-            .then(userTagData => {
-                console.log(userTagData)
-                setTags(userTagData)
-            })
-        })
-    }, [])
-
-
-    console.log("bruh")
-    const iconsDisplay = icons.map((icon) => {
+    console.log(userIcons)
+    console.log(userTags)
+    const iconsDisplay = userIcons.map((icon) => {
         return <div key={icon.id}>
-            <h2>{icon["icon"]["name"]}</h2>
-            <img src={icon["icon"]["content"]} style={{ width: '250px', height: '250px' }} ></img>
+            <h2>{icon["name"]}</h2>
+            <img src={icon["content"]} style={{ width: '250px', height: '250px' }} ></img>
+            <button>USE</button>
         </div>
     })
 
-    const tagsDisplay = tags.map((tag) => {
+    const tagsDisplay = userTags.map((tag) => {
         return <div key={tag.id}>
-            <h3>{tag["tag"]["name"]}</h3>
+            <h3>{tag["name"]}</h3>
+            <button>USE</button>
         </div>
     })
 

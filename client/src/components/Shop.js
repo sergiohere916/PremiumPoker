@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function Shop() {
+function Shop({userIcons, userTags}) {
     const [icons, setIcons] = useState([])
     const [tags, setTags] = useState([])
     const [condition, setCondition] = useState(false)
@@ -14,11 +14,12 @@ function Shop() {
             .then(response => response.json())
             .then(tagData => {
                 setTags(tagData)
-                console.log(tagData)
-                console.log(iconData)
             })
         })
     }, [])
+
+    const userIconNames = userIcons.map(icon => icon.name);
+    const userTagNames = userTags.map(tag => tag.name)
 
     const iconsDisplay = icons.map((icon) => {
         return (
@@ -30,7 +31,7 @@ function Shop() {
                     alt={`Icon ${icon.content}`} 
                 />
                 <h3 style={{ background : "white"}}>Price : {icon.price}</h3>
-                <button>BUY</button>
+                <button>{userIconNames.includes(icon["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         );
     });
@@ -40,7 +41,7 @@ function Shop() {
             <div key={tag.name}>
                 <h2>{tag.name}</h2>
                 <h3>Price : {tag.price}</h3>
-                <button>BUY</button>
+                <button>{userTagNames.includes(tag["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         )
     })
@@ -49,10 +50,8 @@ function Shop() {
         setCondition(!condition)
     }
 
-    console.log(condition)
-
     return (<div>
-        <button onClick={handleButton}>{condition ? "tags" : "icons"}</button>
+        <button onClick={handleButton}>{condition ? "icons" : "tags"}</button>
         <div>
             {condition ? tagsDisplay : iconsDisplay}
         </div>

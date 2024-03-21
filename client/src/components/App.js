@@ -15,6 +15,8 @@ function App() {
   
   const [gameData, setGameData] = useState({})
   const history = useHistory()
+  const [userIcons, setUserIcons] = useState([])
+  const [userTags, setUserTags] = useState([])
   
   //If idea does not work must return socket={socket} to Game component
   function fillGameData(user, code, userId) {
@@ -38,6 +40,32 @@ function App() {
     // setGameData(data);
   }
 
+  useEffect(() => {
+    fetch("/usericons/1")
+    .then(response => response.json())
+    .then(userIconData => {
+        let userIconsHolding = []
+        for (let i = 0; i < userIconData.length; i++) {
+          userIconsHolding.push(userIconData[i]["icon"])
+        }
+        console.log(userIconsHolding)
+
+        setUserIcons(userIconsHolding)
+        fetch("/usertags/1")
+        .then(response => response.json())
+        .then(userTagData => {
+          console.log(userTagData)
+          let userTagHolding = []
+          for (let i = 0; i < userTagData.length; i++) {
+            userTagHolding.push(userTagData[i]["tag"])
+          }
+          console.log(userTagHolding)
+
+          setUserTags(userTagHolding)
+        })
+    })
+  }, [])
+
 
   function restoreGameData(user, code, userId) {
     setGameData({"user": user, "room": code, "userId": userId})
@@ -59,10 +87,10 @@ function App() {
         <Signup></Signup>
       </Route>
       <Route exact path="/shop">
-        <Shop></Shop>
+        <Shop userIcons={userIcons} userTags={userTags}></Shop>
       </Route>
       <Route exact path="/inventory">
-        <Inventory></Inventory>
+        <Inventory userIcons={userIcons} userTags={userTags}></Inventory>
       </Route>
     </Switch>
   </div>
