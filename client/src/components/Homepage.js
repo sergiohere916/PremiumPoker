@@ -43,6 +43,7 @@ function Homepage({fillGameData}) {
     <div id="homeMenu">
         <NavLink to="/shop">Store</NavLink>
         <NavLink to="/login">Login</NavLink>
+        <NavLink to="/inventory">Inventory</NavLink>
     </div>
     <div>
         <label>Create UserName: </label>

@@ -20,6 +20,7 @@ function Signup({onLogin}) {
         .then((response) => {
             if (response.ok) {
                 response.json().then((userData) => {
+                    console.log(userData)
                     onLogin(userData)
                     setUser(initial)
                 })

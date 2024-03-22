@@ -9,7 +9,6 @@ import Signup from "./Signup";
 import Shop from "./Shop"
 import Inventory from "./Inventory";
 
-
 const socket = io("http://localhost:5555");
 function App() {
   
@@ -23,7 +22,9 @@ function App() {
     total_points: 0,
     username: "",
     user_id: "",
-    type: "GUEST"
+    type: "GUEST",
+    // icon_using: "",
+    // tag_using: ""
   })
   
   //If idea does not work must return socket={socket} to Game component
@@ -48,31 +49,35 @@ function App() {
     // setGameData(data);
   }
 
-  useEffect(() => {
-    fetch("/usericons/1")
-    .then(response => response.json())
-    .then(userIconData => {
-        let userIconsHolding = []
-        for (let i = 0; i < userIconData.length; i++) {
-          userIconsHolding.push(userIconData[i]["icon"])
-        }
-        console.log(userIconsHolding)
+  // useEffect(() => {
+  //   console.log(loggedInUser["id"])
+  //   fetch(`/usericons/${loggedInUser["id"]}`)
+  //   .then(response => response.json())
+  //   .then(userIconData => {
+  //       let userIconsHolding = []
+  //       for (let i = 0; i < userIconData.length; i++) {
+  //         userIconsHolding.push(userIconData[i]["icon"])
+  //       }
+  //       setUserIcons(userIconsHolding)
+  //       fetch(`/usertags/${loggedInUser["id"]}`)
+  //       .then(response => response.json())
+  //       .then(userTagData => {
+  //         console.log(userTagData)
+  //         let userTagHolding = []
+  //         for (let i = 0; i < userTagData.length; i++) {
+  //           userTagHolding.push(userTagData[i]["tag"])
+  //         }
 
-        setUserIcons(userIconsHolding)
-        fetch("/usertags/1")
-        .then(response => response.json())
-        .then(userTagData => {
-          console.log(userTagData)
-          let userTagHolding = []
-          for (let i = 0; i < userTagData.length; i++) {
-            userTagHolding.push(userTagData[i]["tag"])
-          }
-          console.log(userTagHolding)
-
-          setUserTags(userTagHolding)
-        })
-    })
-  }, [])
+  //         setUserTags(userTagHolding)
+  //       })
+  //       .catch(error => {
+  //         console.log(error)
+  //       })
+  //   })
+  //   .catch(error => {
+  //     console.log(error)
+  //   })
+  // }, [loggedInUser])
 
 
   function restoreGameData(user, code, userId) {
@@ -80,8 +85,29 @@ function App() {
   }
 
   function onLogin(thisUser) {
+    console.log(thisUser)
+
+    let userIconsHolding = []
+    for (let i = 0; i < thisUser["usericons"].length; i++) {
+      userIconsHolding.push(thisUser["usericons"][i]["icon"])
+    }
+    setUserIcons(userIconsHolding)
+
+    let userTagHolding = []
+    
+    for (let i = 0; i < thisUser["usertags"].length; i++) {
+      userTagHolding.push(thisUser["usertags"][i]["tag"])
+    }
+    setUserTags(userTagHolding)
     setLoggedInUser({...thisUser, type: "MEMBER"})
   }
+
+  // User icons is an array of objects of all the icons the user owns
+  // same with tag.
+  console.log(userTags)
+  console.log(userIcons)
+
+  console.log(loggedInUser)
   
   return (
   <div id="page">
@@ -99,10 +125,10 @@ function App() {
         <Signup onLogin={onLogin}></Signup>
       </Route>
       <Route exact path="/shop">
-        <Shop loggedInUser={loggedInUser}></Shop>
+        <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Shop>
       </Route>
       <Route exact path="/inventory">
-        <Inventory loggedInUser={loggedInUser}></Inventory>
+        <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags}></Inventory>
       </Route>
     </Switch>
   </div>

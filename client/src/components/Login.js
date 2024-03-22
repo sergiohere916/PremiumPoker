@@ -25,7 +25,6 @@ function Login({onLogin}) {
         .then((response) => {
             if (response.ok) {
                 response.json().then(userData => {
-                    // console.log(userData)
                     onLogin(userData)
                     history.push("/")
                     setTestUser(initial)

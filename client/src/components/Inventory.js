@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-function Inventory({userIcons, userTags}) {
+function Inventory({userIcons, userTags, loggedInUser}) {
     const [condition, setCondition] = useState(false)
 
     console.log(userIcons)
     console.log(userTags)
+
     const iconsDisplay = userIcons.map((icon) => {
         return <div key={icon.id}>
             <h2>{icon["name"]}</h2>
