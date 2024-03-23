@@ -37,30 +37,42 @@ def index():
 
 class StoreRoomData(Resource):
     def post(self):
-        user = request.json["user"]
+        username = request.json["username"]
+        uid = request.json["user_id"]
+        icon = request.json["icon"]
+        points = request.json["points"]
+        total_points = request.json["total_points"]
+        type = request.json["type"]
         code = request.json["room"]
-        uid = request.json["userId"]
-        session["user"] = user
-        session["room"] = code
-        session["userId"] = uid
 
-        print("stored data")
-        return {"user": user, "room": code, "userId": uid }, 200
+        session["username"] = username
+        session["user_id"] = uid
+        session["icon"] = icon
+        session["points"] = points
+        session["total_points"] = total_points
+        session["type"] = type
+        session["room"] = code
+
+        print("stored new game data")
+        return {"username": username, "user_id": uid, "icon": icon, "points": points, "total_points": total_points, "type": type, "room": code }, 200
     
 api.add_resource(StoreRoomData, "/storeData")
 
 class CheckSession(Resource):
     def get(self):
         print("checking session")
-        user = session["user"]
-        print("still good...")
+        username = session["username"]
+        uid = session["user_id"]
+        icon = session["icon"]
+        points = session["points"]
+        total_points = session["total_points"]
+        type = session["type"]
         code = session["room"]
-        print("got the code now \n")
-        uid = session["userId"]
-        print("likely breaks here...")
-        print("user id is: " + uid)
-        if user and code and uid:
-            return {"user": user, "room": code, "userId": uid}, 200
+
+        print("still good...")
+        
+        if username and code and uid:
+            return {"username": username, "user_id": uid, "icon": icon, "points": points, "total_points": total_points, "type": type, "room": code,}, 200
 api.add_resource(CheckSession, "/checkSession")
 
 class Cards(Resource):
@@ -505,8 +517,10 @@ def handle_leaving_room(room_data):
 def handle_join_room(room_data):
     print("\nrunning join room")
     room = room_data['room']
-    user = room_data['user']
-    userId = room_data["userId"]
+    user = room_data['username']
+    userId = room_data["user_id"]
+    icon = room_data["icon"]
+
 
     join_room(room)
     if game_rooms.get(room) is not None:

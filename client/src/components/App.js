@@ -16,7 +16,7 @@ function App() {
   const history = useHistory()
   const [userIcons, setUserIcons] = useState([])
   const [userTags, setUserTags] = useState([])
-  const [loggedInUser, setLoggedInUser] = useState({
+  const [user, setUser] = useState({
     icon: "",
     points: 0,
     total_points: 0,
@@ -26,10 +26,38 @@ function App() {
     // icon_using: "",
     // tag_using: ""
   })
+  const [roomCode1, setRoomCode1] = useState("")
+  const [joinCode1, setJoinCode1] = useState("")
+
+
+  function updateGuestUsername(nameData) {
+    setUser(prevUser => ({...prevUser, username: nameData}))
+  }
+
+  function updateGuestUserId(userIdData) {
+    setUser(prevUser => ({...prevUser, user_id: userIdData}))
+  }
+
+  function updateRoomCode(code) {
+    setRoomCode1(code)
+  }
+
+  function updateJoinCode(code) {
+    setJoinCode1(code)
+  }
   
   //If idea does not work must return socket={socket} to Game component
-  function fillGameData(user, code, userId) {
-    const data = {"user": user, "room": code, "userId": userId }
+  function fillGameData(user, code) {
+    const data = {
+    "username": user["username"],
+    "user_id": user["user_id"],
+    "icon": user["icon"],
+    "points": user["points"],
+    "total_points": user["total_points"],
+    "type": user["type"], 
+    "room": code, 
+    }
+
     fetch("/storeData", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -80,8 +108,8 @@ function App() {
   // }, [loggedInUser])
 
 
-  function restoreGameData(user, code, userId) {
-    setGameData({"user": user, "room": code, "userId": userId})
+  function restoreGameData(gameData) {
+    setGameData({"username": gameData["username"], "user_id": gameData["user_id"], "icon": gameData["icon"], "points": gameData["points"], "total_points": gameData["total_points"], "type": gameData["type"], "room": gameData["room"]})
   }
 
   function onLogin(thisUser) {
@@ -99,7 +127,7 @@ function App() {
       userTagHolding.push(thisUser["usertags"][i]["tag"])
     }
     setUserTags(userTagHolding)
-    setLoggedInUser({...thisUser, type: "MEMBER"})
+    setUser({...thisUser, type: "MEMBER"})
   }
 
   // User icons is an array of objects of all the icons the user owns
@@ -107,7 +135,7 @@ function App() {
   console.log(userTags)
   console.log(userIcons)
 
-  console.log(loggedInUser)
+  console.log(user)
   
   return (
   <div id="page">
@@ -116,7 +144,7 @@ function App() {
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
       </Route>
       <Route exact path="/">
-        <Homepage fillGameData={fillGameData}/>
+        <Homepage user={user} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}/>
       </Route> 
       <Route exact path="/login">
         <Login onLogin={onLogin}></Login>
@@ -125,10 +153,10 @@ function App() {
         <Signup onLogin={onLogin}></Signup>
       </Route>
       <Route exact path="/shop">
-        <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Shop>
+        <Shop loggedInUser={user} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Shop>
       </Route>
       <Route exact path="/inventory">
-        <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags}></Inventory>
+        <Inventory loggedInUser={user} userIcons={userIcons} userTags={userTags}></Inventory>
       </Route>
     </Switch>
   </div>
