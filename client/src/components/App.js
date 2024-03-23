@@ -86,6 +86,8 @@ function App() {
 
   function onLogin(thisUser) {
     console.log(thisUser)
+    
+    setLoggedInUser({...thisUser, type: "MEMBER"})
 
     let userIconsHolding = []
     for (let i = 0; i < thisUser["usericons"].length; i++) {
@@ -99,7 +101,7 @@ function App() {
       userTagHolding.push(thisUser["usertags"][i]["tag"])
     }
     setUserTags(userTagHolding)
-    setLoggedInUser({...thisUser, type: "MEMBER"})
+    
   }
 
   // User icons is an array of objects of all the icons the user owns
