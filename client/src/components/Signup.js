@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 function Signup({onLogin}) {
+
+    const history = useHistory()
     const initial = {
         username : "",
         password :  "",
@@ -23,6 +26,7 @@ function Signup({onLogin}) {
                     console.log(userData)
                     onLogin(userData)
                     setUser(initial)
+                    history.push("/")
                 })
             }
         })

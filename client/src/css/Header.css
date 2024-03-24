@@ -1,0 +1,36 @@
+#header {
+    background-color: #000000;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Monaco', monospace;
+}
+
+#nav-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+}
+
+#nav-container a {
+    color: white;
+    text-decoration: none; 
+    margin-left: 10px;
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    transition: border-color 0.3s ease;
+}
+
+#nav-container a:hover {
+    border-color: white;
+}
+
+#logo {
+    font-weight: bolder;
+    font-size: 1.2em;
+    width: 100%;
+    
+}

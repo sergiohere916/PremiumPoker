@@ -8,6 +8,7 @@ import Login from "./Login"
 import Signup from "./Signup";
 import Shop from "./Shop"
 import Inventory from "./Inventory";
+import Play from "./Play"
 
 const socket = io("http://localhost:5555");
 function App() {
@@ -86,7 +87,7 @@ function App() {
 
   function onLogin(thisUser) {
     console.log(thisUser)
-    
+
     setLoggedInUser({...thisUser, type: "MEMBER"})
 
     let userIconsHolding = []
@@ -118,7 +119,7 @@ function App() {
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
       </Route>
       <Route exact path="/">
-        <Homepage fillGameData={fillGameData}/>
+        <Homepage fillGameData={fillGameData} loggedInUser={loggedInUser}/>
       </Route> 
       <Route exact path="/login">
         <Login onLogin={onLogin}></Login>
@@ -131,6 +132,9 @@ function App() {
       </Route>
       <Route exact path="/inventory">
         <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags}></Inventory>
+      </Route>
+      <Route exact path="/play"> 
+        <Play fillGameData={fillGameData}></Play>
       </Route>
     </Switch>
   </div>

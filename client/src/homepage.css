@@ -1,8 +1,0 @@
-#homeMenu {
-    height: 10%;
-    width: 100%;
-    background-color: black;
-    display: flex;
-    justify-content: space-evenly;
-    font-size: 20pt;
-}
