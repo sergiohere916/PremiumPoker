@@ -24,6 +24,8 @@ function App() {
     username: "",
     user_id: "",
     type: "GUEST",
+    image_url: "",
+    tag:  "",
     // icon_using: "",
     // tag_using: ""
   })
@@ -79,7 +81,16 @@ function App() {
   //     console.log(error)
   //   })
   // }, [loggedInUser])
-
+  function logoutUser() {
+    setLoggedInUser({
+      icon: "",
+      points: 0,
+      total_points: 0,
+      username: "",
+      user_id: "",
+      type: "GUEST",
+    })
+  }
 
   function restoreGameData(user, code, userId) {
     setGameData({"user": user, "room": code, "userId": userId})
@@ -119,7 +130,7 @@ function App() {
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
       </Route>
       <Route exact path="/">
-        <Homepage fillGameData={fillGameData} loggedInUser={loggedInUser}/>
+        <Homepage fillGameData={fillGameData} loggedInUser={loggedInUser} logoutUser={logoutUser}/>
       </Route> 
       <Route exact path="/login">
         <Login onLogin={onLogin}></Login>
@@ -131,7 +142,7 @@ function App() {
         <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Shop>
       </Route>
       <Route exact path="/inventory">
-        <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags}></Inventory>
+        <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Inventory>
       </Route>
       <Route exact path="/play"> 
         <Play fillGameData={fillGameData}></Play>

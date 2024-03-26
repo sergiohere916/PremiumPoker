@@ -1,0 +1,338 @@
+
+body {
+    font-size: 20px;
+    overflow-x: hidden;
+    color: white;
+}
+
+#first-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-size: 3em;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#first-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: -1;
+}
+
+#first-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+#slogan, #play-button {
+    position: relative;
+    z-index: 1;
+}
+
+#play-button {
+    padding: 20px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+    cursor: pointer;
+    transition-duration: .5s;
+    box-shadow: 0 4px 6px rgba(30, 0, 0, 1);
+    font-weight: bolder;
+}
+
+#play-button:hover {
+    font-size: 30px;
+    background-color: darkred;
+}
+
+#slogan {
+    font-size: 2.5em;
+}
+
+#second-container {
+    height: 150vh;
+    /* background-color: rgb(10, 10, 10); */
+    background: linear-gradient(to bottom, rgb(0, 0, 0), rgb(10, 20, 20));
+}
+
+#second-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Align sections vertically */
+    margin-top: 20px;
+}
+
+.section {
+    text-align: center;
+    width: 60vw;
+    height: 60vh;
+    color: black;
+    background-color: black;
+    margin: 20px 0;
+    color:white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+}
+
+#section1 {
+    margin-right: 25vw;
+}
+
+#section2 {
+    margin-left: 25vw;
+}
+
+.section-content {
+    width: 50%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bolder;
+}
+
+.section-image {
+    height: 100%;
+    width: 50%;
+}
+
+#first-img {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url("https://img.freepik.com/premium-photo/banner-online-casino-texas-club-poker-poker-las-vegas-gambling-industry-banner-app-mobile-desktop-tablet-casino-market-developers-concept-virtual-casino-poker-online_771426-4898.jpg");
+}
+
+#second-img {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url("https://img.freepik.com/free-photo/cards-chips-poker-green-table_93675-132861.jpg?size=626&ext=jpg&ga=GA1.1.632798143.1705449600&semt=ais");
+}
+
+#third-img {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url("https://media.istockphoto.com/id/1301045569/photo/playing-poker-in-a-casino-holding-winning-royal-flush-hand-of-cards.jpg?s=612x612&w=0&k=20&c=y2NwOEEGy6MpwXLfu6rvuHm3ymf7sD0e44okKA0kAZ4=");
+}
+
+#first-paragraph {
+    text-align: left;
+    margin: auto;
+    width: 75%;
+}
+
+#second-paragraph {
+    text-align: right;
+    margin: auto;
+    width: 75%;
+}
+
+#third-paragraph {
+    text-align: right;
+    margin: auto;
+    width: 70%;
+}
+
+/* THIRD CONTAINER */
+.headings {
+    text-align: center;
+    padding-top: 50px;
+    font-size: 75px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#third-container {
+    position: relative;
+    height: 80vh;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+    align-items: center;
+}
+
+.third-container-section {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 25vw;
+    height: 80vh;
+    background: linear-gradient(to bottom, rgb(10, 20, 20), rgb(0, 0, 0));
+}
+
+.earner-name {
+    font-size: 45px;
+    font-family: Arial, Helvetica, sans-serif;  
+    font-weight: bolder;
+    text-align: center;
+    padding-top: 50px;
+}
+
+.earnings {
+    color: green;
+    font-size: 70px;
+    font-family: Arial, Helvetica, sans-serif;  
+    font-weight: bolder;
+    text-align: center;
+    padding-top: 50px;
+}
+
+.quote {
+    padding-top: 50px;
+    text-align: center;
+    width: 75%;
+}
+
+/* FOURTH CONTAINER */
+
+#fourth-container {
+    height: 120vh;
+    background-color: rgb(20, 20, 20);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#about-container {
+    width: 70%;
+    height: 80%;
+    margin: auto;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+}
+
+.about-containers {
+    background-color: black;
+    height: 45%;
+    width: 100%;
+}
+
+#first-about-container {
+    display: flex;
+    flex-direction: row;
+}
+
+#first-about-caption {
+    width: 40%;
+    text-align: left;
+    height: 70%;
+    margin: auto;
+}
+
+#first-about-image {
+    width: 50%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.5);
+    background-image: url("https://images.pexels.com/photos/269630/pexels-photo-269630.jpeg");
+}
+
+#second-about-container {
+    background-image: url("https://t4.ftcdn.net/jpg/03/09/63/11/360_F_309631114_EnfdvPLKkFzz9oXoOuyQ38aOD37rqNcu.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+
+}
+
+#second-about-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+#second-about-caption-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+#second-about-header-caption {
+    width: 40%;
+    height: 100%;
+    font-size: 80px;
+    
+    font-weight: bolder;
+    text-align: left;
+    margin-top: 25px;
+    padding-left: 80px;
+}
+
+#second-about-caption {
+    margin-top: 90px;
+    text-align: left;
+    width: 50%;
+    height: 100%;
+    
+}
+
+/* FIFTH CONTAINER */
+
+#fifth-container {
+    background-color: black;
+    width: 100%;
+    height: 50vh;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#columns {
+    padding-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: row;
+    text-align: left;
+}
+
+.column h5 {
+    font-weight: lighter;
+}
+
+.column #heavy-header {
+    font-weight: bolder;
+}
+
+/* ------------------------------- */
+
+
+/* SCROLL BAR CSS */
+
+::-webkit-scrollbar {
+    width: 10px;
+    background: rgb(30, 30, 30);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(0, 0, 0);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: black;
+}

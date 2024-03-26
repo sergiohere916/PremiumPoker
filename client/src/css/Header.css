@@ -5,7 +5,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-family: 'Monaco', monospace;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 #nav-container {
