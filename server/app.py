@@ -164,7 +164,8 @@ class Signup(Resource):
             image_url = "https://miro.medium.com/v2/resize:fit:1200/1*qzR_zFHUtlkbNkAuk2IVPQ.jpeg",
             user_id = str(unique_id),
             points = 300,
-            total_points = 0
+            total_points = 0,
+            tag = ""
         )
 
         print(user)
@@ -205,6 +206,12 @@ class Login(Resource):
 
 api.add_resource(Login, "/login", endpoint="login")
 
+class Logout(Resource):
+    def delete(self):
+        session["user_id"] = None
+        return make_response({}, 204)
+    
+api.add_resource(Logout, "/logout", endpoint="Logout")
 
 # ENDPOINTS FOR ICONS
 

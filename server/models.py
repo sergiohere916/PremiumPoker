@@ -53,6 +53,7 @@ class User(db.Model, SerializerMixin):
     user_id = db.Column(db.String)
     points = db.Column(db.Integer)
     total_points = db.Column(db.Integer)
+    tag = db.Column(db.String)
 
     usericons = db.relationship("UserIcon",  backref="user", cascade="all, delete-orphan")
     usertags = db.relationship("UserTag", backref="user", cascade="all, delete-orphan")
