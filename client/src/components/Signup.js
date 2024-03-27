@@ -32,6 +32,10 @@ function Signup({onLogin}) {
         })
     }
 
+    function handleLoginClick() {
+        history.push("/login")
+    }
+
     function handleChange(e) {
         const {name, value} = e.target
 
@@ -41,33 +45,45 @@ function Signup({onLogin}) {
         })
     }
 
-    return (<div>
-        <form onSubmit={handleSubmit}>
-            <h3>Sign up</h3>
-            <input
+    return (<div id="form-container">
+        <form id="form" onSubmit={handleSubmit}>
+            <div id="form-header">
+                <h3>SIGN UP</h3>
+            </div>
+            <div className="input-container" id="username-input-container">
+                <input
+                className="inputs"
                 type="text"
                 name="username"
                 autoComplete="off"
                 value={user.username}
                 placeholder="username"
                 onChange={handleChange}
-            ></input>
-            <input
-                type="password"
-                name="password"
-                value={user.password}
-                placeholder="password"
-                onChange={handleChange}
-            >
-            </input>
-            <input
-                type="password"
-                name="passwordConfirmation"
-                value={user.passwordConfirmation}
-                onChange={handleChange}
-                placeholder="password confirm"
-            ></input>
-            <input type="submit" value="Sign Up"></input>
+                ></input>
+            </div>
+            <div className="input-container" id="password-input-container">
+                <input
+                    className="inputs"
+                    type="password"
+                    name="password"
+                    value={user.password}
+                    placeholder="password"
+                    onChange={handleChange}
+                >
+                </input>
+            </div>
+            <div className="input-container" id="password-confirmation-container">
+                <input
+                    className="inputs"
+                    type="password"
+                    name="passwordConfirmation"
+                    value={user.passwordConfirmation}
+                    onChange={handleChange}
+                    placeholder="password confirm"
+                ></input>
+            </div>
+            <input type="submit" value="Sign up"></input>
+            <div id="already">Already have an account? <span onClick={handleLoginClick}>Login</span></div>
         </form>
     </div>)
 }
