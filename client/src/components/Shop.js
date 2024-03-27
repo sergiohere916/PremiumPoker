@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 function Shop({userIcons, userTags, loggedInUser, onLogin}) {
     const [icons, setIcons] = useState([])
@@ -6,6 +7,8 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
     const [condition, setCondition] = useState(false)
     const [userIconNames, setUserIconNames] = useState([]);
     const [userTagNames, setUserTagNames] = useState([]);
+
+    const history = useHistory()
 
     useEffect(() => {
         fetch("/icons")
@@ -82,26 +85,26 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
 
     const iconsDisplay = icons.map((icon) => {
         return (
-            <div key={icon.content}>
+            <div key={icon.content} className="icon-container">
                 <h2>{icon.name}</h2>
                 <img 
                     src={icon.content} 
                     style={{ width: '250px', height: '250px' }} 
                     alt={`Icon ${icon.content}`} 
                 />
-                <h3 style={{ background : "white"}}>Price : {icon.price}</h3>
+                <h3>Price : {icon.price}</h3>
                 {/* And then in here, I just check if that icon name is inside the array, and if it is, that means its in the inventory */}
-                <button onClick={(e) => userIconNames.includes(icon["name"]) ? null : purchaseIcon(e, icon)}>{userIconNames.includes(icon["name"]) ? "OWNED" : "BUY"}</button>
+                <button className="purchaseButton" onClick={(e) => userIconNames.includes(icon["name"]) ? null : purchaseIcon(e, icon)}>{userIconNames.includes(icon["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         );
     });
 
     const tagsDisplay = tags.map((tag) => {
         return (
-            <div key={tag.name}>
+            <div key={tag.name} className="tag-container">
                 <h2>{tag.name}</h2>
-                <h3>Price : {tag.price}</h3>
-                <button onClick={(e) => userTagNames.includes(tag["name"]) ? null : purchaseTag(e, tag)}>{userTagNames.includes(tag["name"]) ? "OWNED" : "BUY"}</button>
+                <h3 class="price">Price : {tag.price}</h3>
+                <button className="purchaseButton" onClick={(e) => userTagNames.includes(tag["name"]) ? null : purchaseTag(e, tag)}>{userTagNames.includes(tag["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         )
     })
@@ -109,13 +112,22 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
     function handleButton(e) {
         setCondition(!condition)
     }
+    
+    function handleBack() {
+        history.push("/")
+    }
 
-    return (<div>
-        <button onClick={handleButton}>{condition ? "icons" : "tags"}</button>
-        <div>
-            {condition ? tagsDisplay : iconsDisplay}
+    return (
+    <div id="shop-container">
+        <button onClick={handleBack} id="back-button">BACK</button>
+        <div id="shop">
+            <button id="toggle-button" onClick={handleButton}>{condition ? "ICONS" : "TAGS"}</button>
+            <div id="items-display">
+                {condition ? tagsDisplay : iconsDisplay}
+            </div>
         </div>
     </div>)
+    
 }
 
 export default Shop

@@ -1,0 +1,74 @@
+#shop-container {
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#items-display {
+    background-color: rgb(10, 20, 20);
+    display: flex;
+    flex-wrap: wrap;
+    width: 70%;
+    margin: auto;
+    padding-top: 10px;
+    padding-bottom: 40px;
+    justify-content: space-between;
+}
+
+.icon-container, .tag-container {
+    background: linear-gradient(rgb(50, 50, 50), rgb(10, 20, 20), rgb(50, 50, 50));
+    /* background-color: rgb(50, 50, 50); */
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+#toggle-button {
+    padding: 20px;
+    color: white;
+    border: 2px solid white;
+    background: transparent;
+    display: block; /* Ensure the button is a block element */
+    margin: 40px auto; /* Center align the button */
+    font-size: 40px; /* Increase the font size to make it bigger */
+    border-radius: 25px;
+    transition: .5s;
+}
+  
+#toggle-button:hover {
+    background-color: white;
+    color: black;
+}
+
+#toggle-button:active {
+    font-size: 30px;
+}
+
+.purchaseButton {
+    color: white;
+    border: 1px solid white;
+    background: transparent;
+    margin: 0 auto;
+    display: block; /* Ensure the button is a block element */
+    font-size: 20px; /* Increase the font size to make it bigger */
+    transition: .5s;
+}
+
+.purchaseButton:hover {
+    background-color: white;
+    color: black;
+}
+
+.purchaseButton:active {
+    font-size: 10px;
+}
+
+#back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    background: transparent;
+    color: white;
+    font-size: 25px;
+    border: 1px solid white;
+    
+}
