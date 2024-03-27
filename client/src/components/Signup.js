@@ -48,7 +48,7 @@ function Signup({onLogin}) {
     return (<div id="form-container">
         <form id="form" onSubmit={handleSubmit}>
             <div id="form-header">
-                <h3>SIGN UP</h3>
+                <h2>SIGN UP</h2>
             </div>
             <div className="input-container" id="username-input-container">
                 <input

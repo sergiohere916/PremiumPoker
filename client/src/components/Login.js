@@ -33,6 +33,10 @@ function Login({onLogin}) {
         })
     }
 
+    function handleRegisterClick() {
+        history.push("/signup")
+    }
+
     function handleChange(e) {
         const {name, value} = e.target
         setTestUser({
@@ -41,24 +45,31 @@ function Login({onLogin}) {
         })
     }
 
-    return (<div>
-        <form onSubmit={handleSubmit}>
-            <h3>Login</h3>
-            <input
-                type="text"
-                name="username"
-                value={testUser.username}
-                onChange={handleChange}
-                placeholder="Username"
-            ></input>
-            <input
-                type="password"
-                name="password"
-                value={testUser.password}
-                onChange={handleChange}
-                placeholder="Password"
-            ></input>
+    return (<div id="form-container">
+        <form id="form" onSubmit={handleSubmit}>
+            <div id="form-header">
+                <h2>LOGIN</h2>
+            </div>
+            <div class="input-container">
+                <input
+                    type="text"
+                    name="username"
+                    value={testUser.username}
+                    onChange={handleChange}
+                    placeholder="Username"
+                ></input>
+            </div>
+            <div class="input-container">
+                <input
+                    type="password"
+                    name="password"
+                    value={testUser.password}
+                    onChange={handleChange}
+                    placeholder="Password"
+                ></input>
+            </div>
             <input type="submit" value="Login"></input>
+            <div id="already">Don't have an account? <span onClick={handleRegisterClick}>Register</span></div>
         </form>
     </div>)
 }
