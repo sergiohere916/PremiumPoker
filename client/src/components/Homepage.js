@@ -23,8 +23,8 @@ function Homepage({ fillGameData, loggedInUser, logoutUser }) {
                 <h1 className="headings">WHAT WE OFFER</h1>
                 <div id="second-container">
                     <section className="section" id="section1">
-                        <div class="section-image" id="first-img"></div>
-                        <div class="section-content" id="first-content-container">
+                        <div className="section-image" id="first-img"></div>
+                        <div className="section-content" id="first-content-container">
                             <h2>IMMERSIVE COMPETITION</h2>
                             <div id="first-paragraph">
                                 <p>Immerse yourself in a competitive environment where every move counts, offering a thrilling experience that challenges your skills and strategies.</p>
@@ -32,17 +32,17 @@ function Homepage({ fillGameData, loggedInUser, logoutUser }) {
                         </div>
                     </section>
                     <section className="section" id="section2">
-                        <div class="section-content" id="second-content-container">
+                        <div className="section-content" id="second-content-container">
                             <h2>VIRTUAL POKER EXPERIENCE</h2>
                             <div id="second-paragraph">
                                 <p>Embark on a virtual journey into the world of poker, where you can hone your card-playing prowess and engage in intense matches with players from around the globe, all from the comfort of your home.</p>
                             </div>
                         </div>
-                        <div class="section-image" id="second-img"></div>
+                        <div className="section-image" id="second-img"></div>
                     </section>
                     <section className="section" id="section3">
-                        <div class="section-image" id="third-img"></div>
-                        <div class="section-content" id="third-content-container">
+                        <div className="section-image" id="third-img"></div>
+                        <div className="section-content" id="third-content-container">
                             <h2>CLIENT FRIENDLY</h2>
                             <div id="third-paragraph">
                                 <p>Designed with the needs of our clients in mind, our platform ensures a user-friendly experience, offering intuitive interfaces and seamless interactions to enhance satisfaction and usability.</p>
@@ -81,7 +81,7 @@ function Homepage({ fillGameData, loggedInUser, logoutUser }) {
                         <div className="earnings">
                             $50M+
                         </div>
-                        <p class="quote">
+                        <p className="quote">
                             "I was a broke college student. I didn't have any money to fund my classes, and provide myself meals through out the day. That's when I found <b>Premium Poker</b>, I was a little hesitant at first because it looked so complicated for my small brain, but as I learned through playing, I started winning! I now can attend classes comfortable, and not worry about my next meal, thanks for <b>Premium Poker</b>." - Ava Grace
                         </p>
                     </section>

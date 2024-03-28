@@ -9,6 +9,7 @@ import Signup from "./Signup";
 import Shop from "./Shop"
 import Inventory from "./Inventory";
 import Play from "./Play"
+import Profile from "./Profile"
 
 const socket = io("http://localhost:5555");
 function App() {
@@ -146,6 +147,9 @@ function App() {
       </Route>
       <Route exact path="/play"> 
         <Play fillGameData={fillGameData}></Play>
+      </Route>
+      <Route path="/user/:id">
+        <Profile></Profile>
       </Route>
     </Switch>
   </div>
