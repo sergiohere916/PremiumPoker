@@ -43,7 +43,7 @@
     font-size: 30px;
 }
 
-.purchaseButton {
+.itemButton {
     color: white;
     border: 1px solid white;
     background: transparent;
@@ -53,12 +53,12 @@
     transition: .5s;
 }
 
-.purchaseButton:hover {
+.itemButton:hover {
     background-color: white;
     color: black;
 }
 
-.purchaseButton:active {
+.itemButton:active {
     font-size: 10px;
 }
 
@@ -71,4 +71,11 @@
     font-size: 25px;
     border: 1px solid white;
     
+}
+
+.heading-title {
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 50px;
+    font-size: 100px;
 }

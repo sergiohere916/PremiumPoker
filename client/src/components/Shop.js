@@ -94,7 +94,7 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
                 />
                 <h3>Price : {icon.price}</h3>
                 {/* And then in here, I just check if that icon name is inside the array, and if it is, that means its in the inventory */}
-                <button className="purchaseButton" onClick={(e) => userIconNames.includes(icon["name"]) ? null : purchaseIcon(e, icon)}>{userIconNames.includes(icon["name"]) ? "OWNED" : "BUY"}</button>
+                <button className="itemButton" onClick={(e) => userIconNames.includes(icon["name"]) ? null : purchaseIcon(e, icon)}>{userIconNames.includes(icon["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         );
     });
@@ -104,7 +104,7 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
             <div key={tag.name} className="tag-container">
                 <h2>{tag.name}</h2>
                 <h3 class="price">Price : {tag.price}</h3>
-                <button className="purchaseButton" onClick={(e) => userTagNames.includes(tag["name"]) ? null : purchaseTag(e, tag)}>{userTagNames.includes(tag["name"]) ? "OWNED" : "BUY"}</button>
+                <button className="itemButton" onClick={(e) => userTagNames.includes(tag["name"]) ? null : purchaseTag(e, tag)}>{userTagNames.includes(tag["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         )
     })
@@ -121,6 +121,7 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
     <div id="shop-container">
         <button onClick={handleBack} id="back-button">BACK</button>
         <div id="shop">
+            <h3 className="heading-title">SHOP</h3>
             <button id="toggle-button" onClick={handleButton}>{condition ? "ICONS" : "TAGS"}</button>
             <div id="items-display">
                 {condition ? tagsDisplay : iconsDisplay}

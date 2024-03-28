@@ -166,7 +166,6 @@ def create_tags():
     card_shark = Tag(name="Card Shark", price=19)
     pocket_rocket = Tag(name="Pocket Rocket", price=53)
     the_grinder = Tag(name="The Grinder", price=76)
-    aggro_king_queen = Tag(name="Aggro King/Queen", price=42)
     math_whiz = Tag(name="Math Whiz", price=71)
     stone_cold = Tag(name="Stone Cold", price=27)
     final_table_regular = Tag(name="Final Table Regular", price=59)
@@ -225,7 +224,7 @@ def create_tags():
     tags.append(card_shark)
     tags.append(pocket_rocket)
     tags.append(the_grinder)
-    tags.append(aggro_king_queen)
+
     tags.append(math_whiz)
     tags.append(stone_cold)
     tags.append(final_table_regular)
