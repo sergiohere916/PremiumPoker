@@ -6,3 +6,21 @@
     justify-content: space-evenly;
     font-size: 20pt;
 }
+
+#gameSetUp {
+    border: 3px solid green;
+    height: 90%;
+    display: flex;
+    gap: 2%;
+}
+#gameSetUpInfo {
+    border: 1px solid red;
+    height: 50%;
+    width: 40%;
+}
+
+#iconSelect {
+    height: 80%;
+    width: 55%;
+    border: 2px solid blue;
+}

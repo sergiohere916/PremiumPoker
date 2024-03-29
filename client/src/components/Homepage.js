@@ -45,21 +45,26 @@ function Homepage({fillGameData, user, roomCode1, joinCode1, updateGuestUsername
         <NavLink to="/login">Login</NavLink>
         <NavLink to="/inventory">Inventory</NavLink>
     </div>
-    <div>
-        {user["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
-        {/* <label>Create UserName: </label> */}
-        <input type="text" name="userName" value={user["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
-        <br/>
-        <input type="text" name="userId" value={user["user_id"]} readOnly={true}/>
-        {user["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
-        {/* <button onClick={generateUID}>Generate Unique Player Id</button> */}
-        <br/>
-        <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
-        <button onClick={generateCode}>Generate Room Code</button>
-        <button onClick={saveGameData}>Start A Game</button>
-        <br/>
-        <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
-        <button onClick={addGameData}>Join Game using Code</button>
+    <div id="gameSetUp">
+        <div id="gameSetUpInfo">
+            {user["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
+            {/* <label>Create UserName: </label> */}
+            <input type="text" name="userName" value={user["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
+            <br/>
+            <input type="text" name="userId" value={user["user_id"]} readOnly={true}/>
+            {user["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
+            {/* <button onClick={generateUID}>Generate Unique Player Id</button> */}
+            <br/>
+            <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
+            <button onClick={generateCode}>Generate Room Code</button>
+            <button onClick={saveGameData}>Start A Game</button>
+            <br/>
+            <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
+            <button onClick={addGameData}>Join Game using Code</button>
+        </div>
+        <div id="iconSelect">
+
+        </div>
     </div>
     </>
     )

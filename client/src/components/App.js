@@ -132,9 +132,9 @@ function App() {
 
   // User icons is an array of objects of all the icons the user owns
   // same with tag.
-  console.log(userTags)
-  console.log(userIcons)
 
+  // console.log(userTags)
+  // console.log(userIcons)
   console.log(user)
   
   return (

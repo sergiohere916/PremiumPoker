@@ -4,7 +4,7 @@
 
 # Remote library imports
 from flask import request, make_response, jsonify, session, render_template, request, redirect
-from flask_socketio import join_room, leave_room, send, SocketIO
+from flask_socketio import join_room, leave_room, send, SocketIO, emit
 from flask_restful import Resource
 import random
 import string
@@ -320,15 +320,16 @@ def handle_disconnect():
         room = players_in_games[sid][0]
         user_id = players_in_games[sid][1]
         game = game_rooms.get(room, None)
-        leave_room(room)
         if game:
             # print("putting in disconnected players...")
             # game["disconnected_players"][user_id] = True
             # del players_in_games[sid]
+            leave_room(room)
             if game["total_players"] == 1:
                 print("deleting room")
                 del game_rooms[room]
                 del players_in_games[sid]
+                # leave_room(room)
             elif game["game_started"] == False:
                 default_player_dict = {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, 
                                        "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, 
@@ -521,17 +522,24 @@ def handle_join_room(room_data):
     userId = room_data["user_id"]
     icon = room_data["icon"]
 
-
-    join_room(room)
     if game_rooms.get(room) is not None:
         #game room exists....
         game = game_rooms[room]
         #old model before 2/28 ---------------
+        print(str(game))
         if userId not in game["player_ids"] and len(game_rooms.get(room)["player_ids"]) < 6 and game["game_started"] == False:
             #THIS RUNS IF GAME EXISTS AND NEW PLAYER JOINING AND IS NOT FULL OF PLAYERS....maybe add if not game started....
             #Maybe add one more condition to ensure game hasn't started and handle other conditions elsewhere...
             #Look through game for available player seats, if seat is available user is assigned this player/seat ----
             # game = game_rooms[room]
+            print("joining when game not yet started...")
+
+            #In case this is a rejoin
+            if game["disconnected_players"].get(userId, None):
+                print("this was a rejoin before game start")
+                del game["disconnected_players"][userId]
+            join_room(room)
+
             player_data = game["player_data"]
             if player_data["player1"]["userId"] == "":
                 #add the player here
@@ -542,17 +550,18 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player1")
                 game["player_map"][userId] = "player1"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "total_players": game["total_players"]}, room = room )
                 
             elif player_data["player2"]["userId"] == "":
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
-                print("new player has joined the room")
+                print("new player has joined the room as player 2")
                 player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
                 game["player_ids"].append(userId)
+                print(game["player_ids"])
                 # game["player_order"].append("player2")
                 game["player_map"][userId] = "player2"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "total_players": game["total_players"]}, room = room )
                 
             elif player_data["player3"]["userId"] == "":
                 game["total_players"] +=1
@@ -562,7 +571,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player3")
                 game["player_map"][userId] = "player3"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "total_players": game["total_players"]}, room = room )
                 
             elif player_data["player4"]["userId"] == "":
                 game["total_players"] +=1
@@ -572,7 +581,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player4")
                 game["player_map"][userId] = "player4"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "total_players": game["total_players"]}, room = room )
                 
             elif player_data["player5"]["userId"] == "":
                 game["total_players"] +=1
@@ -582,7 +591,7 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player5")
                 game["player_map"][userId] = "player5"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "total_players": game["total_players"]}, room = room )
 
             elif player_data["player6"]["userId"] == "":
                 game["total_players"] +=1
@@ -592,15 +601,18 @@ def handle_join_room(room_data):
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player6")
                 game["player_map"][userId] = "player6"
-                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
-        elif game["player_map"].get(userId, None) == None and len(game_rooms.get(room)["player_ids"]) < 6 and game["game_started"] == True:
+                socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "total_players": game["total_players"]}, room = room )
+        elif game["game_started"] == True and game["disconnected_players"].get(userId, None) == None and len(game_rooms.get(room)["player_ids"]) < 6:
+            #Check player map keys is less than 6...to account for joining when someone just left/ refreshed...small edge case
+                #swap player_ids for the method mentioned above..
             #Was not in game but game is not full and so can join it remember to make edge case for full game
+            #This player can pretty much just be placed into the game...
+            print("joined at the pass in game")
             pass
-        elif game["game_started"] == True and game["player_map"].get(userId, None):
+        elif game["game_started"] == True and game["disconnected_players"].get(userId, None) and game["total_players"] < 6:
             #IF GAME EXISTS AND PLAYER IS IN THE LIST OF PLAYERS THEY CAN JUST REJOIN IF IN SAME ROUND
             print(f"{user} is rejoining an existing game...")
-            game = game_rooms[room]
-            
+            game = game_rooms[room]            
             
             round = game["betting_round"]
             print(f"The round is {round}")
@@ -610,11 +622,14 @@ def handle_join_room(room_data):
             player = game["player_map"][userId]
             player_cards = game["player_data"][player]["cards"]
             player_money = game["player_data"][player]["cash"]
+            game["player_data"][player]["sid"] = request.sid
             game["total_players"] +=1
 
             #remove from disconnected players
             print("disconnected players prior to removing rejoining player" + str(game["disconnected_players"]))
             del game["disconnected_players"][userId]
+
+            join_room(room)
 
             min_bet_difference = game["min_bet"] - game["player_data"][player][round]
             #ALLOW PLAYER TO REJOIN TO THEIR PROPER STAGE WITHIN THE GAME
@@ -673,6 +688,16 @@ def handle_join_room(room_data):
                 #TRYING TO IMPLEMENT THIS AS RETURNING AT ANY OTHER POINT
                 print(f"player: {user} will be returned to the flop betting with their data recovered, but just standard in between actions..")
                 socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
+        elif game["game_started"] == False and game["total_players"] == 6:
+            #Game is full send them back to main lobby
+            print("game is full and game hasn't started!!")
+            emit("game_is_full", room = request.sid)
+            pass
+        elif game["game_started"] == True and game["total_players"] == 6:
+            #Game is full send them back to main lobby
+            print("game is full and game has started!!")
+            emit("game_is_full", room = request.sid)
+            pass
     else:
         print("host is creating a room...")
         game_rooms[room] = {
@@ -681,7 +706,7 @@ def handle_join_room(room_data):
             "game_started": False,
             "total_players": 1,
             "player_map": {userId: "player1"},
-            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
+            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
                             "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
                             "player3": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
                             "player4": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
@@ -734,10 +759,12 @@ def handle_join_room(room_data):
             "winners": [],
             "game_over": False
         }
+
+        join_room(room)
         players_in_games[request.sid] = [room, userId, request.sid]
         game = game_rooms[room]
 
-        socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"]}, room = room )
+        socketio.emit("add_player", {"player_data": game["player_data"], "all_player_cards": game["all_player_cards"], "total_players": game["total_players"]}, room = room )
     # print(game_rooms.get(room))
     # print("User was added or rejoined a room")
     # print(players_in_games)
@@ -782,6 +809,18 @@ def handle_game_start(data):
     #---------------------------------------------------------------
     game["betting_round"] = "pregame"
     socketio.emit('starting', game, room = room)
+
+@socketio.on('handle_rebuy')
+def handle_rebuy(data):
+    room = data["room"]
+    game = game_rooms.get(room, None)
+
+    if game:
+        user_id = data["userId"]
+        player = game["player_map"][user_id]
+        game["player_data"][player]["cash"] = 5000
+        socketio.emit("player_has_rebought", {"user_id": user_id, "player_data": game["player_data"]}, room = room)
+    
 
 @socketio.on('deal_cards')
 def deal_cards(data):
@@ -917,6 +956,11 @@ def deal_cards(data):
             socketio.emit("dealing", {"adding_cards": game["player_data"],"player_cards_dealt": game["player_cards_dealt"], "dealing": game["player_cards_dealing"]}, room = room)
         else:
             print("emit something that stops flow of game and set game start to false...not enough players to play a round...")
+            #Run end of the game logic to reset the game
+            #Dont need to worry about first better should be the same
+            standstill_restart_game(room, game)
+            game = game
+            socketio.emit("wait_for_players", game, room = room)
             pass
 
 
@@ -1515,13 +1559,20 @@ def restart_the_game(data):
     game = game_rooms.get(room)
 
     #MAYBE put in a boolean that catches if this has already begun to run like so it can't happen twice
+    if game["game_over"] == False:
+        game["game_over"] == True
+        print(game["game_over"])
+        print("sending game over message to all....")
+        socketio.emit("ending_game", {"game_end": True}, room = room)
+        #Should remove any disconnected players first
+        #Insert this logic here ----
+        start_next_game(room, game)
+        # print("\n")
+        # print("Running after restart after game ended....")
+        # print(str(game))
+        game["deck"] = data["deck"]
 
-    #Should remove any disconnected players first
-    #Insert this logic here ----
-    start_next_game(room, game)
-    game["deck"] = data["deck"]
-
-    socketio.emit("starting", game, room=room)
+        socketio.emit("starting", game, room = room)
 
 
 
@@ -1674,6 +1725,16 @@ def start_next_game(room, game):
                 del game["player_map"][user_id]
 
                 player_data[player] = default_player_dict
+            else:
+                #player not disconnected
+                #Check money
+                if player_data[player]["cash"] == 0:
+                    pass
+                    emit("rebuy", room = player_data[player]["sid"])
+        else:
+            if player_data[player]["cash"] == 0:
+                    pass
+                    emit("rebuy", room = player_data[player]["sid"])
 
 
     # game["all_player_cards"] = []
@@ -1760,7 +1821,82 @@ def start_next_game(room, game):
     game["player_order"] = final_round_order
     print(game["player_order"])
 
+def standstill_restart_game(room, game):
+    print("standstill running....")
+    default_player_dict = {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}
+    
+    for player in game["player_data"]:
+        player_data = game["player_data"]
+        player_data[player]["cards"] = ["", ""]
+        player_data[player]["status"] = ""
+        player_data[player]["pregame"] = 0
+        player_data[player]["flop"] = 0
+        player_data[player]["turn"] = 0
+        player_data[player]["river"] = 0
+        if len(list(game["disconnected_players"].keys())) >= 1:
+            if game["disconnected_players"].get(player_data[player]["userId"], None):
+                socket_id = player_data[player]["sid"]
+                user_id = player_data[player]["userId"]
+                #REMOVE PLAYER FROM GAME IN ALL WAYS
+                #no need to remove from player order handled further down
+                # game["disconnected_players"].remove(user_id)
+                game["player_ids"].remove(user_id)
 
+                del game["disconnected_players"][user_id]
+                if players_in_games.get(socket_id, None):
+                    del players_in_games[socket_id]
+                del game["player_map"][user_id]
+
+                player_data[player] = default_player_dict
+
+
+    # game["all_player_cards"] = []
+    game["table_cards"] = []
+    game["deck"] = []
+    game["last_card_dealt"] = 0
+    #NEED TO SET UP PLAYER ORDER that matches original player order at start of round
+    #Remove starting player and add to end
+    game["round_order"] = []
+    
+    game["current_turn"] = 0
+    game["turn_number"] = 0
+    game["player_cards_dealt"] = False
+    game["player_cards_dealing"] = False
+    game["flop_dealt"] = False
+    game["turn_dealt"] = False
+    game["river_dealt"] = False
+    game["pot"] = 0
+    game["min_bet"] = 0
+    game["betting_round"] = ""
+    game["last_raise"] = ""
+    game["players_folded_list"] = []
+    game["players_all_in"] = []
+    game["raise_occurred"] = False
+    game["pregame_bets_taken"] = False
+    game["pregame_bets_completed"] = False
+    game["flop_bets_taken"] = False
+    game["flop_bets_completed"] = False
+    game["turn_bets_taken"] = False
+    game["turn_bets_completed"] = False
+    game["river_bets_taken"] = False
+    game["river_bets_completed"] = False
+
+    game["min_all_in"] = []
+    game["pots"] = []
+    game["bets"] = []
+    game["main_pot"] = True
+    game["small_blind_bet"] = ""
+    game["big_blind_bet"] = ""
+    game["time"] = 30
+
+    game["bet_difference"] = False
+    game["disconnected_players"] = {}
+    game["betting_index"] = 0
+    game["winners_declared"] = False
+    game["winners"] = []
+    game["game_over"] = False
+
+    game["game_started"] = False
 
 
 def place_pot_bets(game):
