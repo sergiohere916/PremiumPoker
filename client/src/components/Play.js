@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom/cjs/react-router-dom.min";
 
 
-function Homepage({fillGameData, user, roomCode1, joinCode1, updateGuestUsername, updateGuestUserId, updateRoomCode, updateJoinCode}) {
+function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUsername, updateGuestUserId, updateRoomCode, updateJoinCode}) {
 
     const [rooms, setRooms] = useState([])
 
@@ -70,4 +70,4 @@ function Homepage({fillGameData, user, roomCode1, joinCode1, updateGuestUsername
     )
 }
 
-export default Homepage
+export default Play

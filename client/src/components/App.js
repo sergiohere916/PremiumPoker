@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Switch, Route } from "react-router-dom";
 import Game from "./Game";
-import Homepage from "./Homepage";
+
 import io from "socket.io-client";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import Login from "./Login"
 import Signup from "./Signup";
 import Shop from "./Shop"
 import Inventory from "./Inventory";
+import Play from "./Play";
 
 const socket = io("http://localhost:5555");
 function App() {
@@ -16,13 +17,15 @@ function App() {
   const history = useHistory()
   const [userIcons, setUserIcons] = useState([])
   const [userTags, setUserTags] = useState([])
-  const [user, setUser] = useState({
+  const [loggedInUser, setLoggedInUser] = useState({
     icon: "",
     points: 0,
     total_points: 0,
     username: "",
     user_id: "",
     type: "GUEST",
+    image_url: "",
+    tag: ""
     // icon_using: "",
     // tag_using: ""
   })
@@ -31,11 +34,11 @@ function App() {
 
 
   function updateGuestUsername(nameData) {
-    setUser(prevUser => ({...prevUser, username: nameData}))
+    setLoggedInUser(prevUser => ({...prevUser, username: nameData}))
   }
 
   function updateGuestUserId(userIdData) {
-    setUser(prevUser => ({...prevUser, user_id: userIdData}))
+    setLoggedInUser(prevUser => ({...prevUser, user_id: userIdData}))
   }
 
   function updateRoomCode(code) {
@@ -127,7 +130,7 @@ function App() {
       userTagHolding.push(thisUser["usertags"][i]["tag"])
     }
     setUserTags(userTagHolding)
-    setUser({...thisUser, type: "MEMBER"})
+    setLoggedInUser({...thisUser, type: "MEMBER"})
   }
 
   // User icons is an array of objects of all the icons the user owns
@@ -144,7 +147,7 @@ function App() {
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
       </Route>
       <Route exact path="/">
-        <Homepage user={user} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}/>
+        <Homepage />
       </Route> 
       <Route exact path="/login">
         <Login onLogin={onLogin}></Login>
@@ -153,10 +156,13 @@ function App() {
         <Signup onLogin={onLogin}></Signup>
       </Route>
       <Route exact path="/shop">
-        <Shop loggedInUser={user} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Shop>
+        <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Shop>
       </Route>
       <Route exact path="/inventory">
-        <Inventory loggedInUser={user} userIcons={userIcons} userTags={userTags}></Inventory>
+        <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags}></Inventory>
+      </Route>
+      <Route>
+        <Play setLoggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
       </Route>
     </Switch>
   </div>
