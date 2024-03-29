@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Switch, Route } from "react-router-dom";
 import Game from "./Game";
-
+import Homepage from "./Homepage";
 import io from "socket.io-client";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import Login from "./Login"
