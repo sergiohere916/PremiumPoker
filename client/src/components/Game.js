@@ -712,6 +712,8 @@ function Game({gameData, socket, restoreGameData}) {
         const currCash = playerData["cash"];
         const currStatus = playerData["status"];
 
+        const playerIcon = playerData["image_icon"];
+
         let card1 = playerData["cards"][0]["image"];
         let card2 = playerData["cards"][1]["image"];
 
@@ -740,6 +742,7 @@ function Game({gameData, socket, restoreGameData}) {
         //     infoOutline = "3 px solid green";
         // }
 
+        //https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/dog-poker-player-cards-cigar-casio-gambler-gift-thomas-larch.jpg
         return (
             <div id={player}>
                 {playerId? (
@@ -747,7 +750,7 @@ function Game({gameData, socket, restoreGameData}) {
                 {playerTurn? ( 
                 <>
                 <div id={player + "icon"} style={{boxShadow: "0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88), 0 0 10px 20px rgba(255, 255, 255, 0.596)"}}>
-                    <img id = {player + "img"} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    <img id = {player + "img"} src={playerIcon}/>
                 </div>
                 <div id={player + "info"} style={{border: "3px solid green"}}>
                     {player}
@@ -760,7 +763,7 @@ function Game({gameData, socket, restoreGameData}) {
                 (
                 <>
                 <div id={player + "icon"}>
-                    <img id = {player + "img"} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-oeyilDG6-xNRqwDmSgqaUe0xefnBfVNwNw&usqp=CAU"/>
+                    <img id = {player + "img"} src={playerIcon}/>
                 </div>
                 <div id={player + "info"} >
                     {player}

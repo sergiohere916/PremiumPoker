@@ -25,7 +25,7 @@ function App() {
     username: "",
     user_id: "",
     type: "GUEST",
-    image_url: "",
+    image_url: "https://t3.ftcdn.net/jpg/06/37/09/94/360_F_637099445_5zVOcmnJNDmVe9ypWCdNg6IkcCe35xwu.jpg",
     tag:  "",
     // icon_using: "",
     // tag_using: ""
@@ -55,7 +55,7 @@ function App() {
     const data = {
     "username": user["username"],
     "user_id": user["user_id"],
-    "icon": user["icon"],
+    "image_url": user["image_url"],
     "points": user["points"],
     "total_points": user["total_points"],
     "type": user["type"], 
@@ -122,7 +122,7 @@ function App() {
   }
 
   function restoreGameData(gameData) {
-    setGameData({"username": gameData["username"], "user_id": gameData["user_id"], "icon": gameData["icon"], "points": gameData["points"], "total_points": gameData["total_points"], "type": gameData["type"], "room": gameData["room"]})
+    setGameData({"username": gameData["username"], "user_id": gameData["user_id"], "image_url": gameData["image_url"], "points": gameData["points"], "total_points": gameData["total_points"], "type": gameData["type"], "room": gameData["room"]})
   }
 
   function onLogin(thisUser) {
@@ -150,7 +150,7 @@ function App() {
 
   // console.log(userTags)
   // console.log(userIcons)
-  console.log(user)
+  console.log(loggedInUser)
   
   return (
   <div id="page">
@@ -174,13 +174,10 @@ function App() {
         <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Inventory>
       </Route>
       <Route exact path="/play"> 
-        <Play fillGameData={fillGameData}></Play>
+        <Play loggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
       </Route>
       <Route path="/user/:id">
         <Profile></Profile>
-      </Route>
-      <Route>
-        <Play setLoggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
       </Route>
     </Switch>
   </div>

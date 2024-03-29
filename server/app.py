@@ -39,7 +39,7 @@ class StoreRoomData(Resource):
     def post(self):
         username = request.json["username"]
         uid = request.json["user_id"]
-        icon = request.json["icon"]
+        icon_image = request.json["image_url"]
         points = request.json["points"]
         total_points = request.json["total_points"]
         type = request.json["type"]
@@ -47,14 +47,14 @@ class StoreRoomData(Resource):
 
         session["username"] = username
         session["user_id"] = uid
-        session["icon"] = icon
+        session["icon_image"] = icon_image
         session["points"] = points
         session["total_points"] = total_points
         session["type"] = type
         session["room"] = code
 
         print("stored new game data")
-        return {"username": username, "user_id": uid, "icon": icon, "points": points, "total_points": total_points, "type": type, "room": code }, 200
+        return {"username": username, "user_id": uid, "image_url": icon_image, "points": points, "total_points": total_points, "type": type, "room": code }, 200
     
 api.add_resource(StoreRoomData, "/storeData")
 
@@ -63,7 +63,7 @@ class CheckSession(Resource):
         print("checking session")
         username = session["username"]
         uid = session["user_id"]
-        icon = session["icon"]
+        icon_image = session["image_url"]
         points = session["points"]
         total_points = session["total_points"]
         type = session["type"]
@@ -72,7 +72,7 @@ class CheckSession(Resource):
         print("still good...")
         
         if username and code and uid:
-            return {"username": username, "user_id": uid, "icon": icon, "points": points, "total_points": total_points, "type": type, "room": code,}, 200
+            return {"username": username, "user_id": uid, "image_url": icon_image, "points": points, "total_points": total_points, "type": type, "room": code,}, 200
 api.add_resource(CheckSession, "/checkSession")
 
 class Cards(Resource):
@@ -527,8 +527,8 @@ def handle_join_room(room_data):
     room = room_data['room']
     user = room_data['username']
     userId = room_data["user_id"]
-    icon = room_data["icon"]
-
+    image_icon = room_data["image_url"]
+    print(image_icon)
     if game_rooms.get(room) is not None:
         #game room exists....
         game = game_rooms[room]
@@ -553,7 +553,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player1"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                player_data["player1"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player1")
                 game["player_map"][userId] = "player1"
@@ -563,7 +563,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room as player 2")
-                player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 print(game["player_ids"])
                 # game["player_order"].append("player2")
@@ -574,7 +574,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player3"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                player_data["player3"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player3")
                 game["player_map"][userId] = "player3"
@@ -584,7 +584,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player4"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                player_data["player4"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player4")
                 game["player_map"][userId] = "player4"
@@ -594,7 +594,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player5"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                player_data["player5"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player5")
                 game["player_map"][userId] = "player5"
@@ -604,7 +604,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player6"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid}
+                player_data["player6"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player6")
                 game["player_map"][userId] = "player6"
@@ -713,12 +713,12 @@ def handle_join_room(room_data):
             "game_started": False,
             "total_players": 1,
             "player_map": {userId: "player1"},
-            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid},
-                            "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
-                            "player3": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
-                            "player4": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
-                            "player5": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""},
-                            "player6": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}},
+            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon},
+                            "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player3": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player4": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player5": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player6": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""}},
 
             "all_player_cards": ["player1", "player2", "player3", "player4", "player5", "player6"],
             "table_cards": [],

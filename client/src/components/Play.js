@@ -4,12 +4,12 @@ import { NavLink } from "react-router-dom/cjs/react-router-dom.min";
 
 function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUsername, updateGuestUserId, updateRoomCode, updateJoinCode}) {
 
-    const [rooms, setRooms] = useState([])
+    // const [rooms, setRooms] = useState([])
 
-    const [roomCode, setRoomCode] = useState("")
-    const [joinCode, setJoinCode] = useState("")
-    const [userName, setUserName] = useState("")
-    const [userId, setUserId] = useState("")
+    // const [roomCode, setRoomCode] = useState("")
+    // const [joinCode, setJoinCode] = useState("")
+    // const [userName, setUserName] = useState("")
+    // const [userId, setUserId] = useState("")
 
     function generateCode() {
         fetch("/room_codes")
@@ -18,7 +18,7 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
     }
 
     function generateUID() {
-        if (user["user_id"] === "") {
+        if (loggedInUser["user_id"] === "") {
             fetch("/player_ids")
             .then(res => res.json())
             .then(uid => updateGuestUserId(uid["user_id"]))
@@ -26,14 +26,14 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
     }
 
     function saveGameData() {
-        if (roomCode1 !== "" && user["username"] !== "" && user["user_id"] !== "") {
-            fillGameData(user, roomCode1);
+        if (roomCode1 !== "" && loggedInUser["username"] !== "" && loggedInUser["user_id"] !== "") {
+            fillGameData(loggedInUser, roomCode1);
         } 
     }
 
     function addGameData() {
-        if (joinCode1 !== "" && user["username"] !== "" && user["user_id"] !== "") {
-            fillGameData(user, joinCode1);
+        if (joinCode1 !== "" && loggedInUser["username"] !== "" && loggedInUser["user_id"] !== "") {
+            fillGameData(loggedInUser, joinCode1);
         }
     }
 
@@ -47,12 +47,12 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
     </div>
     <div id="gameSetUp">
         <div id="gameSetUpInfo">
-            {user["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
+            {loggedInUser["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
             {/* <label>Create UserName: </label> */}
-            <input type="text" name="userName" value={user["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
+            <input type="text" name="userName" value={loggedInUser["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
             <br/>
-            <input type="text" name="userId" value={user["user_id"]} readOnly={true}/>
-            {user["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
+            <input type="text" name="userId" value={loggedInUser["user_id"]} readOnly={true}/>
+            {loggedInUser["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
             {/* <button onClick={generateUID}>Generate Unique Player Id</button> */}
             <br/>
             <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>

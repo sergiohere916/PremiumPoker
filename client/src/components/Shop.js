@@ -9,7 +9,7 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
     const [userTagNames, setUserTagNames] = useState([]);
 
     const history = useHistory()
-
+    
     useEffect(() => {
         fetch("/icons")
         .then(response => response.json())
