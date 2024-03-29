@@ -50,7 +50,7 @@ function Login({onLogin}) {
             <div id="form-header">
                 <h2>LOGIN</h2>
             </div>
-            <div class="input-container">
+            <div className="input-container">
                 <input
                     type="text"
                     name="username"
@@ -59,7 +59,7 @@ function Login({onLogin}) {
                     placeholder="Username"
                 ></input>
             </div>
-            <div class="input-container">
+            <div className="input-container">
                 <input
                     type="password"
                     name="password"
