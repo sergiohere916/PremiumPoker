@@ -20,7 +20,7 @@ function Profile() {
                 <h1 id="username-display">{userObj["username"]}</h1>
             </div>
             <div id="bottom-profile-section">
-                <h2 id="user-tag">{userObj["tag"] == "" ? "None" : }</h2>
+                <h2 id="user-tag">{userObj["tag"] == "" ? <>None</> : <></> }</h2>
                 <div id="points">POINTS : {userObj["points"]}</div>
                 <div id="total-points">TOTAL POINTS : {userObj["total_points"]}</div>
             </div>
