@@ -30,10 +30,38 @@ function App() {
     // icon_using: "",
     // tag_using: ""
   })
+  const [roomCode1, setRoomCode1] = useState("")
+  const [joinCode1, setJoinCode1] = useState("")
+
+
+  function updateGuestUsername(nameData) {
+    setLoggedInUser(prevUser => ({...prevUser, username: nameData}))
+  }
+
+  function updateGuestUserId(userIdData) {
+    setLoggedInUser(prevUser => ({...prevUser, user_id: userIdData}))
+  }
+
+  function updateRoomCode(code) {
+    setRoomCode1(code)
+  }
+
+  function updateJoinCode(code) {
+    setJoinCode1(code)
+  }
   
   //If idea does not work must return socket={socket} to Game component
-  function fillGameData(user, code, userId) {
-    const data = {"user": user, "room": code, "userId": userId }
+  function fillGameData(user, code) {
+    const data = {
+    "username": user["username"],
+    "user_id": user["user_id"],
+    "icon": user["icon"],
+    "points": user["points"],
+    "total_points": user["total_points"],
+    "type": user["type"], 
+    "room": code, 
+    }
+
     fetch("/storeData", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -93,8 +121,8 @@ function App() {
     })
   }
 
-  function restoreGameData(user, code, userId) {
-    setGameData({"user": user, "room": code, "userId": userId})
+  function restoreGameData(gameData) {
+    setGameData({"username": gameData["username"], "user_id": gameData["user_id"], "icon": gameData["icon"], "points": gameData["points"], "total_points": gameData["total_points"], "type": gameData["type"], "room": gameData["room"]})
   }
 
   function onLogin(thisUser) {
@@ -119,10 +147,10 @@ function App() {
 
   // User icons is an array of objects of all the icons the user owns
   // same with tag.
-  console.log(userTags)
-  console.log(userIcons)
 
-  console.log(loggedInUser)
+  // console.log(userTags)
+  // console.log(userIcons)
+  console.log(user)
   
   return (
   <div id="page">
@@ -150,6 +178,9 @@ function App() {
       </Route>
       <Route path="/user/:id">
         <Profile></Profile>
+      </Route>
+      <Route>
+        <Play setLoggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
       </Route>
     </Switch>
   </div>

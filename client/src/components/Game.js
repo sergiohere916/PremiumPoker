@@ -73,6 +73,7 @@ function Game({gameData, socket, restoreGameData}) {
     const [displayBetting, setDisplayBetting] = useState(false);
     const [timer, setTimer] = useState("15");
     const [opponentBetting, setOpponentBetting] = useState(false);
+    const [showRebuy, setShowRebuy] = useState(false);
     //SOCKET COMMANDS -----------------------------------------
     // useEffect(() => {
     //     if (Object.keys(gameData).length === 0) {
@@ -100,7 +101,7 @@ function Game({gameData, socket, restoreGameData}) {
                 // restoreGameData(data["user"], data["room"])
                 console.log("We are re initializing state")
                 console.log(data)
-                restoreGameData(data["user"], data["room"], data["userId"])
+                restoreGameData(data)
                 // socket.emit('join_room', {"user": data["user"], "room": data["room"]});
                 //Must add failed condition if session brings back nothing...
             })
@@ -114,7 +115,7 @@ function Game({gameData, socket, restoreGameData}) {
         socket.on('rejoin_at_bet', (data) => {
             console.log("received rejoin at bet")
             // console.log(data["game"])
-            if (gameData["user"] === data["userId"]) {
+            if (gameData["user_id"] === data["userId"]) {
                 console.log("you have rejoined...")
                 console.log(data["game"]["host"])
                 setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
@@ -124,7 +125,7 @@ function Game({gameData, socket, restoreGameData}) {
         })
 
         socket.on("rejoin_game", (data) => {
-            if (gameData["user"] === data["userId"]) {
+            if (gameData["user_id"] === data["userId"]) {
                 console.log("rejoining game at regular in between betting rounds....")
                 setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
             }
@@ -133,171 +134,48 @@ function Game({gameData, socket, restoreGameData}) {
 
     }, [gameData, socket])
 
-    
 
     useEffect(() => {
-
+        //POINT OF RETURN 3/25
         
-        socket.on('starting', (data) => {
-            // const user = gameData["user"]
-            // const money = data["player_data"][user]["cash"]
-            
-            //Keeping playercards within the gamedata
+        socket.on("starting", startingGame);
+        socket.on("add_player", addPlayer);
+        socket.on("player_left", playerLeft);
+        socket.on("dealing", dealing);
+        socket.on("dealing_flop", dealingFlop);
+        socket.on("dealing_turn", dealingTurn);
+        socket.on("dealing_river", dealingRiver);
+        socket.on("take_bet", receivingBet);
+        socket.on("returning_winners", returningWinners);
+        socket.on("end_betting_round", endBettingRound);
+        socket.on("auto_fold", autoFold);
+        socket.on("reassign_host", reassignHost);
+        socket.on("game_is_full", gameIsFull);
+        socket.on("wait_for_players", awaitPlayers);
+        socket.on("rebuy", allowRebuyOption)
+        socket.on("player_has_rebought", playerRebought)
+        socket.on("ending_game", endThisGame)
 
-            // const updatedGame = {...game, ...data, player_cash: money}
-            console.log("starting game and updating on frontend")
-            setGame(prevGame => ({
-                ...prevGame,
-                ...data,
-                // player_cash: money
-            }))
-        })
-        
-        // socket.on('dealing', (data) => {
-        //     console.log("socket on dealing must run as many times as there are players")
-        //     if (gameData["user"] === data["user"]) {
-        //         setGame((prevGame) => ({...prevGame, player_cards: data["cards"],
-        //         all_player_cards: data["all_player_cards"], 
-        //         player_cards_dealt: data["player_cards_dealt"], player_cards_dealing: data["dealing"]}))
-        //         // setPlayerCards(data["cards"])
-        //         // setPlayerCardsDealt(true)
-        //     } else {
-        //         setGame(prevGame => ({...prevGame, all_player_cards: data["all_player_cards"], player_cards_dealt: data["player_cards_dealt"], player_cards_dealing: data["dealing"]}))
-        //     }
-        // })
+        return () => {
+            socket.off("starting", startingGame);
+            socket.off("add_player", addPlayer);
+            socket.off("player_left", playerLeft);
+            socket.off("dealing", dealing);
+            socket.off("dealing_flop", dealingFlop);
+            socket.off("dealing_turn", dealingTurn);
+            socket.off("dealing_river", dealingRiver);
+            socket.off("take_bet", receivingBet);
+            socket.off("returning_winners", returningWinners);
+            socket.off("end_betting_round", endBettingRound);
+            socket.off("auto_fold", autoFold);
+            socket.on("reassign_host", reassignHost);
+            socket.off("game_is_full", gameIsFull);
+            socket.off("wait_for_players", awaitPlayers);
+            socket.off("rebuy", allowRebuyOption)
+            socket.off("player_has_rebought", playerRebought)
+            socket.off("ending_game", endThisGame)
 
-        socket.on('add_player', (data) => {
-            console.log("player is joining game...")
-            setGame(prevGame => ({...prevGame, player_data: data["player_data"], all_player_cards: data["all_player_cards"]}))
-        })
-
-        socket.on("player_left", (data) => {
-            console.log("player left game...")
-            setGame(prevGame => ({...prevGame, ...data["game"]}))
-        })
-
-        socket.on('dealing', (data) => {
-            console.log("Socket on dealing received on frontend");
-            setGame(prevGame => ({...prevGame, player_data: data["adding_cards"], player_cards_dealt: data["player_cards_dealt"], player_cards_dealing: data["dealing"]}))
-        })
-
-        socket.on("dealing_flop", (data) => {
-            // console.log("THIS IS THE FLOP ON THE FRONT END: ")
-            // console.log(data);
-            console.log("received deal flop");
-            setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], flop_dealt: true}))
-        })
-
-        socket.on("dealing_turn", (data) => {
-            console.log("TURN HAS BEEN DEALT SOCKET RECEIVED")
-            console.log(game)
-            setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], turn_dealt: true}))
-
-            // setTableCards(data["table_cards"])
-            // setTurnDealt(true)
-        })
-
-        socket.on("dealing_river", (data) => {
-            // console.log(data)
-            console.log("received deal river");
-            setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], river_dealt: true}))
-        })
-
-        socket.on("take_bet", (data) => {
-            if (data["user"] === gameData["userId"]) {
-                console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
-                setGame(prevGame => ({...prevGame, ...data["game_update"], player_cash: data["player_cash"], bet_difference: data["bet_difference"]}))
-                setDisplayBetting(true)
-                setMyBet(Number(data["bet_difference"]))
-                setTimer(Number(data["time"]))
-                
-                //SHOW THE FORM
-                //SET GAME flops bets taken to true
-                //Bet difference needed to determine minimum needed to achieve call
-            } else {
-                console.log("other player is betting receiving prior info...")
-                setGame(prevGame => ({...prevGame, ...data["game_update"]}))
-
-                // setOpponentBetting(true)
-                // setTimer(Number(data["time"]))
-            }
-        })
-
-        socket.on("handle_cash", (data) => {
-            if (data["player"] === gameData["user"]) {
-                console.log(data["player_cash"])
-                console.log("CASH HAS NOW BEEN UPDATED FOR " + gameData["user"])
-                setGame(prevGame => ({...prevGame, ...data["game_update"], player_cash: data["player_cash"]}))
-                // setCash(data["player_cash"])
-            } else {
-                setGame(prevGame => ({...prevGame, ...data["game_update"]}))
-            }
-        })
-
-        socket.on("returning_winners", (data) => {
-            console.log("returning winners")
-            setGame(prevGame => ({
-                ...prevGame, winners: data["winners"],
-                ...data["game_update"] 
-            }))
-            // for (let i = 0; i < data['winners'].length; i++) {
-            //     // need to add id to player_data for every player
-            //     fetch(`users/${game["player_data"][data["winners"][i]]["id"]}`, {
-            //         method: "PATCH",
-            //         headers: {"Content-Type" : "application/json"},
-            //         body : JSON.stringify({points : user.points + 1, total_points : user.total_points + 1})
-            //     })
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         // this should set the user to the updated user
-            //         // this setUser is just a prototype for now, but we will probably use a callback function
-            //         setUser(data)
-            //     })
-            // }
-        } )
-
-        socket.on("end_betting_round", (data) => {
-            console.log("ending bet round")
-            // setDisplayBetting(false)
-            setGame(prevGame => ({...prevGame, 
-                // last_raise : data["game_update"]["last_raise"],
-                // raise_occurred : data["game_update"]["raise_occurred"],
-                // betting_round : data["game_update"]["betting_round"],
-                // min_bet : data["game_update"]["min_bet"],
-                // players_folded_list : data["game_update"]["players_folded_list"],
-                // player_data : data["game_update"]["player_data"],
-                // player_order : data["game_update"]["player_order"],
-                // current_turn : data["game_update"]["current_turn"],
-                // flop_bets_completed : data["game_update"]["flop_bets_completed"],
-                // flop_bets_taken : data["game_update"]["flop_bets_taken"],
-                // pregame_bets_taken: data["game_update"]["pregame_bets_taken"],
-                // pregame_bets_completed: data["game_update"]["pregame_bets_completed"],
-                // turn_bets_taken: data["game_update"]["turn_bets_taken"],
-                // turn_bets_completed: data["game_update"]["turn_bets_completed"],
-                // river_bets_taken: data["game_update"]["river_bets_taken"],
-                // river_bets_completed: data["game_update"]["river_bets_completed"]
-                ...data["game_update"],
-                min_all_in: data["game_update"]["min_all_in"],
-                pots: data["game_update"]["pots"],
-                bets: data["game_update"]["bets"],
-                main_pot: data["game_update"]["main_pot"]
-            }))
-    
-        })
-
-        socket.on("auto_fold", (data) => {
-            if (data["host"] === gameData["userId"]) {
-                // const playerUserName = data["user"]
-                // const playerId = data["userId"]
-                socket.emit("handle_bet_action", {room: gameData["room"], user: data["user"], userId: data["userId"], bet_status: "fold", bet: 0})
-            }
-        })
-
-        socket.on("reassign_host", (data) => {
-            console.log("Host reassigned...")
-            console.log(data)
-            setGame(prevGame => ({...prevGame, host: data["new_host"]}))
-        })
+        };
 
     }, [gameData, socket])
 
@@ -307,9 +185,146 @@ function Game({gameData, socket, restoreGameData}) {
     // console.log(game["player_cards"])
     // console.log(tableCards)
     console.log(game)
+
+
+    //SocketFunctions ------------------------------------------
+    const addPlayer = (data) => {
+        console.log("This runs twice for some reason?")
+        console.log("player is joining game...")
+        setGame(prevGame => ({...prevGame, player_data: data["player_data"], all_player_cards: data["all_player_cards"], total_players: data["total_players"]}))
+    }
+
+    const startingGame = (data) => {
+        // const user = gameData["user"]
+        // const money = data["player_data"][user]["cash"]
+        
+        //Keeping playercards within the gamedata
+
+        // const updatedGame = {...game, ...data, player_cash: money}
+        console.log("starting game and updating on frontend")
+        setGame(prevGame => ({
+            ...prevGame,
+            ...data,
+            // player_cash: money
+        }))
+    }
+
+    const playerLeft = (data) => {
+        console.log("player left game...")
+        setGame(prevGame => ({...prevGame, ...data["game"]}))
+    }
+
+    const dealing = (data) => {
+        console.log("Socket on dealing received on frontend");
+        setGame(prevGame => ({...prevGame, player_data: data["adding_cards"], player_cards_dealt: data["player_cards_dealt"], player_cards_dealing: data["dealing"]}))
+    }
+
+    const dealingFlop = (data) => {
+        // console.log("THIS IS THE FLOP ON THE FRONT END: ")
+        // console.log(data);
+        console.log("received deal flop");
+        setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], flop_dealt: true}))
+    }
+
+    const dealingTurn = (data) => {
+        console.log("TURN HAS BEEN DEALT SOCKET RECEIVED")
+        console.log(game)
+        setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], turn_dealt: true}))
+
+        // setTableCards(data["table_cards"])
+        // setTurnDealt(true)
+    }
+
+    const dealingRiver = (data) => {
+        // console.log(data)
+        console.log("received deal river");
+        setGame(prevGame => ({...prevGame, table_cards: data["table_cards"], river_dealt: true}))
+    }
+
+    const receivingBet = (data) => {
+        if (data["user"] === gameData["user_id"]) {
+            console.log("BRUUUUUUUUUUUUUUUUUUUUUUUUUH")
+            setGame(prevGame => ({...prevGame, ...data["game_update"], player_cash: data["player_cash"], bet_difference: data["bet_difference"]}))
+            setDisplayBetting(true)
+            setMyBet(Number(data["bet_difference"]))
+            setTimer(Number(data["time"]))
+            
+            //SHOW THE FORM
+            //SET GAME flops bets taken to true
+            //Bet difference needed to determine minimum needed to achieve call
+        } else {
+            console.log("other player is betting receiving prior info...")
+            setGame(prevGame => ({...prevGame, ...data["game_update"]}))
+
+            // setOpponentBetting(true)
+            // setTimer(Number(data["time"]))
+        }
+    }
+
+    const returningWinners = (data) => {
+        console.log("returning winners")
+        setGame(prevGame => ({
+            ...prevGame, winners: data["winners"],
+            ...data["game_update"] 
+        }))
+    }
+
+    const endBettingRound = (data) => {
+        console.log("ending bet round")
+        // setDisplayBetting(false)
+        setGame(prevGame => ({...prevGame, 
+            ...data["game_update"],
+            min_all_in: data["game_update"]["min_all_in"],
+            pots: data["game_update"]["pots"],
+            bets: data["game_update"]["bets"],
+            main_pot: data["game_update"]["main_pot"]
+        }))
+    }
+
+    const autoFold = (data) => {
+        if (data["host"] === gameData["user_id"]) {
+            // const playerUserName = data["user"]
+            // const playerId = data["userId"]
+            socket.emit("handle_bet_action", {room: gameData["room"], user: data["user"], userId: data["userId"], bet_status: "fold", bet: 0})
+        }
+    }
+
+    const reassignHost = (data) => {
+        console.log("Host reassigned...")
+        console.log(data)
+        setGame(prevGame => ({...prevGame, host: data["new_host"]}))
+    }
+
+
+    const gameIsFull = (data) => {
+        history.push("/");
+        alert("GAME WAS FULL")
+    }
+
+    const awaitPlayers = (data) => {
+        setGame(prevGame => ({...prevGame, ...data}))
+    }
+
+    const allowRebuyOption = (data) => {
+        console.log("received rebuy option")
+        setShowRebuy(true)
+    }
+
+    const playerRebought = (data) => {
+        // if (data["user_id"] === gameData["user_id"]) {
+        //     setShowRebuy(false)
+        // }
+        console.log("some player rebought...")
+        setGame(prevGame => ({...prevGame, player_data: data["player_data"]}))
+    }
     
-    
-    //FUNCTIONS ------------------------------------------------
+    const endThisGame = (data) => {
+        console.log("attempting to end game first")
+        console.log(data["game_end"])
+        setGame(prevGame => ({...prevGame, "game_over": data["game_end"]}))
+    }
+
+    //Game FUNCTIONS ------------------------------------------------
     function startGame() {
         if (true) {
             fetch("/cards")
@@ -468,36 +483,44 @@ function Game({gameData, socket, restoreGameData}) {
         // console.log(game["player_cash"])
 
         console.log(status);
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: status, bet: myBet })
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["username"], userId: gameData["user_id"], bet_status: status, bet: myBet })
         setDisplayBetting(false)
     }
 
     function handleCallButton() {
         if (game["min_bet"] !== 0) {
             setDisplayBetting(false)
-            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "call", bet: game["bet_difference"] })
+            socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["username"], userId: gameData["user_id"], bet_status: "call", bet: game["bet_difference"] })
         }
     }
 
     function handleFoldButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "fold", bet: 0})
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["username"], userId: gameData["user_id"], bet_status: "fold", bet: 0})
         setDisplayBetting(false)
     }
     //Changed bet from bet: game["player_data"][gameData["user"]]["cash"] to game["player_cash"]...check if this leads to issues
     function handleAllInButton() {
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "all_in", bet: game["player_cash"]})
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["username"], userId: gameData["user_id"], bet_status: "all_in", bet: game["player_cash"]})
         setDisplayBetting(false)
     }
 
     function handleCheckButton() {
         setDisplayBetting(false)
-        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["user"], userId: gameData["userId"], bet_status: "check", bet: 0})
+        socket.emit("handle_bet_action", {room: gameData["room"], user: gameData["username"], userId: gameData["user_id"], bet_status: "check", bet: 0})
     }
 
     function run_auto_fold(playerName) {
         console.log("is this running twice? This is auto fold...")
         socket.emit("handle_bet_action", {room: gameData["room"], user: playerName, bet_status: "fold", bet: 0});
     }
+
+    function handleRebuyButton() {
+        socket.emit("handle_rebuy", {room: gameData["room"], userId: gameData["user_id"]})
+        setShowRebuy(false);
+    }
+
+
+
 
     const handlePopState = () => {
         console.log("hps ran!");
@@ -544,12 +567,19 @@ function Game({gameData, socket, restoreGameData}) {
 
 
     useEffect(() => {
-        console.log("CRAPPPP")
-        const listener = history.listen(handlePopState);
+        console.log("History changed...")
+        const listener = history.listen((location, action) => {
+            if (action === "POP") {
+                handlePopState();
+            } else if (action === "PUSH") {
+                console.log("Too many players")
+            }
+        });
         return () => listener();
     }, [history])
 
     function shuffleAndRestart() {
+        console.log("fetching new deck and emitting restart...")
             fetch("/cards")
             .then(res => res.json())
             .then(cards => {
@@ -574,7 +604,7 @@ function Game({gameData, socket, restoreGameData}) {
         console.log("Hi1")
     }
     
-    if (game["game_started"] && game["host"] === gameData["userId"]) {
+    if (game["game_started"] && game["host"] === gameData["user_id"]) {
         // PLAYER CARDS DEALING
         if (!game["player_cards_dealt"] && !game["player_cards_dealing"]) {
             console.log("going to run deal cards")
@@ -628,6 +658,7 @@ function Game({gameData, socket, restoreGameData}) {
         }
         if (game["winners_declared"] && !game["game_over"]) {
             console.log("running shuffle and restart....")
+            console.log(game)
             setTimeout(shuffleAndRestart, 5000)
         }
         //Remove player or continue
@@ -685,7 +716,7 @@ function Game({gameData, socket, restoreGameData}) {
         let card2 = playerData["cards"][1]["image"];
 
         //Need another variable to be false that way at somepoint we can switch to true and show opponents cards
-        if (card1 && card2 && (playerId !== gameData["userId"])) {
+        if (card1 && card2 && (playerId !== gameData["user_id"])) {
             card1 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
             card2 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
         } 
@@ -792,7 +823,7 @@ function Game({gameData, socket, restoreGameData}) {
     // }, [gameData, displayedWinnerIndex]);
 
     const winnersDisplay = game["winners"].map((winnersList, index) => {
-        console.log("THIS IS THE INDEX : " + index)
+        // console.log("THIS IS THE INDEX : " + index)
         
         let winnerdinner = ""
 
@@ -805,12 +836,12 @@ function Game({gameData, socket, restoreGameData}) {
         </div>)
     })
 
-    
+    // game["player_ids"].length
     return (
         <>
         <div className="menuBar">
             <div id="exitGame">Leave Room</div>
-            <div id="playerCount">Total Players:  {game["player_ids"].length} / 6</div>
+            <div id="playerCount">Total Players:  {game["total_players"]} / 6</div>
             <div id="gameInfo">
                 <div>Premium Poker: No Limit Holdem 5/10</div>
                 <div>Room Code: {gameData["room"]}</div>
@@ -845,6 +876,7 @@ function Game({gameData, socket, restoreGameData}) {
                 {game["game_started"]? (<button>End Game</button>): (<div className="startButtonContainer"><button className="startButton" onClick={startGame}>Start Game</button></div>)}
                 <div className="box" style={{"--c": "5px solid blue"}}>
                     {/* {displayAllPlayerCards} */}
+                    {showRebuy? (<button onClick={handleRebuyButton}>REBUY</button>): (<></>)}
                     {displayBetting ?
                     (
                     <div>
@@ -861,6 +893,7 @@ function Game({gameData, socket, restoreGameData}) {
                     (<></>)
                     }
                     {winnersDisplay}
+
                     
                 </div>
             </div>
