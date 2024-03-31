@@ -75,6 +75,16 @@ class CheckSession(Resource):
             return {"username": username, "user_id": uid, "image_url": icon_image, "points": points, "total_points": total_points, "type": type, "room": code,}, 200
 api.add_resource(CheckSession, "/checkSession")
 
+class CheckUserSession(Resource):
+    def get(self):
+        user = User.query.filter(User.id == session.get('user_id')).first()
+        if user:
+            return user.to_dict()
+        else:
+            return {'message': '401: Not Authorized'}, 401
+
+api.add_resource(CheckUserSession, "/checkUserSession")
+
 class Cards(Resource):
     def get(self):
         cards = [card.to_dict() for card in Card.query.all()]

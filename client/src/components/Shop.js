@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-function Shop({userIcons, userTags, loggedInUser, onLogin}) {
+function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNewUserTag}) {
     const [icons, setIcons] = useState([])
     const [tags, setTags] = useState([])
     const [condition, setCondition] = useState(false)
@@ -43,8 +43,10 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
                 })
                 .then(response => response.json())
                 .then(data => {
+                    // console.log(data)
                     e.target.textContent = "OWNED"
-                    onLogin(userData)
+                    // onLogin(userData)
+                    addNewUserIcon(data)
                 })
             })
         }
@@ -67,7 +69,8 @@ function Shop({userIcons, userTags, loggedInUser, onLogin}) {
                 .then(response => response.json())
                 .then(data => {
                     e.target.textContent = "OWNED"
-                    onLogin(userData)
+                    // onLogin(userData)
+                    addNewUserTag(data)
                 })
             })
         }

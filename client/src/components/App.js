@@ -145,6 +145,14 @@ function App() {
     
   }
 
+  function addNewUserIcon(newIcon) {
+    setUserIcons([...userIcons, newIcon["icon"]]);
+  }
+
+  function addNewUserTag(newTag) {
+    setUserTags([...userTags, newTag["tag"]])
+  }
+
   // User icons is an array of objects of all the icons the user owns
   // same with tag.
 
@@ -168,7 +176,7 @@ function App() {
         <Signup onLogin={onLogin}></Signup>
       </Route>
       <Route exact path="/shop">
-        <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Shop>
+        <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin} addNewUserIcon={addNewUserIcon} addNewUserTag={addNewUserTag}></Shop>
       </Route>
       <Route exact path="/inventory">
         <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Inventory>

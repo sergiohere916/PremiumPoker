@@ -263,6 +263,7 @@ function Game({gameData, socket, restoreGameData}) {
 
     const returningWinners = (data) => {
         console.log("returning winners")
+        console.log(data);
         setGame(prevGame => ({
             ...prevGame, winners: data["winners"],
             ...data["game_update"] 
@@ -658,7 +659,7 @@ function Game({gameData, socket, restoreGameData}) {
         }
         if (game["winners_declared"] && !game["game_over"]) {
             console.log("running shuffle and restart....")
-            console.log(game)
+            // console.log(game)
             setTimeout(shuffleAndRestart, 5000)
         }
         //Remove player or continue
@@ -834,7 +835,7 @@ function Game({gameData, socket, restoreGameData}) {
             winnerdinner += game["player_data"][game["winners"][index][i]]["user"] + " "
         }
 
-        return (<div>
+        return (<div style={{color: "red", fontSize: "large"}}>
             <div>{index === game["winners"].length - 1 ? "main pot " : "side pot " + parseInt(index + 1)} : {winnerdinner}</div>
         </div>)
     })
@@ -884,7 +885,7 @@ function Game({gameData, socket, restoreGameData}) {
                     (
                     <div>
                         <form onSubmit={handleBetSubmit}>
-                            <label>Bet Amount:</label>
+                            <label style={{color: "black"}}>Bet Amount:</label>
                             <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
                             <button type="submit">Place Bet</button>
                         </form>
