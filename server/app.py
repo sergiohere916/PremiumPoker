@@ -60,14 +60,21 @@ api.add_resource(StoreRoomData, "/storeData")
 
 class CheckSession(Resource):
     def get(self):
-        print("checking session")
+        print("\nchecking game session")
         username = session["username"]
+        print("got username")
         uid = session["user_id"]
-        icon_image = session["image_url"]
+        print("got unique id")
+        icon_image = session["icon_image"]
+        print("got image url")
         points = session["points"]
+        print("got points")
         total_points = session["total_points"]
+        print("got total points")
         type = session["type"]
+        print("got type")
         code = session["room"]
+        print("got room code")
 
         print("still good...")
         
@@ -77,7 +84,8 @@ api.add_resource(CheckSession, "/checkSession")
 
 class CheckUserSession(Resource):
     def get(self):
-        user = User.query.filter(User.id == session.get('user_id')).first()
+        user = User.query.filter(User.id == session.get('user_db_id')).first()
+        print("\nChecking User Session to see if logged in...")
         if user:
             return user.to_dict()
         else:
@@ -221,7 +229,7 @@ class Login(Resource):
                 # Create sessions for every attribute of user
                 # session["userId"] = user.user_id
                 # session["user"] = user
-                session["user_id"] = user.id
+                session["user_db_id"] = user.id
                 return make_response(user.to_dict(), 200)
             
             return make_response({"error" : "401 Unauthorized"}, 401)

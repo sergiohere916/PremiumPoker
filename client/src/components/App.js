@@ -81,6 +81,32 @@ function App() {
     // setGameData(data);
   }
 
+  useEffect(() => {
+    fetch("/checkUserSession")
+    .then((response) => {
+      if (response.ok) {
+        response.json().then((userData) => {
+
+          let userIconsHolding = []
+    
+          for (let i = 0; i < userData["usericons"].length; i++) {
+            userIconsHolding.push(userData["usericons"][i]["icon"])
+          }
+          setUserIcons(userIconsHolding)
+
+          let userTagHolding = []
+    
+          for (let i = 0; i < userData["usertags"].length; i++) {
+            userTagHolding.push(userData["usertags"][i]["tag"])
+          }
+          setUserTags(userTagHolding)
+          setLoggedInUser({...userData, type: "MEMBER"})
+        })
+      } else {
+        console.log("NO USER DATA AVAILABLE")
+      }
+    })
+  }, [])
   // useEffect(() => {
   //   console.log(loggedInUser["id"])
   //   fetch(`/usericons/${loggedInUser["id"]}`)
