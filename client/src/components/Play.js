@@ -11,6 +11,19 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
     // const [userName, setUserName] = useState("")
     // const [userId, setUserId] = useState("")
 
+    const [allRooms, setAllRooms] = useState([]);
+
+
+    useEffect(() => {
+        fetch("/game_rooms")
+        .then(res => res.json())
+        .then(roomData => {
+            console.log("Here is fetched room data")
+            console.log(roomData["game_rooms"])
+            setAllRooms(roomData["game_rooms"])
+        })
+    }, [])
+
     function generateCode() {
         fetch("/room_codes")
         .then(res => res.json())
@@ -37,6 +50,25 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
         }
     }
 
+    function joinRoom(roomId) {
+        updateJoinCode(roomId);
+        fillGameData(loggedInUser, roomId);
+    }
+
+    const displayAllRooms = allRooms.map((roomData) => {
+        // console.log(roomData["room_id"]);
+        return (
+        <div className="roomContainer" key={roomData["room_id"]}>
+           
+            <div className="roomContainerIds">
+                {roomData["room_id"]}:
+            </div>
+            <div className="roomContainerPlayers">
+                {roomData["total_players"]} / 6
+            </div>
+            <button onClick={() => {joinRoom(roomData["room_id"])}}>Join Game</button>
+         </div>)
+    })
 
     return (
     <>
@@ -46,6 +78,14 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
         <NavLink to="/inventory">Inventory</NavLink>
     </div>
     <div id="gameSetUp">
+        <div id="allRoomsContainer">
+            <div className="roomContainerLabels">
+                    <div>Room Code</div>
+                    <div>Players</div>
+                    <div>Join</div>
+            </div>
+            {displayAllRooms}
+        </div>
         <div id="gameSetUpInfo">
             {loggedInUser["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
             {/* <label>Create UserName: </label> */}
@@ -61,10 +101,11 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
             <br/>
             <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
             <button onClick={addGameData}>Join Game using Code</button>
-        </div>
-        <div id="iconSelect">
+            <div id="iconSelect">
 
+            </div>
         </div>
+        
     </div>
     </>
     )

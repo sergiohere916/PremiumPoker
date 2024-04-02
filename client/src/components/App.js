@@ -184,7 +184,9 @@ function App() {
 
   // console.log(userTags)
   // console.log(userIcons)
+  console.log("initial render")
   console.log(loggedInUser)
+  console.log(joinCode1)
   
   return (
   <div id="page">

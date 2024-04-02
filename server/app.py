@@ -111,6 +111,22 @@ class Room_codes(Resource):
     
 api.add_resource(Room_codes, "/room_codes")
 
+class Game_rooms(Resource):
+    def get(self):
+        if game_rooms:
+            all_rooms = []
+            for room in game_rooms:
+                if game_rooms[room]["total_players"] < 6:
+                    all_rooms.append({"room_id": room, "total_players": game_rooms[room]["total_players"]})
+            if len(all_rooms) >= 1:
+                return make_response({"game_rooms": all_rooms}, 200)
+            else: 
+                return make_response({"game_rooms": []}, 200)
+        else:
+            return make_response({"game_rooms": []}, 200)
+        
+api.add_resource(Game_rooms, "/game_rooms")
+
 class Player_ids(Resource):
     def get(self):
         random_id = uuid.uuid1()
@@ -238,7 +254,7 @@ api.add_resource(Login, "/login", endpoint="login")
 
 class Logout(Resource):
     def delete(self):
-        session["user_id"] = None
+        session["user_db_id"] = None
         return make_response({}, 204)
     
 api.add_resource(Logout, "/logout", endpoint="Logout")

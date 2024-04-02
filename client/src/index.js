@@ -6,6 +6,7 @@ import "./css/Header.css"
 import "./css/Signup.css"
 import "./css/Shop.css"
 import "./css/Profile.css"
+import "./css/Play.css"
 import { createRoot } from "react-dom/client";
 import {BrowserRouter} from 'react-router-dom';
 

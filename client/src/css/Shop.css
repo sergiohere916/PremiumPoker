@@ -5,6 +5,7 @@
 
 #items-display {
     background-color: rgb(10, 20, 20);
+    /* background-color: rgb(56, 67, 77); */
     display: flex;
     flex-wrap: wrap;
     width: 70%;
@@ -20,6 +21,14 @@
     padding: 20px;
     border-radius: 10px;
     margin: 10px;
+}
+
+.icon-container {
+    border: 1px solid rgb(161, 142, 31);
+}
+
+.icon-container:hover {
+    box-shadow: 2px 2px 30px rgb(161, 142, 31);
 }
 
 #toggle-button {
@@ -78,4 +87,33 @@
     text-align: center;
     padding-top: 50px;
     font-size: 100px;
+}
+
+
+
+#featuredBar {
+    background-color: rgb(81, 87, 102);
+    padding-top: 1%;
+    padding-left: 1%;
+    margin-bottom: 1%;
+    margin-left: 15%;
+    margin-right: 15%;
+    font-size: 20pt;
+    font-weight: bolder;
+    
+}
+
+#ownedIconMark {
+    height: 20px;
+    width: 20px;
+}
+
+#ownedIconMark img {
+    height: 100%;
+    width: 100%;
+}
+
+.ownedIconLabel {
+   display: flex;
+   gap: 8%;
 }

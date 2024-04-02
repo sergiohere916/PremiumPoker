@@ -11,12 +11,52 @@
     border: 3px solid green;
     height: 90%;
     display: flex;
-    gap: 2%;
+    gap: 10%;
+    
+}
+
+#allRoomsContainer {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    background-color: white;
+    height: 70%;
+    width: 30%;
+    margin-left: 5%;
+    gap: 1%;
+}
+
+.roomContainerLabels {
+    width: 100%;
+    display: flex;
+    text-align: center;
+    background-color: rgb(110, 109, 109);
+    color: white;
+    border-bottom: 1px solid black;
+    /* justify-content: space-evenly; */
+}
+
+.roomContainerLabels div {
+    width: 33%;
+}
+
+.roomContainer {
+    width: 100%;
+    color: black;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-evenly;
+}
+
+.roomContainerIds {
+    align-items: flex-start;
 }
 #gameSetUpInfo {
     border: 1px solid red;
     height: 50%;
-    width: 40%;
+    width: 50%;
+    margin-right: 5%;
 }
 
 #iconSelect {

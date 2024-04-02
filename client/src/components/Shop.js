@@ -95,9 +95,17 @@ function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNe
                     style={{ width: '250px', height: '250px' }} 
                     alt={`Icon ${icon.content}`} 
                 />
-                <h3>Price : {icon.price}</h3>
+                <h3>Price : {icon.price} Premium points</h3>
                 {/* And then in here, I just check if that icon name is inside the array, and if it is, that means its in the inventory */}
-                <button className="itemButton" onClick={(e) => userIconNames.includes(icon["name"]) ? null : purchaseIcon(e, icon)}>{userIconNames.includes(icon["name"]) ? "OWNED" : "BUY"}</button>
+                <button className="itemButton" onClick={(e) => userIconNames.includes(icon["name"]) ? null : purchaseIcon(e, icon)}>{userIconNames.includes(icon["name"]) ? 
+                <span className="ownedIconLabel">
+                    <div>OWNED</div>
+                    <div id="ownedIconMark">
+                        <img src="https://static.vecteezy.com/system/resources/previews/017/177/781/non_2x/green-tick-check-mark-on-transparent-background-free-png.png"/>
+                    </div>
+                </span> : "BUY"}
+
+                </button>
             </div>
         );
     });
@@ -106,7 +114,7 @@ function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNe
         return (
             <div key={tag.name} className="tag-container">
                 <h2>{tag.name}</h2>
-                <h3 class="price">Price : {tag.price}</h3>
+                <h3 class="price">Price : {tag.price} Premium points</h3>
                 <button className="itemButton" onClick={(e) => userTagNames.includes(tag["name"]) ? null : purchaseTag(e, tag)}>{userTagNames.includes(tag["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         )
@@ -126,6 +134,7 @@ function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNe
         <div id="shop">
             <h3 className="heading-title">SHOP</h3>
             <button id="toggle-button" onClick={handleButton}>{condition ? "ICONS" : "TAGS"}</button>
+            <div id="featuredBar">Featured Items</div>
             <div id="items-display">
                 {condition ? tagsDisplay : iconsDisplay}
             </div>
