@@ -327,6 +327,31 @@ def create_icons():
     icons.append(troll_face)
     return icons
 
+def create_users():
+    users = []
+    user1 = User(username = "BRUH", points = 1000, total_points = 1000)
+    users.append(user1)
+    user2 = User(username = "IDK", points = 1000, total_points = 300)
+    users.append(user2)
+    user3 = User(username = "BigSerg", points = 1000, total_points = 500)
+    users.append(user3)
+    user4 = User(username = "Tokyo", points = 1000, total_points = 100)
+    users.append(user4)
+    user5 = User(username = "Monkey", points = 1000, total_points = 50)
+    users.append(user5)
+    user6 = User(username = "Ava", points = 1000, total_points = 150)
+    users.append(user6)
+    user7 = User(username = "Lol", points = 1000, total_points = 700)
+    users.append(user7)
+    user8 = User(username = "MoneyMaker", points = 1000, total_points = 1200)
+    users.append(user8)
+    user9 = User(username = "BigPlaya", points = 1000, total_points = 900)
+    users.append(user9)
+    user10 = User(username = "Goku", points = 1000, total_points = 10000, image_url = "https://images.immediate.co.uk/production/volatile/sites/3/2023/08/2023.06.28-06.20-boundingintocomics-649c79f009cdf-Cropped-8d74232.png")
+    users.append(user10)
+
+    return users
+
 if __name__ == '__main__':
     fake = Faker()
     with app.app_context():
@@ -369,4 +394,8 @@ if __name__ == '__main__':
         print("seeding tags...")
         userTag1 = UserTag(user_id = 1, tag_id = 1)
         db.session.add(userTag1)
+        db.session.commit()
+
+        users = create_users()
+        db.session.add_all(users)
         db.session.commit()
