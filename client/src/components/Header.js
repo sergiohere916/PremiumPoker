@@ -24,6 +24,7 @@ function Header({loggedInUser, logoutUser}) {
             <div id="nav-container">
                 <NavLink to="/play">PLAY</NavLink>
                 <NavLink to="/leaderboard">LEADERBOARD</NavLink>
+                <NavLink to="/search">SEARCH</NavLink>
                 <NavLink to="/shop">STORE</NavLink>
                 {loggedInUser["type"] == "GUEST" ? <NavLink to="/login" >LOGIN</NavLink> : ""}
                 {loggedInUser["type"] == "GUEST" ? "" : <NavLink to="/inventory">INVENTORY</NavLink>}

@@ -7,6 +7,7 @@ import "./css/Signup.css"
 import "./css/Shop.css"
 import "./css/Profile.css"
 import "./css/Leaderboard.css"
+import "./css/Search.css"
 import { createRoot } from "react-dom/client";
 import {BrowserRouter} from 'react-router-dom';
 

@@ -11,6 +11,7 @@ import Inventory from "./Inventory";
 import Play from "./Play"
 import Profile from "./Profile"
 import Leaderboard from "./Leaderboard"
+import Search from "./Search"
 
 
 const socket = io("http://localhost:5555");
@@ -225,6 +226,9 @@ function App() {
       </Route>
       <Route exact path="/leaderboard">
         <Leaderboard></Leaderboard>
+      </Route>
+      <Route exact path="/search">
+        <Search></Search>
       </Route>
     </Switch>
   </div>
