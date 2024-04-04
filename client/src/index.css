@@ -56,7 +56,8 @@ body {
   /* background-color: #61dafb; */
   
   background: linear-gradient(0deg, rgb(0, 0, 0) 5%, rgb(66, 66, 66), rgba(100, 100, 100, 0));
-
+  /* background-image: url("https://media.istockphoto.com/id/497790988/photo/abstract-red-felt-background.jpg?s=612x612&w=0&k=20&c=RxN6Fi6LjwhAkZv_X6sgABOHIzloezdNoKDxSehJrjU="); */
+  
   /* background-image: url("https://t3.ftcdn.net/jpg/02/76/29/70/360_F_276297089_WyP8nNMqA3ymVk5PnKPPZ3qvTsje6DPT.jpg"); */
   /*Black felt with suits background https://t3.ftcdn.net/jpg/01/09/58/42/360_F_109584274_tsSC6KXjrWipSwOfQY3GbkMYD0bhq6zZ.jpg*/
 
@@ -202,7 +203,7 @@ body {
   opacity: .7;
 } */
 
-.container {
+.containerXX {
   position: relative;
 
   margin-top: -5%;
@@ -242,10 +243,47 @@ body {
   border-radius: 200px;
   /* background: url("https://logos-world.net/wp-content/uploads/2022/11/PokerStars-Symbol.png"), radial-gradient(circle, rgb(90, 146, 104) 0%, rgb(21, 46, 29) 70%); */
   background: radial-gradient(circle, rgb(90, 146, 104) 0%, rgb(21, 46, 29) 70%);
+}
+
+.container {
+  position: relative;
+
+  margin-top: -5%;
+  height: 55%;
+  width: 65%;
+
+  /* border: solid black;
+  border-width: thick; */
+
+  /* border-top: 8px solid rgba(0, 0, 0, 0.747); */
   
+  border-top: 10px solid rgb(15, 15, 15);
+  /* border-left: 5px solid rgb(0, 0, 0);
+  border-right: 5px solid rgb(0, 0, 0); */
+  border-bottom: 20px solid rgba(255, 255, 255, 0);
+  /* border-top: solid 11px rgba(31, 29, 29, 0.699);
+  border-left: solid 1px rgb(14, 13, 13);
+  border-right: solid 1px rgb(14, 13, 13);
+  border-bottom: solid 20px rgba(14, 13, 13, 0); */
   
-  
-  
+  /* box-shadow: 0 0px 0 5px black, 0 15px 5px 20px rgba(53, 52, 52, 0.952), 0 20px 5px 18px rgba(255, 255, 255, 0.479), 0 1px 0 1px black,0 1px 1px 1px black, 0 60px 15px 60px rgba(2, 2, 2, 0.445); */
+  /* box-shadow:0 0 0 2px black,0 20px 15px 10px rgba(255, 255, 255, 0.11), 0px 5px 15px 10px rgba(51, 49, 49, 0.986),0 18px 0px 40px rgb(19, 19, 19), 0 60px 20px 80px rgba(35, 35, 36, 0.712); */
+
+  box-shadow:0 0 0 2px black,0 20px 15px 10px rgba(255, 255, 255, 0.11), 0px 5px 15px 10px rgba(51, 49, 49, 0.986),0 18px 0px 40px rgb(19, 19, 19), 0 90px 20px 80px rgb(0, 0, 0);
+
+ 
+
+
+  outline: solid 6px rgba(255, 255, 255, 0.11);
+  outline-offset: -50px;
+  outline-offset: -3.1em;
+
+  /* box-shadow: 0 0 0 18px rgb(36, 35, 35), 0 0 1px 27px rgb(36, 40, 40), 0 32px 15px 0px rgb(102, 99, 99), 0 10px 0px 35px rgba(0, 0, 0, 0.514), 0 35px 30px 40px rgb(90, 19, 19); */
+  border-radius: 200px;
+
+  background: radial-gradient(circle, rgb(90, 146, 104) 10%, rgb(21, 46, 29) 70%);
+  /* background: radial-gradient(circle, rgb(54, 177, 85) 10%, rgb(21, 46, 29) 70%); */
+  /* background: radial-gradient(circle, rgb(89, 99, 190) 10%, rgb(18, 21, 48) 50%); */
 }
 
 #newTableCards {

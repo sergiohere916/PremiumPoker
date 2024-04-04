@@ -8,8 +8,9 @@
 }
 
 #gameSetUp {
-    border: 3px solid green;
+    border: 1px solid green;
     height: 90%;
+    width: 99%;
     display: flex;
     gap: 10%;
     
@@ -54,13 +55,36 @@
 }
 #gameSetUpInfo {
     border: 1px solid red;
-    height: 50%;
+    height: 90%;
     width: 50%;
     margin-right: 5%;
 }
 
 #iconSelect {
-    height: 80%;
-    width: 55%;
+    display: flex;
+    height: 90%;
+    width: 100%;
     border: 2px solid blue;
+    background-color: rgb(107, 106, 106);
+}
+
+#selectableIcons {
+    background-color: rgb(213, 227, 227);
+    height: 70%;
+    width: 100%;
+    display: flex;
+}
+
+.guestIconCards {
+    width: 33%;
+    height: 40%;
+    background-color: rgb(230, 230, 182);
+    border: 1px solid red;
+    cursor: pointer;
+}
+
+.guestIconCards img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
 }

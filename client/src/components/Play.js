@@ -102,7 +102,17 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
             <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
             <button onClick={addGameData}>Join Game using Code</button>
             <div id="iconSelect">
-
+                <div id="selectableIcons">
+                    <div className="guestIconCards">
+                        <img src="https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/poker-fish-martin-j-nissen.jpg" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                        <img src="https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/poker-fish-martin-j-nissen.jpg" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                        <img src="https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/poker-fish-martin-j-nissen.jpg" alt="fishIcon"/>
+                    </div>
+                </div>
             </div>
         </div>
         
