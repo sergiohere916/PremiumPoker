@@ -743,12 +743,13 @@ function Game({gameData, socket, restoreGameData}) {
 
         let card1 = playerData["cards"][0]["image"];
         let card2 = playerData["cards"][1]["image"];
+        const showCards = playerData["showCards"];
 
         //Need another variable to be false that way at somepoint we can switch to true and show opponents cards
-        if (card1 && card2 && (playerId !== gameData["user_id"])) {
+        if (card1 && card2 && (playerId !== gameData["user_id"]) && !showCards) {
             card1 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
             card2 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
-        } 
+        }
         
         const playerTurn = playerData["myTurn"]
 
