@@ -155,6 +155,14 @@ class Users(Resource):
     
 api.add_resource(Users, "/users")
 
+class UsersByPoints(Resource):
+    def get(self):
+        users = User.query.order_by(User.total_points.desc()).limit(100).all()
+        users_data = [user.to_dict() for user in users]
+        return make_response(users_data, 200)
+
+api.add_resource(UsersByPoints, "/users_points")
+
 class UsersById(Resource):
     def get(self, id):
         user = User.query.filter_by(id = id).one_or_none()

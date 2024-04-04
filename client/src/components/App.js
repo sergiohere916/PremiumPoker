@@ -10,6 +10,9 @@ import Shop from "./Shop"
 import Inventory from "./Inventory";
 import Play from "./Play"
 import Profile from "./Profile"
+import Leaderboard from "./Leaderboard"
+import Search from "./Search"
+
 
 const socket = io("http://localhost:5555");
 function App() {
@@ -49,6 +52,14 @@ function App() {
   function updateJoinCode(code) {
     setJoinCode1(code)
   }
+
+  useEffect(() => {
+    fetch("/users_points")
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+  })
   
   //If idea does not work must return socket={socket} to Game component
   function fillGameData(user, code) {
@@ -214,6 +225,12 @@ function App() {
       </Route>
       <Route path="/user/:id">
         <Profile></Profile>
+      </Route>
+      <Route exact path="/leaderboard">
+        <Leaderboard></Leaderboard>
+      </Route>
+      <Route exact path="/search">
+        <Search></Search>
       </Route>
     </Switch>
   </div>
