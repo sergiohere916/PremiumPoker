@@ -8,14 +8,17 @@
 }
 
 #gameSetUp {
-    border: 3px solid green;
+    border: 1px solid green;
     height: 90%;
+    width: 99%;
     display: flex;
     gap: 10%;
+    background-color: rgba(92, 86, 86, 0.493);
     
 }
 
 #allRoomsContainer {
+    margin-top: 1%;
     display: flex;
     flex-direction: column;
     /* justify-content: center; */
@@ -25,15 +28,27 @@
     width: 30%;
     margin-left: 5%;
     gap: 1%;
+    /* background-image: url("https://i.pinimg.com/564x/9a/b9/d2/9ab9d210c745e2a3d588a29c10fa440f.jpg");
+    background-size: contain; */
+    /* background-color: rgb(29, 47, 131);
+    outline: solid .1em rgb(119, 70, 24); */
+    background-image: linear-gradient(to right, rgb(14, 14, 66), rgb(28, 68, 105));
+    /* background-image: linear-gradient(to right, rgb(14, 59, 18), rgb(37, 124, 52)); */
+    box-shadow: 0 0 1em .1em black;
 }
 
 .roomContainerLabels {
+    height: 9%;
     width: 100%;
     display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
     background-color: rgb(110, 109, 109);
+    background-image: linear-gradient(black, rgb(68, 67, 67));
     color: white;
-    border-bottom: 1px solid black;
+    /* border-bottom: 1px solid black; */
+    border: .1em solid black;
     /* justify-content: space-evenly; */
 }
 
@@ -47,20 +62,121 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-evenly;
+   
 }
 
 .roomContainerIds {
     align-items: flex-start;
 }
+
 #gameSetUpInfo {
-    border: 1px solid red;
-    height: 50%;
+    /* border: 1px solid red; */
+    height: 95%;
     width: 50%;
     margin-right: 5%;
 }
 
+#requiredGameDataTitle {
+    height: 5%;
+    /* background-color: grey; */
+    background-image: linear-gradient(black, rgb(68, 67, 67));
+    border: solid .1em black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family:Arial, Helvetica, sans-serif;
+    text-shadow: 1px 1px 3px rgb(12, 12, 12);
+}
+
+#requiredGameData {
+    padding-top: 2%;
+    height: 35%;
+    border: solid .1em black;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+#iconSelectTitle {
+    margin-top: 2%;
+    height: 10%;
+    background-color: rgb(128, 128, 128);
+    border: solid .1em black;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:xx-large;
+}
+
+#iconSelectTitle h3 {
+    text-shadow: 1px 1px 3px rgb(12, 12, 12);
+}
 #iconSelect {
-    height: 80%;
-    width: 55%;
-    border: 2px solid blue;
+    /* display: flex;
+    flex-direction: column; */
+    height: 45%;
+    width: 100%;
+    /* border: 2px solid blue; */
+    background-color: rgb(28, 68, 105);
+    gap: 2%;
+}
+
+#selectableIcons1 {
+    /* background-color: rgba(37, 39, 39, 0); */
+    height: 47%;
+    width: 100%;
+    display: flex;
+    /* padding-left: 2%;
+    padding-right: 2%; */
+    justify-content: center;
+    gap: 3%;
+}
+
+#selectableIcons2 {
+    padding-top: 2%;
+    /* background-color: rgb(37, 39, 39); */
+    height: 47%;
+    width: 100%;
+    display: flex;
+    /* padding-left: 2%;
+    padding-right: 2%; */
+    justify-content: center;
+    gap: 3%;
+}
+
+.guestIconCards {
+    width: 20%;
+    height: 100%;
+    /* background-color: rgb(23, 23, 163); */
+    background-color: rgb(24, 58, 90);
+    /* background: radial-gradient(#8d8e91b7 75%, #505255b7, #19191a); */
+    border: .1em solid rgb(15, 15, 15);
+    box-shadow: 0 .2em .5em 0 rgb(0, 0, 0);
+    cursor: pointer;
+}
+
+.guestIconCards:hover {
+    box-shadow: 0 0 .5em .1em gold;
+    transform: translate3d(0, -5%, 0);
+    /* animation: bounce 1s; */
+}
+
+@keyframes bounce { 
+    /* from { 
+        transform: translate3d(0, 0, 0); 
+    } 
+    to { 
+        transform: translate3d(0, -5%, 0); 
+    } */
+} 
+
+.guestIconCards img {
+    height: 100%;
+    width: 100%;
+    /* object-fit: cover; */
+    display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }

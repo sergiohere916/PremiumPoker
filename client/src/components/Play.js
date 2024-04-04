@@ -87,22 +87,60 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
             {displayAllRooms}
         </div>
         <div id="gameSetUpInfo">
-            {loggedInUser["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
-            {/* <label>Create UserName: </label> */}
-            <input type="text" name="userName" value={loggedInUser["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
-            <br/>
-            <input type="text" name="userId" value={loggedInUser["user_id"]} readOnly={true}/>
-            {loggedInUser["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
-            {/* <button onClick={generateUID}>Generate Unique Player Id</button> */}
-            <br/>
-            <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
-            <button onClick={generateCode}>Generate Room Code</button>
-            <button onClick={saveGameData}>Start A Game</button>
-            <br/>
-            <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
-            <button onClick={addGameData}>Join Game using Code</button>
+            <div id="requiredGameDataTitle">
+                <h4>ENTER YOUR PLAYER INFO</h4>
+            </div>
+            <div id="requiredGameData">
+                {loggedInUser["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
+                {/* <label>Create UserName: </label> */}
+                <input type="text" name="userName" value={loggedInUser["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
+                <br/>
+                <input type="text" name="userId" value={loggedInUser["user_id"]} readOnly={true}/>
+                {loggedInUser["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
+                {/* <button onClick={generateUID}>Generate Unique Player Id</button> */}
+                <br/>
+                <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
+                <button onClick={generateCode}>Generate Room Code</button>
+                <button onClick={saveGameData}>Start A Game</button>
+                <br/>
+                <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
+                <button onClick={addGameData}>Join Game using Code</button>
+            </div>
+            <div id="iconSelectTitle">
+                
+                <h3>SELECT YOUR ICON</h3>
+            </div>
             <div id="iconSelect">
-
+                <div id="selectableIcons1">
+                    <div className="guestIconCards">
+                        <img src="https://www.svgrepo.com/show/382102/male-avatar-boy-face-man-user-8.svg" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                        <img src="https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                    <img src="https://www.svgrepo.com/show/382095/female-avatar-girl-face-woman-user-4.svg" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                        <img src="https://www.svgrepo.com/show/382100/female-avatar-girl-face-woman-user-7.svg" alt="fishIcon"/>
+                    </div>
+                </div>
+                <div id="selectableIcons2">
+                    <div className="guestIconCards">
+                        <img src="https://cdn1.iconfinder.com/data/icons/avatars-1-5/136/87-512.png" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                        <img src="https://icon-library.com/images/avatar-icon-images/avatar-icon-images-4.jpg" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                        {/* <img src="https://st.depositphotos.com/1797973/1418/v/950/depositphotos_14187177-stock-illustration-big-angry-fish-cartoon.jpg" alt="fishIcon"/> */}
+                        <img src="https://cdn1.iconfinder.com/data/icons/graphorama-playing-cards-3/80/spades_king-512.png" alt="fishIcon"/>
+                    </div>
+                    <div className="guestIconCards">
+                        {/* <img src="https://st2.depositphotos.com/2400497/8689/v/950/depositphotos_86892082-stock-illustration-angry-fish-cartoon.jpg" alt="fishIcon"/> */}
+                        <img src="https://cdn1.iconfinder.com/data/icons/graphorama-playing-cards-3/80/diamonds_queen-512.png" alt="fishIcon"/>
+                    </div>
+                </div>
             </div>
         </div>
         

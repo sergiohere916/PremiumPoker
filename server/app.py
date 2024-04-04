@@ -13,6 +13,7 @@ from itertools import combinations
 import time
 import uuid
 from models import User, Card, Tag, Icon, UserIcon, UserTag
+import array
 
 # Local imports
 from config import app, db, api
@@ -595,7 +596,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player1"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
+                player_data["player1"] = {"user": user, "userId": userId, "cards": ["", ""], "showCards": False, "cash": 2000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player1")
                 game["player_map"][userId] = "player1"
@@ -605,7 +606,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room as player 2")
-                player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
+                player_data["player2"] = {"user": user, "userId": userId, "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 print(game["player_ids"])
                 # game["player_order"].append("player2")
@@ -616,7 +617,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player3"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
+                player_data["player3"] = {"user": user, "userId": userId, "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player3")
                 game["player_map"][userId] = "player3"
@@ -626,7 +627,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player4"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
+                player_data["player4"] = {"user": user, "userId": userId, "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player4")
                 game["player_map"][userId] = "player4"
@@ -636,7 +637,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player5"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
+                player_data["player5"] = {"user": user, "userId": userId, "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player5")
                 game["player_map"][userId] = "player5"
@@ -646,7 +647,7 @@ def handle_join_room(room_data):
                 game["total_players"] +=1
                 players_in_games[request.sid] = [room, userId, request.sid]
                 print("new player has joined the room")
-                player_data["player6"] = {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
+                player_data["player6"] = {"user": user, "userId": userId, "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon}
                 game["player_ids"].append(userId)
                 # game["player_order"].append("player6")
                 game["player_map"][userId] = "player6"
@@ -666,6 +667,7 @@ def handle_join_room(room_data):
             round = game["betting_round"]
             print(f"The round is {round}")
             print(game[round + "_bets_taken"])
+            print("The host is :" + str(game["host"]))
 
             players_in_games[request.sid] = [room, userId, request.sid]
             player = game["player_map"][userId]
@@ -689,35 +691,35 @@ def handle_join_room(room_data):
 
             elif game["pregame_bets_taken"] == True and game["pregame_bets_completed"] == False:
                 if game["round_order"][game["current_turn"]] == player:
-                    print(f"letting {user} bet again")
+                    print(f"letting {user} place a pregame bet again")
                     socketio.emit('rejoin_at_bet',{"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room)
                 else:
-                    print("player will be returned to game with their data recovered")
+                    print("player will be returned to game with their data recovered during pregame bet collection but not their turn")
                     socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
             
             elif game["game_started"] and game["flop_dealt"] == False:
-                print("player will be returned to game with their data recovered")
+                print("player will be returned to game with their data recovered pregame bets taken but flop not yet dealt")
                 socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
             
             elif game["pregame_bets_completed"] and game["flop_bets_taken"] and game["flop_bets_completed"] == False:
                 if game["round_order"][game["current_turn"]] == player:
-                    print(f"letting {user} bet again")
+                    print(f"letting {user} place a flop bet again")
                     socketio.emit('rejoin_at_bet',{"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room)
                 else:
                     print("player will be returned to the flop betting with their data recovered, but it is not yet their turn")
                     socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
             
             elif game["game_started"] and game["turn_dealt"] == False:
-                print("player will be returned to game with their data recovered")
+                print("player will be returned to game with their data recovered flop bets take but turn not yet dealt")
                 socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
             
             elif game["flop_bets_completed"] and game["turn_bets_taken"] and game["turn_bets_completed"] == False:
                 if game["round_order"][game["current_turn"]] == player:
-                    print(f"letting {user} bet again")
+                    print(f"letting {user} place a turn bet again")
                     print(game["all_player_cards"])
                     socketio.emit('rejoin_at_bet',{"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room)
                 else:
-                    print("player will be returned to the flop betting with their data recovered, but it is not yet their turn")
+                    print("player will be returned to the turn betting with their data recovered, but it is not yet their turn")
                     socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
             
             elif game["game_started"] and game["river_dealt"] == False:
@@ -727,14 +729,15 @@ def handle_join_room(room_data):
             
             elif game["turn_bets_completed"] and game["river_bets_taken"] and game["river_bets_completed"] == False:
                 if game["round_order"][game["current_turn"]] == player:
-                    print(f"letting {user} bet again")
+                    print(f"letting {user} place a river bet again")
                     print(game["all_player_cards"])
                     socketio.emit('rejoin_at_bet',{"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room)
                 else:
-                    print("player will be returned to the flop betting with their data recovered, but it is not yet their turn")
+                    print("player will be returned to the river betting with their data recovered, but it is not yet their turn")
                     socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
             else:
                 #TRYING TO IMPLEMENT THIS AS RETURNING AT ANY OTHER POINT
+                #Error is oaccurring here for some reason? AT END OF GAME IS THERE TWO HOSTS ??
                 print(f"player: {user} will be returned to the flop betting with their data recovered, but just standard in between actions..")
                 socketio.emit('rejoin_game', {"game": game, "user": userId, "player_cash": player_money, "bet_difference": min_bet_difference, "time": game["time"] }, room = room )
         elif game["game_started"] == False and game["total_players"] == 6:
@@ -755,12 +758,12 @@ def handle_join_room(room_data):
             "game_started": False,
             "total_players": 1,
             "player_map": {userId: "player1"},
-            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon},
-                            "player2": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
-                            "player3": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
-                            "player4": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
-                            "player5": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
-                            "player6": {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""}},
+            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "showCards": True, "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon},
+                            "player2": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player3": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player4": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player5": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
+                            "player6": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""}},
 
             "all_player_cards": ["player1", "player2", "player3", "player4", "player5", "player6"],
             "table_cards": [],
@@ -1619,8 +1622,12 @@ def restart_the_game(data):
         # print("\n")
         # print("Running after restart after game ended....")
         # print(str(game))
-        game["deck"] = data["deck"]
+        deck = game["deck"]
+        random.shuffle(deck)
+        game["deck"] = deck
+        #ABOVE USE TO BE DATA[DECK] using this new way to shuffle
 
+        print("emitting starting on frontend...")
         socketio.emit("starting", game, room = room)
 
 
@@ -1749,7 +1756,7 @@ def restart_betting_round(room, game):
     game["raise_occurred"] = False
 
 def start_next_game(room, game):
-    default_player_dict = {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}
+    default_player_dict = {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}
     
     for player in game["player_data"]:
         player_data = game["player_data"]
@@ -1788,7 +1795,7 @@ def start_next_game(room, game):
 
     # game["all_player_cards"] = []
     game["table_cards"] = []
-    game["deck"] = []
+    # game["deck"] = []
     game["last_card_dealt"] = 0
     #NEED TO SET UP PLAYER ORDER that matches original player order at start of round
     #Remove starting player and add to end
@@ -1872,7 +1879,7 @@ def start_next_game(room, game):
 
 def standstill_restart_game(room, game):
     print("standstill running....")
-    default_player_dict = {"user": "", "userId": "", "cards": ["", ""], "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}
+    default_player_dict = {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": ""}
     
     for player in game["player_data"]:
         player_data = game["player_data"]

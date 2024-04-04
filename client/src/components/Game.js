@@ -111,28 +111,28 @@ function Game({gameData, socket, restoreGameData}) {
         }
     }, [gameData])
 
-    useEffect(() => {
-        socket.on('rejoin_at_bet', (data) => {
-            console.log("received rejoin at bet")
-            // console.log(data["game"])
-            if (gameData["user_id"] === data["userId"]) {
-                console.log("you have rejoined...")
-                console.log(data["game"]["host"])
-                setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
-                setDisplayBetting(true)
-                setTimer(Number(data["time"]))
-            }
-        })
+    // useEffect(() => {
+    //     socket.on('rejoin_at_bet', (data) => {
+    //         console.log("received rejoin at bet")
+    //         // console.log(data["game"])
+    //         if (gameData["user_id"] === data["userId"]) {
+    //             console.log("you have rejoined...")
+    //             console.log(data["game"]["host"])
+    //             setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
+    //             setDisplayBetting(true)
+    //             setTimer(Number(data["time"]))
+    //         }
+    //     })
 
-        socket.on("rejoin_game", (data) => {
-            if (gameData["user_id"] === data["userId"]) {
-                console.log("rejoining game at regular in between betting rounds....")
-                setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
-            }
-        })
+    //     socket.on("rejoin_game", (data) => {
+    //         if (gameData["user_id"] === data["userId"]) {
+    //             console.log("rejoining game at regular in between betting rounds....")
+    //             setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
+    //         }
+    //     })
 
 
-    }, [gameData, socket])
+    // }, [gameData, socket])
 
 
     useEffect(() => {
@@ -156,6 +156,9 @@ function Game({gameData, socket, restoreGameData}) {
         socket.on("player_has_rebought", playerRebought)
         socket.on("ending_game", endThisGame)
 
+        socket.on("rejoin_at_bet", rejoinAtBet)
+        socket.on("rejoin_game", rejoinGame)
+
         return () => {
             socket.off("starting", startingGame);
             socket.off("add_player", addPlayer);
@@ -168,12 +171,15 @@ function Game({gameData, socket, restoreGameData}) {
             socket.off("returning_winners", returningWinners);
             socket.off("end_betting_round", endBettingRound);
             socket.off("auto_fold", autoFold);
-            socket.on("reassign_host", reassignHost);
+            socket.off("reassign_host", reassignHost);
             socket.off("game_is_full", gameIsFull);
             socket.off("wait_for_players", awaitPlayers);
             socket.off("rebuy", allowRebuyOption)
             socket.off("player_has_rebought", playerRebought)
             socket.off("ending_game", endThisGame)
+
+            socket.off("rejoin_at bet", rejoinAtBet)
+            socket.off("rejoin_game", rejoinGame)
 
         };
 
@@ -320,11 +326,29 @@ function Game({gameData, socket, restoreGameData}) {
     }
     
     const endThisGame = (data) => {
-        console.log("attempting to end game first")
+        console.log("received end this game")
         console.log(data["game_end"])
         setGame(prevGame => ({...prevGame, "game_over": data["game_end"]}))
     }
 
+    const rejoinAtBet = (data) => {
+        // console.log(data["game"])
+        if (gameData["user_id"] === data["userId"]) {
+            console.log("received rejoin at bet")
+            console.log("you have rejoined...")
+            console.log(data["game"]["host"])
+            setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"] }))
+            setDisplayBetting(true)
+            setTimer(Number(data["time"]))
+        }
+    }
+
+    const rejoinGame = (data) => {
+        if (gameData["user_id"] === data["userId"]) {
+            console.log("rejoining game at regular in between betting rounds....")
+            setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
+        }
+    }
     //Game FUNCTIONS ------------------------------------------------
     function startGame() {
         if (true) {
@@ -580,23 +604,25 @@ function Game({gameData, socket, restoreGameData}) {
     }, [history])
 
     function shuffleAndRestart() {
-        console.log("fetching new deck and emitting restart...")
-            fetch("/cards")
-            .then(res => res.json())
-            .then(cards => {
-                //Fisher-Yates alorith
-                console.log(cards)
-                for (let i = cards.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    const temp = cards[i];
-                    cards[i] = cards[j];
-                    cards[j] = temp;
-                }
-                //May need to make shuffle deck into a function for later on
-                // socket.emit("shuffleDeck", {deck: cards, room: gameData["room"]} );
+        console.log("emitting restart....")
+        // console.log("fetching new deck and emitting restart...")
+            // fetch("/cards")
+            // .then(res => res.json())
+            // .then(cards => {
+            //     //Fisher-Yates alorith
+            //     console.log(cards)
+            //     for (let i = cards.length - 1; i > 0; i--) {
+            //         const j = Math.floor(Math.random() * (i + 1));
+            //         const temp = cards[i];
+            //         cards[i] = cards[j];
+            //         cards[j] = temp;
+            //     }
+            //     //May need to make shuffle deck into a function for later on
+            //     // socket.emit("shuffleDeck", {deck: cards, room: gameData["room"]} );
                 
-                socket.emit('restart_the_game', {deck: cards, room: gameData["room"]});
-            })
+            //     socket.emit('restart_the_game', {deck: cards, room: gameData["room"]});
+            // })
+            socket.emit('restart_the_game', {room: gameData["room"]});
             
     }
 
@@ -717,12 +743,13 @@ function Game({gameData, socket, restoreGameData}) {
 
         let card1 = playerData["cards"][0]["image"];
         let card2 = playerData["cards"][1]["image"];
+        const showCards = playerData["showCards"];
 
         //Need another variable to be false that way at somepoint we can switch to true and show opponents cards
-        if (card1 && card2 && (playerId !== gameData["user_id"])) {
+        if (card1 && card2 && (playerId !== gameData["user_id"]) && !showCards) {
             card1 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
             card2 = "https://i.pinimg.com/originals/91/69/ef/9169ef73b3564976a7dc564d66861027.png";
-        } 
+        }
         
         const playerTurn = playerData["myTurn"]
 
