@@ -45,6 +45,10 @@ function App() {
     setLoggedInUser(prevUser => ({...prevUser, user_id: userIdData}))
   }
 
+  function updateGuestUserImage(image) {
+    setLoggedInUser(prevUser => ({...prevUser, image_url: image}))
+  }
+
   function updateRoomCode(code) {
     setRoomCode1(code)
   }
@@ -221,7 +225,7 @@ function App() {
         <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Inventory>
       </Route>
       <Route exact path="/play"> 
-        <Play loggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
+        <Play loggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateGuestUserImage={updateGuestUserImage} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
       </Route>
       <Route path="/user/:id">
         <Profile></Profile>

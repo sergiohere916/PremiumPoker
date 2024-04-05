@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom/cjs/react-router-dom.min";
 
 
-function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUsername, updateGuestUserId, updateRoomCode, updateJoinCode}) {
+function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUsername, updateGuestUserId, updateGuestUserImage, updateRoomCode, updateJoinCode}) {
 
     // const [rooms, setRooms] = useState([])
 
@@ -55,6 +55,10 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
         fillGameData(loggedInUser, roomId);
     }
 
+    function updatePlayerImage(image) {
+        updateGuestUserImage(image)
+    }
+
     const displayAllRooms = allRooms.map((roomData) => {
         // console.log(roomData["room_id"]);
         return (
@@ -66,7 +70,9 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
             <div className="roomContainerPlayers">
                 {roomData["total_players"]} / 6
             </div>
-            <button onClick={() => {joinRoom(roomData["room_id"])}}>Join Game</button>
+            <div>
+                <button onClick={() => {joinRoom(roomData["room_id"])}}>Join Game</button>
+            </div>
          </div>)
     })
 
@@ -84,7 +90,15 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
                     <div>Players</div>
                     <div>Join</div>
             </div>
-            {displayAllRooms}
+            <div id="rooms">
+                {displayAllRooms}
+            </div>
+            <div id="allRoomsCards">
+                <img src="https://pics.clipartpng.com/Four_Aces_Cards_PNG_Clipart-1031.png" alt="quadAces"/>
+            </div>
+            <div id="allRoomsPokerChips">
+                <img src="https://i.pinimg.com/originals/64/36/44/643644be80473b0570920700e80fd36f.png" alt="redPokerChips"/>
+            </div>
         </div>
         <div id="gameSetUpInfo">
             <div id="requiredGameDataTitle">
@@ -99,12 +113,17 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
                 {loggedInUser["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
                 {/* <button onClick={generateUID}>Generate Unique Player Id</button> */}
                 <br/>
-                <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
-                <button onClick={generateCode}>Generate Room Code</button>
-                <button onClick={saveGameData}>Start A Game</button>
-                <br/>
-                <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
-                <button onClick={addGameData}>Join Game using Code</button>
+                    <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
+                    <button onClick={generateCode}>Generate Room Code</button>
+                    <button onClick={saveGameData}>Start A Game</button>
+                    <br/>
+                    <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
+                    <button onClick={addGameData}>Join Game using Code</button>
+                    <br/>
+                    <label>Current Icon: </label>
+                    <div id="currIcon">
+                        <img src={loggedInUser["image_url"]} alt="selectedIconImage"/>
+                    </div>
             </div>
             <div id="iconSelectTitle">
                 
@@ -113,7 +132,7 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
             <div id="iconSelect">
                 <div id="selectableIcons1">
                     <div className="guestIconCards">
-                        <img src="https://www.svgrepo.com/show/382102/male-avatar-boy-face-man-user-8.svg" alt="fishIcon"/>
+                        <img src="https://www.svgrepo.com/show/382102/male-avatar-boy-face-man-user-8.svg" alt="fishIcon" onClick={() => {updatePlayerImage("https://www.svgrepo.com/show/382102/male-avatar-boy-face-man-user-8.svg")}}/>
                     </div>
                     <div className="guestIconCards">
                         <img src="https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg" alt="fishIcon"/>
@@ -134,7 +153,7 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
                     </div>
                     <div className="guestIconCards">
                         {/* <img src="https://st.depositphotos.com/1797973/1418/v/950/depositphotos_14187177-stock-illustration-big-angry-fish-cartoon.jpg" alt="fishIcon"/> */}
-                        <img src="https://cdn1.iconfinder.com/data/icons/graphorama-playing-cards-3/80/spades_king-512.png" alt="fishIcon"/>
+                        <img src="https://cdn1.iconfinder.com/data/icons/graphorama-playing-cards-3/80/spades_king-512.png" alt="kingIcon" onClick={() => {updatePlayerImage("https://cdn1.iconfinder.com/data/icons/graphorama-playing-cards-3/80/spades_king-512.png")}}/>
                     </div>
                     <div className="guestIconCards">
                         {/* <img src="https://st2.depositphotos.com/2400497/8689/v/950/depositphotos_86892082-stock-illustration-angry-fish-cartoon.jpg" alt="fishIcon"/> */}
