@@ -12,7 +12,7 @@ from string import ascii_uppercase
 from itertools import combinations
 import time
 import uuid
-from models import User, Card, Tag, Icon, UserIcon, UserTag
+from models import User, Card, Tag, Icon, Emote, UserIcon, UserTag, UserEmote
 import array
 
 # Local imports
@@ -267,6 +267,46 @@ class Logout(Resource):
         return make_response({}, 204)
     
 api.add_resource(Logout, "/logout", endpoint="Logout")
+
+# ENDPOINTS FOR EMOTE
+
+class Emotes(Resource):
+    def get(self):
+        emotes = [emote.to_dict() for emote in Emote.query.all()]
+        return make_response(emotes, 200)
+
+api.add_resource(Emotes, "/emotes")
+
+# ENDPOINTS FOR USEREMOTES
+
+class UserEmotesPost(Resource):
+    def post(self):
+        try:
+            request_json = request.get_json()
+
+            newUserEmote = UserEmote(
+                emote_id = request_json["emote_id"],
+                user_id = request_json["user_id"]
+            )
+
+            db.session.add(newUserEmote)
+            db.session.commit()
+
+            return make_response(newUserEmote.to_dict(), 200)
+        except:
+            return make_response({"error" : "POST UserIcon"}, 404)
+
+api.add_resource(UserEmotesPost, "/useremotes")
+
+class UserEmotesById(Resource):
+    def get(self, id):
+        user_id = session["user_id"]
+
+        user_emotes = UserEmote.query.filter_by(user_id=id).all()
+        user_emotes_dicts = [emote.to_dict() for emote in user_emotes]
+        return make_response(jsonify(user_emotes_dicts), 200)
+
+api.add_resource(UserEmotesById, "/useremotes/<int:id>")
 
 # ENDPOINTS FOR ICONS
 

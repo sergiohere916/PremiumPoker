@@ -60,6 +60,12 @@ function App() {
       console.log(data)
     })
   })
+
+  fetch("/emotes")
+  .then(response => response.json())
+  .then(data => {
+    console.log(data)
+  })
   
   //If idea does not work must return socket={socket} to Game component
   function fillGameData(user, code) {

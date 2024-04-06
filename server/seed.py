@@ -8,7 +8,7 @@ from faker import Faker
 
 # Local imports
 from app import app
-from models import db, Card, User, Tag, Icon, UserIcon, UserTag
+from models import db, Card, User, Tag, Icon, Emote, UserIcon, UserTag, UserEmote
 
 def create_cards():
 
@@ -156,6 +156,19 @@ def create_cards():
     #     cards.append(card4)
     
     # return cards
+
+def create_emotes():
+    emotes = []
+
+    laughing = Emote(name="laughing", price=10, content="https://em-content.zobj.net/source/google/387/rolling-on-the-floor-laughing_1f923.png")
+    crying = Emote(name="crying", price=5, content="https://i.pinimg.com/736x/3d/bd/00/3dbd008129e1cb2b42426ce0f2dbc9c0.jpg")
+    skull = Emote(name="skull", price=7, content="https://i.pinimg.com/736x/82/0e/5c/820e5c87efae34be8fb51790c6de254e.jpg")
+
+    emotes.append(laughing)
+    emotes.append(crying)
+    emotes.append(skull)
+
+    return emotes
     
 def create_tags():
     tags = []
@@ -369,6 +382,11 @@ if __name__ == '__main__':
         UserIcon.query.delete()
         db.session.commit()
         UserTag.query.delete()
+        db.session.commit()
+
+        print("seeding emotes...")
+        all_emotes = create_emotes()
+        db.session.add_all(all_emotes)
         db.session.commit()
 
         print("seeding tags... ")
