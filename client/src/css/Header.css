@@ -1,7 +1,7 @@
 #header {
     background-color: #000000;
     color: white;
-    padding: 10px;
+    padding: 1%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -12,7 +12,7 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    width: 100%;
+    width: 100vw;
 }
 
 #nav-container a {
@@ -32,5 +32,4 @@
     font-weight: bolder;
     font-size: 1.2em;
     width: 100%;
-    
 }

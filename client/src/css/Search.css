@@ -8,7 +8,8 @@
     font-size: 40px;
     padding: 100px;
     background-color: rgb(10, 20, 20);
-    border-radius: 40px ;
+    border-radius: 40px;
+    overflow: hidden;
 }
 
 #search-header {
@@ -21,8 +22,6 @@
     width: 60%;
     height: 70px;
     margin: 60px auto 40px;
-    border: none;
-
     border: 2px solid rgb(50, 50, 50);
     font-size: 30px;
     outline: none;
@@ -40,18 +39,21 @@
     margin-top: 10px;
     display: flex;
     flex-direction: row;
-    height: 100%;
     flex-wrap: wrap;
+    overflow-y: auto;
+    max-height: 50vh;
 }
 
 .player-profile-container {
     margin: 15px;
+    border: 2px solid rgb(40, 40, 40);
     height: 150px;
     width: 30%;
     background-color: rgb(30, 30, 30);
     border-radius: 10px;
     margin: 0 auto;
     display: flex;
+    margin: 10px;
     align-items: center;
     justify-content: space-evenly;
     transition: .2s;
@@ -101,6 +103,32 @@
     font-size: 20px;
 }
 
+@media only screen and (max-width: 768px) {
+    #search-container {
+        width: 80%;
+        padding: 50px;
+    }
 
-  
+    #search-bar {
+        width: 80%;
+    }
 
+    .player-profile-container {
+        width: 45%;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    #search-container {
+        width: 90%;
+        padding: 30px;
+    }
+
+    #search-bar {
+        width: 90%;
+    }
+
+    .player-profile-container {
+        width: 90%;
+    }
+}

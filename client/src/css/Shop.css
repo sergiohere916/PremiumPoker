@@ -5,19 +5,20 @@
 
 #items-display {
     background-color: rgb(10, 20, 20);
-    /* background-color: rgb(56, 67, 77); */
     display: flex;
     flex-wrap: wrap;
     width: 70%;
     margin: auto;
+
     padding-top: 10px;
     padding-bottom: 40px;
     justify-content: space-between;
+    overflow-y: auto;
+    max-height: 70vh;
 }
 
 .icon-container, .tag-container {
     background: linear-gradient(rgb(50, 50, 50), rgb(10, 20, 20), rgb(50, 50, 50));
-    /* background-color: rgb(50, 50, 50); */
     padding: 20px;
     border-radius: 10px;
     margin: 10px;
@@ -36,9 +37,9 @@
     color: white;
     border: 2px solid white;
     background: transparent;
-    display: block; /* Ensure the button is a block element */
-    margin: 40px auto; /* Center align the button */
-    font-size: 40px; /* Increase the font size to make it bigger */
+    display: block;
+    margin: 40px auto;
+    font-size: 40px;
     border-radius: 25px;
     transition: .5s;
 }
@@ -57,8 +58,8 @@
     border: 1px solid white;
     background: transparent;
     margin: 0 auto;
-    display: block; /* Ensure the button is a block element */
-    font-size: 20px; /* Increase the font size to make it bigger */
+    display: block;
+    font-size: 20px;
     transition: .5s;
 }
 
@@ -79,7 +80,6 @@
     color: white;
     font-size: 25px;
     border: 1px solid white;
-    
 }
 
 .heading-title {
@@ -88,8 +88,6 @@
     padding-top: 50px;
     font-size: 100px;
 }
-
-
 
 #featuredBar {
     background-color: rgb(81, 87, 102);
@@ -100,7 +98,6 @@
     margin-right: 15%;
     font-size: 20pt;
     font-weight: bolder;
-    
 }
 
 #ownedIconMark {
@@ -116,4 +113,20 @@
 .ownedIconLabel {
    display: flex;
    gap: 8%;
+}
+
+
+@media only screen and (max-width: 768px) {
+    #items-display {
+        width: 90%;
+        margin: auto;
+    }
+}
+
+
+@media only screen and (max-width: 480px) {
+    #items-display {
+        width: 95%;
+        margin: auto;
+    }
 }
