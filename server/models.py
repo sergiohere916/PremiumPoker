@@ -42,6 +42,17 @@ class Tag(db.Model, SerializerMixin):
 
     serialize_rules = ("-usertags.tag",)
 
+class Emote(db.Model, SerializerMixin):
+    __tablename__ = "emotes"
+
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String)
+    price = db.Column(db.Integer)
+    content = db.Column(db.String)
+
+    useremotes = db.relationship("UserEmote", backref="emote", cascade="all, delete-orphan")
+
+    serialize_rules = ("-useremotes.emote",)
 
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
@@ -57,8 +68,9 @@ class User(db.Model, SerializerMixin):
 
     usericons = db.relationship("UserIcon",  backref="user", cascade="all, delete-orphan")
     usertags = db.relationship("UserTag", backref="user", cascade="all, delete-orphan")
+    useremotes = db.relationship("UserEmote", backref="user", cascade="all, delete-orphan")
 
-    serialize_rules = ("-usericons.user", "-usertags.user",)
+    serialize_rules = ("-usericons.user", "-usertags.user", "-useremotes.user",)
 
     @hybrid_property
     def password_hash(self):
@@ -97,3 +109,13 @@ class UserTag(db.Model, SerializerMixin):
     tag_id = db.Column(db.Integer, db.ForeignKey("tags.id"))
 
     serialize_rules = ("-user.usertags", "-tag.usertags",)
+
+class UserEmote(db.Model, SerializerMixin):
+    __tablename__ = "useremotes"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    emote_id = db.Column(db.Integer, db.ForeignKey("emotes.id"))
+
+    serialize_rules = ("-user.useremotes", "-emotes.useremotes",)
