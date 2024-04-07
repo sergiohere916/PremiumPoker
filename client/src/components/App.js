@@ -21,6 +21,7 @@ function App() {
   const history = useHistory()
   const [userIcons, setUserIcons] = useState([])
   const [userTags, setUserTags] = useState([])
+  const [userEmotes, setUserEmotes] = useState([])
   const [loggedInUser, setLoggedInUser] = useState({
     icon: "",
     points: 0,
@@ -59,12 +60,6 @@ function App() {
     .then(data => {
       console.log(data)
     })
-  })
-
-  fetch("/emotes")
-  .then(response => response.json())
-  .then(data => {
-    console.log(data)
   })
   
   //If idea does not work must return socket={socket} to Game component
@@ -117,6 +112,15 @@ function App() {
             userTagHolding.push(userData["usertags"][i]["tag"])
           }
           setUserTags(userTagHolding)
+
+          let userEmoteHolding = []
+
+          for (let i = 0; i < userData["useremotes"].length; i++) {
+            userEmoteHolding.push(userData["useremotes"][i]["emote"])
+          }
+
+          setUserEmotes(userEmoteHolding)
+          
           setLoggedInUser({...userData, type: "MEMBER"})
         })
       } else {
@@ -124,6 +128,8 @@ function App() {
       }
     })
   }, [])
+
+  console.log(loggedInUser)
   // useEffect(() => {
   //   console.log(loggedInUser["id"])
   //   fetch(`/usericons/${loggedInUser["id"]}`)
@@ -185,7 +191,14 @@ function App() {
       userTagHolding.push(thisUser["usertags"][i]["tag"])
     }
     setUserTags(userTagHolding)
+
+    let userEmotesHolding = []
+
+    for (let i = 0; i < thisUser["useremotes"].length; i++) {
+      userEmotesHolding.push(thisUser["useremotes"][i]["emote"])
+    }
     
+    setUserEmotes(userEmotesHolding)
   }
 
   function addNewUserIcon(newIcon) {
@@ -194,6 +207,10 @@ function App() {
 
   function addNewUserTag(newTag) {
     setUserTags([...userTags, newTag["tag"]])
+  }
+
+  function addNewUserEmote(newEmote) {
+    setUserEmotes([...userEmotes, newEmote["emote"]])
   }
 
   // User icons is an array of objects of all the icons the user owns
@@ -221,10 +238,10 @@ function App() {
         <Signup onLogin={onLogin}></Signup>
       </Route>
       <Route exact path="/shop">
-        <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin} addNewUserIcon={addNewUserIcon} addNewUserTag={addNewUserTag}></Shop>
+        <Shop loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} userEmotes={userEmotes} onLogin={onLogin} addNewUserIcon={addNewUserIcon} addNewUserTag={addNewUserTag} addNewUserEmote={addNewUserEmote}></Shop>
       </Route>
       <Route exact path="/inventory">
-        <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} onLogin={onLogin}></Inventory>
+        <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} userEmotes={userEmotes} onLogin={onLogin}></Inventory>
       </Route>
       <Route exact path="/play"> 
         <Play loggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-function Inventory({userIcons, userTags, loggedInUser, onLogin}) {
+function Inventory({userIcons, userTags, userEmotes, loggedInUser, onLogin}) {
     const [condition, setCondition] = useState(false)
     const history = useHistory()
 
@@ -57,17 +57,28 @@ function Inventory({userIcons, userTags, loggedInUser, onLogin}) {
         </div>
     })
 
+    const emotesDisplay = userEmotes.map((emote) => {
+        return <div key={emote.id} className="emote-container">
+            <h3>{emote["name"]}</h3>
+            <img src={emote["content"]} style={{ width: '250px', height: '250px' }}></img>
+        </div>
+    })
+
     function handleButton(e) {
-        setCondition(!condition)
+        setCondition(e.target.textContent)
     }
 
     return (<div id="shop-container">
         <button onClick={handleBack} id="back-button">BACK</button>
         <div id="inventory">
             <h3 className="heading-title">INVENTORY</h3>
-            <button id="toggle-button" onClick={handleButton}>{condition ? "tags" : "icons"}</button>
+            <div className="buttons-container">
+                <button id="toggle-button" className={condition == "ICONS" ? "selected" : ""} onClick={handleButton}>ICONS</button>
+                <button id="toggle-button" className={condition == "TAGS" ? "selected" : ""} onClick={handleButton}>TAGS</button>
+                <button id="toggle-button" className={condition == "EMOTES" ? "selected" : ""} onClick={handleButton}>EMOTES</button>
+            </div>
             <div id="items-display">
-                {condition ? iconsDisplay : tagsDisplay}
+                {condition == "ICONS" ? iconsDisplay : (condition == "TAGS" ? tagsDisplay : emotesDisplay)}
             </div>
         </div>
         

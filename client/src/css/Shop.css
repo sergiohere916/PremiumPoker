@@ -17,7 +17,7 @@
     max-height: 70vh;
 }
 
-.icon-container, .tag-container {
+.icon-container, .tag-container, .emote-container {
     background: linear-gradient(rgb(50, 50, 50), rgb(10, 20, 20), rgb(50, 50, 50));
     padding: 20px;
     border-radius: 10px;
@@ -43,7 +43,11 @@
     border-radius: 25px;
     transition: .5s;
 }
-  
+
+.selected {
+    background-color: white;
+}
+
 #toggle-button:hover {
     background-color: white;
     color: black;
@@ -70,6 +74,15 @@
 
 .itemButton:active {
     font-size: 10px;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+    align-items: center;
+    margin: 0 auto;
+    padding: 50px;
 }
 
 #back-button {

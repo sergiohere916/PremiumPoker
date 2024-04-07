@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNewUserTag}) {
+function Shop({userIcons, userTags, userEmotes, loggedInUser, onLogin, addNewUserIcon, addNewUserTag, addNewUserEmote}) {
     const [icons, setIcons] = useState([])
     const [tags, setTags] = useState([])
-    const [condition, setCondition] = useState(false)
+    const [emotes, setEmotes] = useState([])
+    const [condition, setCondition] = useState("")
     const [userIconNames, setUserIconNames] = useState([]);
     const [userTagNames, setUserTagNames] = useState([]);
+    const [userEmoteNames, setUserEmoteNames] = useState([]);
 
     const history = useHistory()
-    
+
     useEffect(() => {
         fetch("/icons")
         .then(response => response.json())
@@ -19,6 +21,11 @@ function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNe
             .then(response => response.json())
             .then(tagData => {
                 setTags(tagData)
+                fetch("/emotes")
+                .then(response => response.json())
+                .then(emoteData => {
+                    setEmotes(emoteData)
+                })
             })
         })
     }, [])
@@ -76,15 +83,63 @@ function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNe
         }
     }
 
+    function purchaseEmote(e, emote) {
+        if (loggedInUser["points"] >= emote["price"]) {
+            fetch(`/users/${loggedInUser["id"]}`, {
+                method : "PATCH",
+                headers : {"Content-Type" : "application/json"},
+                body : JSON.stringify({"points" : loggedInUser["points"] - emote["price"]})
+            })
+            .then(response => response.json())
+            .then(userData => {
+                // Creating new association table between user and emote
+                fetch("/useremotes", {
+                    method : "POST",
+                    headers : {"Content-Type" : "application/json"},
+                    body : JSON.stringify({user_id : loggedInUser["id"], emote_id : emote["id"]})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // console.log(data)
+                    e.target.textContent = "OWNED"
+                    // onLogin(userData)
+                    addNewUserEmote(data)
+                })
+            })
+        }
+    }
+
     
     // Im mapping through usericons and usertags to just get the names only
     // I think this might be the issue yeah
     useEffect(() => {
         const iconNames = userIcons.map(icon => icon.name);
         const tagNames = userTags.map(tag => tag.name);
+        const userEmoteNames = userEmotes.map(emote => emote.name)
         setUserIconNames(iconNames);
         setUserTagNames(tagNames);
-    }, [userIcons, userTags]);
+        setUserEmoteNames(userEmoteNames)
+    }, [userIcons, userTags, userEmotes]);
+
+    const emotesDisplay = emotes.map((emote) => {
+        return (
+            <div key={emote.content} className="emote-container">
+                <h2>{emote.name}</h2>
+                <img src={emote.content} style={{ width: '250px', height: '250px' }}></img>
+                <h3>Price : {emote.price} Premium points</h3>
+ 
+                <button className="itemButton" onClick={(e) => userEmoteNames.includes(emote["name"]) ? null : purchaseEmote(e, emote)}>{userEmoteNames.includes(emote["name"]) ? 
+                <span className="ownedIconLabel">
+                    <div>OWNED</div>
+                    <div id="ownedIconMark">
+                        <img src="https://static.vecteezy.com/system/resources/previews/017/177/781/non_2x/green-tick-check-mark-on-transparent-background-free-png.png"/>
+                    </div>
+                </span> : "BUY"}
+
+                </button>
+            </div>
+        )
+    })
 
     const iconsDisplay = icons.map((icon) => {
         return (
@@ -114,14 +169,15 @@ function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNe
         return (
             <div key={tag.name} className="tag-container">
                 <h2>{tag.name}</h2>
-                <h3 class="price">Price : {tag.price} Premium points</h3>
+                <h3 className="price">Price : {tag.price} Premium points</h3>
                 <button className="itemButton" onClick={(e) => userTagNames.includes(tag["name"]) ? null : purchaseTag(e, tag)}>{userTagNames.includes(tag["name"]) ? "OWNED" : "BUY"}</button>
             </div>
         )
     })
     
     function handleButton(e) {
-        setCondition(!condition)
+        console.log(e)
+        setCondition(e.target.textContent)
     }
     
     function handleBack() {
@@ -133,10 +189,14 @@ function Shop({userIcons, userTags, loggedInUser, onLogin, addNewUserIcon, addNe
         <button onClick={handleBack} id="back-button">BACK</button>
         <div id="shop">
             <h3 className="heading-title">SHOP</h3>
-            <button id="toggle-button" onClick={handleButton}>{condition ? "ICONS" : "TAGS"}</button>
+            <div className="buttons-container">
+                <button id="toggle-button" onClick={handleButton}>ICONS</button>
+                <button id="toggle-button" onClick={handleButton}>TAGS</button>
+                <button id="toggle-button" onClick={handleButton}>EMOTES</button>
+            </div>
             <div id="featuredBar">Featured Items</div>
             <div id="items-display">
-                {condition ? tagsDisplay : iconsDisplay}
+                {condition == "ICONS" ? iconsDisplay : (condition == "TAGS" ? tagsDisplay : emotesDisplay)}
             </div>
         </div>
     </div>)
