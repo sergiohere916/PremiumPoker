@@ -18,13 +18,14 @@
 }
 
 #allRoomsContainer {
+    position: relative;
     margin-top: 1%;
     display: flex;
     flex-direction: column;
     /* justify-content: center; */
     align-items: center;
     background-color: white;
-    height: 70%;
+    height: 80%;
     width: 30%;
     margin-left: 5%;
     gap: 1%;
@@ -32,13 +33,15 @@
     background-size: contain; */
     /* background-color: rgb(29, 47, 131);
     outline: solid .1em rgb(119, 70, 24); */
+
     background-image: linear-gradient(to right, rgb(14, 14, 66), rgb(28, 68, 105));
-    /* background-image: linear-gradient(to right, rgb(14, 59, 18), rgb(37, 124, 52)); */
+    /* background-image: linear-gradient(to right, rgb(11, 46, 14), rgb(25, 145, 45)); */
     box-shadow: 0 0 1em .1em black;
+    overflow: hidden;
 }
 
 .roomContainerLabels {
-    height: 9%;
+    height: 7%;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -56,17 +59,75 @@
     width: 33%;
 }
 
-.roomContainer {
+#rooms {
+    /* background-color: aliceblue; */
+    height: 70%;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5%;
+    /* justify-content: center; */
+    /* align-items: center; */
+    
+}
+
+.roomContainer {
+    margin-left: 2%;
+    background-color: rgba(16, 16, 199, 0.39);
+    width: 96%;
     color: black;
     display: flex;
     align-items: flex-start;
     justify-content: space-evenly;
+    color: white;
    
 }
 
-.roomContainerIds {
-    align-items: flex-start;
+.roomContainer div {
+    display: flex;
+    justify-content: center;
+    width: 33.333%;
+}
+
+.roomContainer div button {
+    background-image: linear-gradient(to right, rgb(104, 16, 16), red);
+    color: white;
+    font-weight: bold;
+}
+
+.roomContainer div button:hover {
+    cursor: pointer;
+    box-shadow: 0 0 0 .05em gold;
+}
+
+#allRoomsCards {
+    position: absolute;
+    bottom: -5%;
+    right: -2%;
+    background-color: rgba(255, 0, 0, 0);
+    height: 30%;
+    width: 30%;
+    transform: rotate(-15deg);
+}
+#allRoomsCards img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+#allRoomsPokerChips {
+    background-color: rgba(240, 248, 255, 0);
+    position: absolute;
+    height: 20%;
+    width: 25%;
+    bottom: -3%;
+    left: -4%;
+}
+
+#allRoomsPokerChips img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
 }
 
 #gameSetUpInfo {
@@ -74,6 +135,7 @@
     height: 95%;
     width: 50%;
     margin-right: 5%;
+    
 }
 
 #requiredGameDataTitle {
@@ -86,19 +148,37 @@
     align-items: center;
     font-family:Arial, Helvetica, sans-serif;
     text-shadow: 1px 1px 3px rgb(12, 12, 12);
+    /* box-shadow: 0 0 1em .1em black; */
 }
 
 #requiredGameData {
     padding-top: 2%;
+    padding-left: 2%;
     height: 35%;
     border: solid .1em black;
     font-family:Arial, Helvetica, sans-serif;
+    background-image: linear-gradient(to right, rgb(14, 14, 66), rgb(28, 68, 105));
+    /* box-shadow: 0 0 1em .1em black; */
+}
+
+#currIcon {
+    margin-top: 1%;
+    background-image: linear-gradient(to right, black, rgb(39, 38, 38));
+    height: 30%;
+    width: 15%;
+    border: solid .1em black;
+}
+
+#currIcon img {
+    height: 100%;
+    width: 100%;
 }
 
 #iconSelectTitle {
     margin-top: 2%;
     height: 10%;
-    background-color: rgb(128, 128, 128);
+    /* background-color: rgb(128, 128, 128); */
+    background-image: linear-gradient(black, rgb(68, 67, 67));
     border: solid .1em black;
     font-weight: bold;
     display: flex;
@@ -118,7 +198,9 @@
     height: 45%;
     width: 100%;
     /* border: 2px solid blue; */
-    background-color: rgb(28, 68, 105);
+
+    /* background-color: rgb(28, 68, 105); */
+    background-image: linear-gradient(to right, rgb(14, 14, 66), rgb(28, 68, 105));
     gap: 2%;
 }
 

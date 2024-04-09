@@ -798,7 +798,7 @@ def handle_join_room(room_data):
             "game_started": False,
             "total_players": 1,
             "player_map": {userId: "player1"},
-            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "showCards": True, "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon},
+            "player_data": {"player1": {"user": user, "userId": userId, "cards": ["", ""], "showCards": False, "cash": 5000, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": request.sid, "image_icon": image_icon},
                             "player2": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
                             "player3": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
                             "player4": {"user": "", "userId": "", "cards": ["", ""], "showCards": False, "cash": 5000, "myTurn": False, "status": "", "flop": 0, "turn": 0, "river": 0, "pregame": 0, "sid": "", "image_icon": ""},
@@ -1458,6 +1458,13 @@ def handle_bet_action(data):
         continue_betting(room, game)
         pass
 
+
+@socketio.on("showdown")
+def initiate_showdown(data):
+    pass
+    #LEFT OUT showing cards in specific order
+
+
 @socketio.on("check_win")
 def winner_winner_chicken_dinner(data):
     room = data["room"]
@@ -1467,10 +1474,20 @@ def winner_winner_chicken_dinner(data):
         game["winners_declared"] = True
         print("declaring winners still runs even with the caviot above...") 
         players_not_playing = []
+        players_out = {}
+        #added above as easy check to see who folded
         print("THESE ARE THE POTS BEFORE REMOVING EMPTY SIDE POTS : " + str(game["pots"]))
 
         for player in game["players_folded_list"]:
             players_not_playing.append(player)
+            players_out[player] = True
+
+
+        for player in game["round_order"]:
+            if players_out.get(player, None) == None:
+                #not folded so will reveal cards for this player
+                game["player_data"][player]["showCards"] = True
+
 
         # Removing any empty pots that are still remaining
         for i in range(len(game["pots"])):
@@ -1601,7 +1618,7 @@ def winner_winner_chicken_dinner(data):
             game["pot"] = 0
             
             # game["winners_declared"] = True
-            print("THESE ARE THE WINNERS BEFORE THE SOCKET : " + str(game["winners"]))
+            print("\n Last to raise was...")
             socketio.emit("returning_winners", {"winners": game["winners"], "game_update": game}, room = room)
 
         # if no small pots exists then we will just run the main pot
@@ -1801,6 +1818,7 @@ def start_next_game(room, game):
     for player in game["player_data"]:
         player_data = game["player_data"]
         player_data[player]["cards"] = ["", ""]
+        player_data[player]["showCards"] = False
         player_data[player]["status"] = ""
         player_data[player]["pregame"] = 0
         player_data[player]["flop"] = 0
@@ -1924,6 +1942,7 @@ def standstill_restart_game(room, game):
     for player in game["player_data"]:
         player_data = game["player_data"]
         player_data[player]["cards"] = ["", ""]
+        player_data[player]["showCards"] = False
         player_data[player]["status"] = ""
         player_data[player]["pregame"] = 0
         player_data[player]["flop"] = 0
@@ -2054,8 +2073,8 @@ def place_pot_bets(game):
     game["min_all_in"] = []
 
 def get_high_card(cards):
-        values = sorted(card["value"] for card in cards)
-        return values[-1]
+        values = sorted([card["value"] for card in cards], reverse = True)
+        return values[0]
 def is_one_pair(cards):
         values = [card["value"] for card in cards]
         # return any(values.count(value) == 2 for value in set(values))
