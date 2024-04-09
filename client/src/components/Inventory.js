@@ -59,8 +59,8 @@ function Inventory({userIcons, userTags, userEmotes, loggedInUser, onLogin}) {
 
     const emotesDisplay = userEmotes.map((emote) => {
         return <div key={emote.id} className="emote-container">
-            <h3>{emote["name"]}</h3>
-            <img src={emote["content"]} style={{ width: '250px', height: '250px' }}></img>
+            <h1>{emote["name"]}</h1>
+            <img src={emote["content"]} style={{ width: '350px', height: '250px' }}></img>
         </div>
     })
 
