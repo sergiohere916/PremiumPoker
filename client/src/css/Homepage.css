@@ -323,7 +323,7 @@ body {
 
 /* SCROLL BAR CSS */
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
     width: 10px;
     background: rgb(30, 30, 30);
 }
@@ -335,4 +335,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: black;
-}
+} */

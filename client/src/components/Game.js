@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import luigi from "../css/LuigiPokerFinal.png"
+import tableChips from "../css/images/tableChips01.png"
 
 
 //RETURN POINT 2/29 fixing in id into game and players ----- //
@@ -54,6 +56,7 @@ function Game({gameData, socket, restoreGameData}) {
 
         min_all_in: [],
         pots: [],
+        total_pot: 0,
         bets: [],
         main_pot: true,
         small_blind_bet: "",
@@ -74,24 +77,19 @@ function Game({gameData, socket, restoreGameData}) {
     const [timer, setTimer] = useState("15");
     const [opponentBetting, setOpponentBetting] = useState(false);
     const [showRebuy, setShowRebuy] = useState(false);
-    //SOCKET COMMANDS -----------------------------------------
-    // useEffect(() => {
-    //     if (Object.keys(gameData).length === 0) {
-    //         console.log("This should only run on refresh")
-    //         fetch("/checkSession")
-    //         .then(r => r.json())
-    //         .then(data => {
-    //             // restoreGameData(data["user"], data["room"])
-    //             console.log("We are re initializing state")
-    //             console.log(data)
-    //             restoreGameData(data["user"], data["room"])
-    //             // socket.emit('join_room', {"user": data["user"], "room": data["room"]});
-    //         })
-    //     } else {
-    //         socket.emit('join_room', gameData)
-    //     }
-    // }, [])
 
+   
+
+    function sumUp(total, betObj) {
+        return total["bet"] + betObj["bet"];
+    }
+
+    //DISPLAY POT PROPERLY IN GAME
+    // let roundBets = game["bets"].reduce(sumUp)
+
+    // const displayPot = game["bets"].reduce(sumUp);
+    //SOCKET COMMANDS -----------------------------------------
+    
     useEffect(() => {
         if (Object.keys(gameData).length === 0) {
             console.log("This should only run on refresh")
@@ -107,6 +105,8 @@ function Game({gameData, socket, restoreGameData}) {
             })
         } else {
             console.log("joining the rooom......")
+            console.log("Has the game data been filled?")
+            console.log(gameData)
             socket.emit('join_room', gameData)
         }
     }, [gameData])
@@ -191,6 +191,7 @@ function Game({gameData, socket, restoreGameData}) {
     // console.log(game["player_cards"])
     // console.log(tableCards)
     console.log(game)
+    
 
 
     //SocketFunctions ------------------------------------------
@@ -333,7 +334,8 @@ function Game({gameData, socket, restoreGameData}) {
 
     const rejoinAtBet = (data) => {
         // console.log(data["game"])
-        if (gameData["user_id"] === data["userId"]) {
+        console.log("rejoin at bet ran but did not make it...")
+        if (gameData["user_id"] === data["user"]) {
             console.log("received rejoin at bet")
             console.log("you have rejoined...")
             console.log(data["game"]["host"])
@@ -344,7 +346,9 @@ function Game({gameData, socket, restoreGameData}) {
     }
 
     const rejoinGame = (data) => {
-        if (gameData["user_id"] === data["userId"]) {
+        console.log("rejoin at game ran but did not make it...")
+        console.log(data);
+        if (gameData["user_id"] === data["user"]) {
             console.log("rejoining game at regular in between betting rounds....")
             setGame(prevGame => ({...prevGame, ...data["game"], player_cash: Number(data["player_cash"]), bet_difference: data["bet_difference"]  }))
         }
@@ -371,35 +375,41 @@ function Game({gameData, socket, restoreGameData}) {
             })
 
             // const cards = [
-            //     { name: "10", suit: "Hearts", value: 10 },
-            //     { name: "3", suit: "Diamonds", value: 3 },
-            //     { name: "4", suit: "Spades", value: 4 },
-            //     { name: "8", suit: "Diamonds", value: 8 },
-            //     { name: "5", suit: "Diamonds", value: 5 },
-            //     { name: "6", suit: "Spades", value: 6 },
-            //     { name: "7", suit: "Spades", value: 7 },
+            //     { name: "A", suit: "Hearts", value: 1, image: "https://deckofcardsapi.com/static/img/AH.png" },
+            //     { name: "K", suit: "Hearts", value: 13, image: "https://deckofcardsapi.com/static/img/KH.png"},
 
-            //     { name: "7", suit: "Clubs", value: 7 },
-            //     // { name: "9", suit: "Spades", value: 9 },
+            //     { name: "A", suit: "Spades", value: 1, image: "https://deckofcardsapi.com/static/img/AS.png" },
+            //     { name: "3", suit: "Diamonds", value: 3, image: "https://deckofcardsapi.com/static/img/3D.png" },
+                
+            //     { name: "7", suit: "Clubs", value: 7, image: "https://deckofcardsapi.com/static/img/7C.png" },
 
-            //     { name: "3", suit: "Clubs", value: 3 },
-            //     { name: "J", suit: "Spades", value: 11 },
-            //     { name: "5", suit: "Hearts", value: 5 },
-            //     { name: "K", suit: "Spades", value: 13 },
-            //     { name: "7", suit: "Hearts", value: 7 },
+            //     { name: "8", suit: "Diamonds", value: 8, image: "https://deckofcardsapi.com/static/img/8D.png"  },
+            //     { name: "7", suit: "Hearts", value: 7, image: "https://deckofcardsapi.com/static/img/7H.png" },
+            //     { name: "J", suit: "Spades", value: 11, image: "https://deckofcardsapi.com/static/img/JS.png" },
+                
+            //     { name: "7", suit: "Spades", value: 7, image: "https://deckofcardsapi.com/static/img/7S.png" },
+
+            //     { name: "6", suit: "Spades", value: 6, image: "https://deckofcardsapi.com/static/img/6S.png" },
+                
+            //     { name: "5", suit: "Hearts", value: 5, image: "https://deckofcardsapi.com/static/img/5H.png" },
+
+            //     { name: "5", suit: "Diamonds", value: 5, image: "https://deckofcardsapi.com/static/img/5D.png" },
+            //     //Change king back to spade
+            //     { name: "3", suit: "Clubs", value: 3, image: "https://deckofcardsapi.com/static/img/3C.png" },
             //     { name: "2", suit: "Hearts", value: 2 },
             //     { name: "3", suit: "Hearts", value: 3 },
             //     { name: "4", suit: "Hearts", value: 4 },
             //     { name: "Q", suit: "Spades", value: 12 },
             //     { name: "6", suit: "Hearts", value: 6 },
-            //     { name: "A", suit: "Spades", value: 1 },
+            //     { name: "4", suit: "Spades", value: 4, image: "https://deckofcardsapi.com/static/img/4S.png" },
             //     { name: "8", suit: "Hearts", value: 8 },
             //     { name: "9", suit: "Hearts", value: 9 },
             //     { name: "2", suit: "Spades", value: 2 },
             //     { name: "J", suit: "Hearts", value: 11 },
             //     { name: "Q", suit: "Hearts", value: 12 },
-            //     { name: "K", suit: "Hearts", value: 13 },
-            //     { name: "A", suit: "Hearts", value: 1 },
+            //     { name: "K", suit: "Spades", value: 13, image: "https://deckofcardsapi.com/static/img/KS.png" },
+
+            //     { name: "10", suit: "Hearts", value: 10, image: "https://deckofcardsapi.com/static/img/0H.png" },
             //     { name: "2", suit: "Diamonds", value: 2 },
             //     { name: "3", suit: "Diamonds", value: 3 },
             //     { name: "4", suit: "Diamonds", value: 4 },
@@ -707,31 +717,6 @@ function Game({gameData, socket, restoreGameData}) {
     })
 
     
-    // Cards to display but will need to keep hidden until end of game if player decides to show cards
-    // const displayAllPlayerCards = game["all_player_cards"].map((playerData) => {
-    //     const playerName = Object.keys(playerData)[0]
-    //     // if (playerName !== gameData["user"]) {
-    //         let card1 = playerData[playerName][0]
-    //         let card2 = playerData[playerName][1]
-    //         const currCash = game["player_data"][playerName]["cash"]
-    //         const currStatus = game["player_data"][playerName]["status"]
-    //         if (playerName !== gameData["user"]) {
-    //             card1 = {name: "?", suit: ""};
-    //             card2 = {name: "?", suit: ""};
-    //         }
-    //         return (<div className="playerData" key={card1["name"] + card1["suit"]}>
-    //             <div>{playerName}: {currStatus} </div>
-    //             <div>${currCash}</div>
-    //             <div>
-    //                 {card1["name"] + " " + card1["suit"]}
-    //             </div>
-    //             <div>
-    //                 {card2["name"] + " " + card2["suit"]}
-    //             </div>
-    //         </div>)
-    //     // }
-    // })
-
     const displayAllPlayerCards = game["all_player_cards"].map((player) => {
         const playerData = game["player_data"][player];
         const playerId = playerData["userId"];
@@ -780,11 +765,17 @@ function Game({gameData, socket, restoreGameData}) {
                 <div id={player + "icon"} style={{boxShadow: "0 0 0 4px rgb(216, 214, 214), 0 0 0 10px rgb(30, 5, 88), 0 0 10px 20px rgba(255, 255, 255, 0.596)"}}>
                     <img id = {player + "img"} src={playerIcon}/>
                 </div>
-                <div id={player + "info"} style={{border: "3px solid green"}}>
-                    {player}
-                    <hr/>
+                <div id={player + "info"} style={{border: ".12em solid green"}}>
+                    <div className="playerInfoNames">
+                        {playerName}
+                    </div>
+                    {/* <hr/> */}
                     <div className="Money">Cash: ${currCash}</div>
                     <div>Last Bet: </div>         
+                </div>
+                <div id={player + "tag"}>POKER PRO</div>
+                <div id={player + "Emote"}>
+                    <img className="emote" src="https://media.tenor.com/GmU85epf9D4AAAAM/pepe-nervous.gif" alt="playerEmote"/>
                 </div>
                 </>
                 ):
@@ -794,10 +785,16 @@ function Game({gameData, socket, restoreGameData}) {
                     <img id = {player + "img"} src={playerIcon}/>
                 </div>
                 <div id={player + "info"} >
-                    {player}
-                    <hr/>
+                    <div className="playerInfoNames">
+                        {playerName}
+                    </div>
+                    {/* <hr/> */}
                     <div className="Money">Cash: ${currCash}</div>
                     <div>Last Bet: </div>         
+                </div>
+                <div id={player + "tag"}>POKER PRO</div>
+                <div id={player + "Emote"}>
+                    <img className="emote" src="https://media.tenor.com/HFhrPAPvytYAAAAM/monka-walk-away-monka-s.gif" alt="playerEmote"/>
                 </div>
                 </>
                 )
@@ -869,7 +866,7 @@ function Game({gameData, socket, restoreGameData}) {
 
     // game["player_ids"].length
     return (
-        <>
+        <div id="fullGamePage">
         <div className="menuBar">
             <div id="exitGame">Leave Room</div>
             <div id="playerCount">Total Players:  {game["total_players"]} / 6</div>
@@ -893,6 +890,21 @@ function Game({gameData, socket, restoreGameData}) {
             </div> */}
             {/* <hr/> */}
             <div className="container">
+                <div id="chipsTray">
+                    <div id="innerTray">
+                        <div id="chipsInTray1"></div>
+                        <div id="chipsInTray2"></div>
+                        <div id="chipsInTray3"></div>
+                        <div id="chipsInTray4"></div>
+                        <div id="chipsInTray5"></div>
+                    </div>
+                </div>
+                <div  id="dealerBox" >
+                    <div id="theDealer">
+                        <img src={luigi} alt="dealer"/>
+                    </div>
+                </div>
+                
                 <div className="icon">
                     
                     <div id="pokerLogoContainer">
@@ -903,29 +915,66 @@ function Game({gameData, socket, restoreGameData}) {
                     </div>
                     {displayAllPlayerCards}
                 </div>
-            
+                {game["pot"]>= 0? 
+                (<div id="potAmount">
+                    <div id="tableChips" style={{color: "white"}}>
+                        <img src={tableChips} alt="tableChips"/>
+                    </div>
+                    <div id="potSize">Pot Size: ${game["pot"]}</div>
+                    <div>Test Pot: ${game["total_pot"]}</div>
+                </div>)
+                : 
+                (<></>)}
                 {game["game_started"]? (<button>End Game</button>): (<div className="startButtonContainer"><button className="startButton" onClick={startGame}>Start Game</button></div>)}
-                <div className="box" style={{"--c": "5px solid blue"}}>
+                <div id="betBoxBorder">
+                <div id="slotButton1"></div>
+                <div id="slots">
+                    <div className="slotSevens">
+                        <img src="https://cdn3.iconfinder.com/data/icons/casino/256/Cherries-512.png" alt="cherry"/>
+                    </div>
+                    <div className="slotSevens">
+                        <img src="https://cdn3.iconfinder.com/data/icons/casino/256/Cherries-512.png" alt="cherry"/>
+                    </div>
+                    <div className="slotSevens">
+                        <img src="https://cdn3.iconfinder.com/data/icons/casino/256/Cherries-512.png" alt="cherry"/>
+                    </div>
+                </div>
+                <div id="slotButton2"></div>
+                <div id="betBox" style={{"--c": "5px solid blue"}}>
                     {/* {displayAllPlayerCards} */}
                     {showRebuy? (<button onClick={handleRebuyButton}>REBUY</button>): (<></>)}
                     {displayBetting ?
                     (
-                    <div>
-                        <form onSubmit={handleBetSubmit}>
-                            <label style={{color: "black"}}>Bet Amount:</label>
+                    <div id="betDisplay">
+                        <form id="betForm" onSubmit={handleBetSubmit}>
+                            <label>Bet Amount:</label>
                             <input type="number" min={game["bet_difference"]} max = {game["player_cash"]} value = {myBet} onChange={handleBetChange}/>
-                            <button type="submit">Place Bet</button>
+                            <div id="betButtonBorder">
+                                <button id="betButton" type="submit">Bet</button>
+                            </div>
                         </form>
-                        <button onClick={handleAllInButton}>ALL IN</button>
-                        <button onClick={handleFoldButton}>FOLD</button>
-                        <button onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button>
-                        {game["bet_difference"] === 0? <button onClick={handleCheckButton}>CHECK</button>: <></>}
+                        <div id="otherBetButtons">
+                            {game["bet_difference"] === 0? <div id="checkButtonBorder"><button id="checkButton" onClick={handleCheckButton}>CHECK</button></div>: <></>}
+                            {game["bet_difference"] > 0? <div id="callButtonBorder"><button id="callButton" onClick={handleCallButton}>{"CALL" + " $" + game["bet_difference"]}</button></div> : <></> }
+                            <div id="allInButtonBorder">
+                                <button id="allInButton" onClick={handleAllInButton}>ALL IN</button>
+                            </div>
+                            <div id="foldButtonBorder">
+                                <button id="foldButton" onClick={handleFoldButton}>FOLD</button>
+                            </div>
+                            
+                            
+                        </div>
+
+                  
+                        
                     </div>):
                     (<></>)
                     }
                     {winnersDisplay}
 
                     
+                </div>
                 </div>
             </div>
                 <div id="timer">
@@ -935,7 +984,7 @@ function Game({gameData, socket, restoreGameData}) {
                 </div>
         </div>
         </div>
-        </>
+        </div>
     )
 }
 

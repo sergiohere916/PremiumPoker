@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom/cjs/react-router-dom.min";
+import Header from "./Header";
 
 
-function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUsername, updateGuestUserId, updateGuestUserImage, updateRoomCode, updateJoinCode}) {
+function Play({fillGameData, loggedInUser, logoutUser, roomCode1, joinCode1, updateGuestUsername, updateGuestUserId, updateGuestUserImage, updateRoomCode, updateJoinCode}) {
 
     // const [rooms, setRooms] = useState([])
 
@@ -12,6 +13,7 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
     // const [userId, setUserId] = useState("")
 
     const [allRooms, setAllRooms] = useState([]);
+    const [gameError, setGameError] = useState("");
 
 
     useEffect(() => {
@@ -41,18 +43,26 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
     function saveGameData() {
         if (roomCode1 !== "" && loggedInUser["username"] !== "" && loggedInUser["user_id"] !== "") {
             fillGameData(loggedInUser, roomCode1);
+        } else {
+            setGameError("You Must Enter your Player Info or login before joining a game")
         } 
     }
 
     function addGameData() {
         if (joinCode1 !== "" && loggedInUser["username"] !== "" && loggedInUser["user_id"] !== "") {
             fillGameData(loggedInUser, joinCode1);
+        } else {
+            setGameError("You Must Enter your Player Info or login before joining a game")
         }
     }
 
     function joinRoom(roomId) {
-        updateJoinCode(roomId);
-        fillGameData(loggedInUser, roomId);
+        if (loggedInUser["username"] !== "" && loggedInUser["user_id"] !== "") {
+            updateJoinCode(roomId);
+            fillGameData(loggedInUser, roomId);
+        } else {
+            setGameError("You Must Enter your Player Info or login before joining a game")
+        }
     }
 
     function updatePlayerImage(image) {
@@ -77,59 +87,68 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
     })
 
     return (
-    <>
+    <div id="playPage">
     <div id="homeMenu">
-        <NavLink to="/shop">Store</NavLink>
+        <Header id="homeMenuHeader" loggedInUser={loggedInUser} logoutUser={logoutUser} />
+        {/* <NavLink to="/shop">Store</NavLink>
         <NavLink to="/login">Login</NavLink>
-        <NavLink to="/inventory">Inventory</NavLink>
+        <NavLink to="/inventory">Inventory</NavLink> */}
     </div>
     <div id="gameSetUp">
-        <div id="allRoomsContainer">
-            <div className="roomContainerLabels">
-                    <div>Room Code</div>
-                    <div>Players</div>
-                    <div>Join</div>
-            </div>
-            <div id="rooms">
-                {displayAllRooms}
-            </div>
-            <div id="allRoomsCards">
-                <img src="https://pics.clipartpng.com/Four_Aces_Cards_PNG_Clipart-1031.png" alt="quadAces"/>
-            </div>
-            <div id="allRoomsPokerChips">
-                <img src="https://i.pinimg.com/originals/64/36/44/643644be80473b0570920700e80fd36f.png" alt="redPokerChips"/>
-            </div>
-        </div>
         <div id="gameSetUpInfo">
             <div id="requiredGameDataTitle">
                 <h4>ENTER YOUR PLAYER INFO</h4>
             </div>
             <div id="requiredGameData">
-                {loggedInUser["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
-                {/* <label>Create UserName: </label> */}
-                <input type="text" name="userName" value={loggedInUser["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
-                <br/>
-                <input type="text" name="userId" value={loggedInUser["user_id"]} readOnly={true}/>
-                {loggedInUser["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
-                {/* <button onClick={generateUID}>Generate Unique Player Id</button> */}
-                <br/>
-                    <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
-                    <button onClick={generateCode}>Generate Room Code</button>
-                    <button onClick={saveGameData}>Start A Game</button>
-                    <br/>
-                    <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
-                    <button onClick={addGameData}>Join Game using Code</button>
-                    <br/>
+                <div id="dataForm">
+                    <div className="inputBox">
+                        {loggedInUser["username"]? (<label>Username : </label>): (<label>Create Username: </label>)}
+                        <input type="text" name="userName" value={loggedInUser["username"]} readOnly={false} onChange={(e) => updateGuestUsername(e.target.value)}/>
+                    </div>
+                    {/* <br/> */}
+                    
+                    <div className="inputBox">
+                        <input type="text" name="userId" value={loggedInUser["user_id"]} readOnly={true}/>
+                        {loggedInUser["user_id"]? (<button>Player Id</button>): (<button onClick={generateUID}>Generate Unique Player Id</button>)}
+                    </div>
+                    {/* <br/> */}
+
+                    <div className="inputBox">
+                        <input type="text" name="roomCode" value={roomCode1} readOnly={true}/>
+                        <button onClick={generateCode}>Generate Room Code</button>
+                        <button onClick={saveGameData}>Start A Game</button>
+                    </div>
+                    {/* <br/> */}
+
+                    <div className="inputBox">
+                        <input type="text" name="joinCode" value={joinCode1} onChange={(e) => updateJoinCode(e.target.value)}/>
+                        <button onClick={addGameData}>Join Game using Code</button>
+                    </div>
+                    {/* <br/> */}
+
+                    {/* <div></div>
+                    <label>Current Icon: </label>
+                    <div id="currIcon">
+                        <img src={loggedInUser["image_url"]} alt="selectedIconImage"/>
+                    </div> */}
+                </div>
+                <div id="gameDataIcon">
                     <label>Current Icon: </label>
                     <div id="currIcon">
                         <img src={loggedInUser["image_url"]} alt="selectedIconImage"/>
                     </div>
+                </div>
+                <div id="gameDataError">
+                    {gameError}
+                    {/* Error: You Must Enter your Player Info or login before joining a game. */}
+                </div>
             </div>
             <div id="iconSelectTitle">
                 
-                <h3>SELECT YOUR ICON</h3>
+                <h4>SELECT YOUR ICON</h4>
             </div>
             <div id="iconSelect">
+                <div id="icons">
                 <div id="selectableIcons1">
                     <div className="guestIconCards">
                         <img src="https://www.svgrepo.com/show/382102/male-avatar-boy-face-man-user-8.svg" alt="fishIcon" onClick={() => {updatePlayerImage("https://www.svgrepo.com/show/382102/male-avatar-boy-face-man-user-8.svg")}}/>
@@ -160,12 +179,58 @@ function Play({fillGameData, loggedInUser, roomCode1, joinCode1, updateGuestUser
                         <img src="https://cdn1.iconfinder.com/data/icons/graphorama-playing-cards-3/80/diamonds_queen-512.png" alt="fishIcon"/>
                     </div>
                 </div>
+                </div>
+            </div>
+        </div>
+        <div id="allRoomsContainer">
+            <div className="roomContainerLabels">
+                    <div>Room Code</div>
+                    <div>Players</div>
+                    <div>Join</div>
+            </div>
+            <div id="rooms">
+                {displayAllRooms}
+            </div>
+            <div id="allRoomsCards">
+                <img src="https://pics.clipartpng.com/Four_Aces_Cards_PNG_Clipart-1031.png" alt="quadAces"/>
+            </div>
+            <div id="allRoomsPokerChips">
+                <img src="https://i.pinimg.com/originals/64/36/44/643644be80473b0570920700e80fd36f.png" alt="redPokerChips"/>
+            </div>
+        </div>
+        <div id="ads">
+            <div className="playAds">
+                <img src="https://is2-ssl.mzstatic.com/image/thumb/Purple122/v4/1e/75/df/1e75df10-4f6d-7732-9266-7ecc0d516c0b/source/512x512bb.jpg" alt="chipsAndCards"/>
+            </div>
+            <div className="adCaption">
+                FREE ONLINE POKER
+            </div>
+            <div className="playAds">
+                <img src="https://media.istockphoto.com/id/921474994/vector/gambling-chip-flat-design-casino-icon-with-side-shadow.jpg?s=612x612&w=0&k=20&c=C6pKtyunExqdWyzebtbryQV5L-J13e7vQbnXglxESRo=" alt="pokerLive"/>
+            </div>
+            <div className="adCaption">
+                EARN POINTS AND BUY PRIZES
+            </div>
+            <div className="playAds">
+                <img src="https://m.media-amazon.com/images/I/81fvGZ5WnQL.png" alt="texasHoldemPoker"/> 
+            </div>
+            <div className="adCaption">
+                TEXAS HOLDEM STYLE POKER
+            </div>
+            <div className="playAds">
+                <img src="https://assets.funnygames.org/8/114048/100675/672x448/poker-with-friends.webp" alt="pokerWithFriends"/>
+            </div>
+            <div className="adCaption">
+                INVITE FRIENDS FOR MORE FUN
             </div>
         </div>
         
     </div>
-    </>
+    </div>
     )
 }
 
 export default Play
+
+// src="https://play-lh.googleusercontent.com/hU_xylni2Kvti1Cq5Wo9APQ9wBeAvFWV1Tacb4n2O2H5VviHKcFOog-FuZPYjCBeu1MH"
+// src="https://play-lh.googleusercontent.com/SpWmnjazS6Z_bmyUt5zhGmoNTsMI7JFO2leT5z1jO7KLibhjJ0f-Q9fAFJWDEEdsUpM"

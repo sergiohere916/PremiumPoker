@@ -16,12 +16,12 @@ function Header({loggedInUser, logoutUser}) {
         })
         
     }
-
+    // PREMIUM POKER
     return (
-        <>
         <div id="header">
             <div id="logo">PREMIUM POKER</div>
             <div id="nav-container">
+                
                 <NavLink to="/play">PLAY</NavLink>
                 <NavLink to="/leaderboard">LEADERBOARD</NavLink>
                 <NavLink to="/search">SEARCH</NavLink>
@@ -31,10 +31,8 @@ function Header({loggedInUser, logoutUser}) {
                 {loggedInUser["type"] == "GUEST" ? <NavLink to="/signup" >SIGN UP</NavLink> : ""}
                 {loggedInUser["type"] == "GUEST" ? "" : <a onClick={handleLogout}>LOGOUT</a>}
                 {loggedInUser["type"] == "GUEST" ? "" : <NavLink to={selfId} >PROFILE</NavLink>}
-
-            </div>
+                </div>
         </div>
-        </>
     )
 }
 

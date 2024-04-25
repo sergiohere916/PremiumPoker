@@ -11,7 +11,7 @@ import string
 from string import ascii_uppercase
 from itertools import combinations
 import time
-import uuid
+import uuid, functools
 from models import User, Card, Tag, Icon, Emote, UserIcon, UserTag, UserEmote
 import array
 
@@ -822,6 +822,7 @@ def handle_join_room(room_data):
             "turn_dealt": False,
             "river_dealt": False,
             "pot": 0,
+            "total_pot": 0,
             "min_bet": 0,
             "betting_round": "",
             "last_raise": "",
@@ -945,9 +946,10 @@ def deal_cards(data):
                 player_data["cards"].append(cards[game["last_card_dealt"] + 1])
 
             #adding in security so game at player cards dealt is only set to true once last set of cards have been emitted
-            game["last_card_dealt"] += 2
+                game["last_card_dealt"] += 2
             #Is this a burn card? if so we can remove, no cards need be removed at this point
-            game["last_card_dealt"] += 1
+        #BURNS ONE AFTER ALL CARDS DEALT TO SET UP FOR DEAL FLOP
+        game["last_card_dealt"] += 1
 
         #Small blind logic plus checking else case if total players in round order is less than 2
         if len(game["round_order"]) > 1:
@@ -983,6 +985,8 @@ def deal_cards(data):
                 game["min_all_in"].append(small_blind_cash)
                 game["pots"].append({"cash" : 0, "players" : []})
                 game["bets"].append({"player_name" : small_blind, "bet" : small_blind_cash})
+                
+                game["total_pot"] += small_blind_cash
             else:
                 small_blind_data["cash"] -= 5
                 small_blind_data["pregame"] += 5
@@ -993,6 +997,7 @@ def deal_cards(data):
                 game["min_bet"] = 5
                 game["bets"].append({"player_name" : small_blind, "bet" : 5})
 
+                game["total_pot"] += 5
             if big_blind_cash <= 10:
                 print("big blind does not have enough to meat bb so is all in")
                 big_blind_data["cash"] -= big_blind_cash
@@ -1013,6 +1018,8 @@ def deal_cards(data):
                     game["min_bet"] = big_blind_cash
                 print("\n Big blind cash is " + str(big_blind_cash))
                 game["bets"].append({"player_name" : big_blind, "bet" : big_blind_cash})
+
+                game["total_pot"] += big_blind_cash
             else:
                 big_blind_data["cash"] -= 10
                 big_blind_data["pregame"] += 10
@@ -1020,6 +1027,8 @@ def deal_cards(data):
                 game["big_blind_bet"] = 10
                 game["min_bet"] = 10
                 game["bets"].append({"player_name" : big_blind, "bet" : 10})
+
+                game["total_pot"] += 10
 
             if len(game["round_order"]) == 2 and big_blind_bet == small_blind_bet and small_blind_cash <= 5:
                 print("edge case handling BB matches SB and is all in...SB is also all in...")
@@ -1316,6 +1325,8 @@ def handle_bet_action(data):
 
     if total_bet_amount > game["min_bet"]:
         game["min_bet"] = total_bet_amount
+    #NEW ADDITION 4/23 for display total Pot
+    game["total_pot"] += bet_amount
 
     #CHECK IF NEXT PLAYER IS ALL IN OR HAS FOLDED IF SO SKIP THEM AND INCREMENT AGAIN
    
@@ -1726,7 +1737,7 @@ def continue_betting(room, game):
         #SOLUTION TO TIMING OUT
         #TIME IS RESET ABOVE AND BETTING INDEX INCREMENTED ANYTIME BET IS RECEIVED 
         current_bet_id = game["betting_index"]
-
+        
         socketio.emit("take_bet", {"game_update": game, "player_cash": player_bankroll, "user": user_id, "bet_difference": min_bet_difference, "time": game["time"]}, room = room)
         #p2 of timing out...
         while game["time"] >= -3:
@@ -1886,6 +1897,7 @@ def start_next_game(room, game):
     game["pots"] = []
     game["bets"] = []
     game["main_pot"] = True
+    game["total_pot"] = 0
     game["small_blind_bet"] = ""
     game["big_blind_bet"] = ""
     game["time"] = 30
@@ -1981,6 +1993,7 @@ def standstill_restart_game(room, game):
     game["turn_dealt"] = False
     game["river_dealt"] = False
     game["pot"] = 0
+    game["total_pot"] = 0
     game["min_bet"] = 0
     game["betting_round"] = ""
     game["last_raise"] = ""
@@ -2074,32 +2087,68 @@ def place_pot_bets(game):
 
 def get_high_card(cards):
         values = sorted([card["value"] for card in cards], reverse = True)
-        return values[0]
+        return [values[0], values]
 def is_one_pair(cards):
-        values = [card["value"] for card in cards]
+        values = sorted([card["value"] for card in cards], reverse = True)
         # return any(values.count(value) == 2 for value in set(values))
-        pairs = [value for value in set(values) if values.count(value) == 2]
+        print(values)
+        # pairs = [value for value in set(values) if values.count(value) == 2]
+
+        pairs = []
+        kickers = []
+
+        for value in set(values):
+            if values.count(value) == 2:
+                pairs.append(value)
+            else:
+                kickers.append(value)
+
         if len(pairs) > 0:
-            return max(pairs)
+            final_kickers = pairs + pairs + sorted(kickers, reverse = True)
+            print(str([pairs[0], final_kickers])) 
+            return [pairs[0], final_kickers]
         else: 
             return False  
 def is_two_pair(cards):
         values = [card["value"] for card in cards]
-        pairs = [value for value in set(values) if values.count(value) == 2]
+        # pairs = [value for value in set(values) if values.count(value) == 2]
+
+        pairs = []
+        kickers = []
+
+        for value in set(values):
+            if values.count(value) == 2:
+                pairs.append(value)
+            else:
+                kickers.append(value)
         
         #Need to remove Ace that equals 1 and let the function continue to cycle until it find the Ace that's value is 14
         if len(pairs) > 1 and 1 not in values:
             # print(values)
-            return max(pairs)
+            pairs = sorted(pairs, reverse = True)
+
+            final_kickers = [pairs[0]] + [pairs[0]] + [pairs[1]] + [pairs[1]] + [kickers[0]]
+
+            return [pairs[0], final_kickers]
         # return sum(1 for value in set(values) if values.count(value) == 2) == 2
         else:
             return False
 def is_three_of_a_kind(cards):
         values = [card["value"] for card in cards]
         # return any(values.count(value) == 3 for value in set(values))
-        triples = [value for value in set(values) if values.count(value) == 3]
+
+        # triples = [value for value in set(values) if values.count(value) == 3]
+        triples = []
+        kickers = []
+
+        for value in set(values):
+            if values.count(value) == 3:
+                triples.append(value)
+            else:
+                kickers.append(value)
+
         if len(triples) > 0:
-            return max(triples)
+            return [triples[0], max(kickers)]
         else:
              return False
 def is_straight(cards):
@@ -2107,7 +2156,7 @@ def is_straight(cards):
         # return any(values[i] + 1 == values[i + 1] for i in range(len(values) - 1))
         straight = [values[i] for i in range(len(values) - 1) if values[i] + 1 == values[i + 1] ]
         if len(straight) == 4:
-             return max(straight)
+             return [max(straight), sum(values)]
         else:
              return False
 def is_flush(cards):
@@ -2125,8 +2174,9 @@ def is_flush(cards):
                 values.append(value)
         # flush = [suit for suit in suits if suits.count(suit) == 5]
         if suits.count(suit) == 5:
-            print(cards)
-            return max(values)
+            values = sorted(values, reverse = True)
+            print(values)
+            return [values[0], values]
         else:
             return False
              
@@ -2138,17 +2188,35 @@ def is_full_house(cards):
         return False
     pairs = list(set(values))
     if len(pairs) == 2:
-        full_house = [value for value in pairs if values.count(value) == 3]
+        # full_house = [value for value in pairs if values.count(value) == 3]
+        full_house = []
+        pair = []
+
+        for value in pairs:
+            if values.count(value) == 3:
+                full_house.append(value)
+            else:
+                pair.append(value)
+            
         if len(full_house) > 0:
-            return max(full_house)
+            return [full_house[0], pair[0]]
     else:
         return False
     
 def is_four_of_a_kind(cards):
     values = [card["value"] for card in cards]
-    quads = [value for value in set(values) if values.count(value) == 4]
+    # quads = [value for value in set(values) if values.count(value) == 4]
+    quads = []
+    kicker = []
+
+    for value in set(values):
+        if values.count(value) == 4:
+            quads.append(value)
+        else:
+            kicker.append(value)
+
     if len(quads) > 0:
-        return max(quads)
+        return [quads[0], kicker[0]]
     else:
         return False
 def is_straight_flush(cards):
@@ -2156,7 +2224,7 @@ def is_straight_flush(cards):
     if straight:
         straight_flush = is_flush(cards)
         if straight_flush:
-            return straight_flush
+            return [straight_flush[0], straight[1]]
         else:
             return False
     else:
@@ -2183,7 +2251,7 @@ hand_scores = {
     "is_flush": 60,
     "is_full_house": 70,
     "is_four_of_a_kind": 80,
-    "is_straight_flush": 10,
+    "is_straight_flush": 90,
 }
 
 def determine_winner(game, incoming_player_list):
@@ -2239,17 +2307,83 @@ def determine_winner(game, incoming_player_list):
             #Final Run Through
             print("Went all the way to final rundown where hand sums are checked")
             winner_list = list(winners_check_2.keys())
-            best_score = 0  
+
+            hand_value = current_player_hand["score"]
+
+            best_score = 0
+            if hand_value == 10 or hand_value == 20 or hand_value == 30 or hand_value == 60:
+                #These hands hold arrays as the values in hand_sum as such have different instructions
+                best_score = [0, 0, 0, 0, 0]  
+
             for player_name in winner_list:
                 current_player_hand = winners[player_name]
                 score = current_player_hand["hand_sum"]
-                print("This is the score determined by highest pair value: " + str(score))
-                if score > best_score:
-                    best_score = score
-                    winners_check_final.clear()
-                    winners_check_final[player_name] = current_player_hand
-                elif score == best_score:
-                    winners_check_final[player_name] = current_player_hand
+                print("This is the score determined by hand sum: " + str(score))
+
+                if isinstance(score, list):
+                    #Runs when hands are high cards, 1 pair, 2 pair, or flushes. These hands have arrays as the value in hand_sum
+                    #Arrays have this format [array with possible kickers has 5 elements]
+
+
+                    kicker_one = score[0]
+                    kicker_two = score[1]
+                    kicker_three = score[2]
+                    kicker_four = score[3]
+                    kicker_five = score[4]
+
+                    if kicker_one > best_score[0]:
+                        best_score = score
+                        winners_check_final.clear()
+                        winners_check_final[player_name] = current_player_hand
+                    elif kicker_one == best_score[0]:
+                        # First kicker tie, Check other values
+                        if kicker_two > best_score[1]:
+                            #second kicker beats other player second kicker
+                            best_score = score
+                            winners_check_final.clear()
+                            winners_check_final[player_name] = current_player_hand
+                        elif kicker_two == best_score[1]:
+                            #second kicker tie, Check other values
+                            if kicker_three > best_score[2]:
+                                #third kicker beats other player third kicker
+                                best_score = score
+                                winners_check_final.clear()
+                                winners_check_final[player_name] = current_player_hand
+                            elif kicker_three == best_score[2]:
+                                #tie, keep checking
+                                if kicker_four > best_score[3]:
+                                    best_score = score
+                                    winners_check_final.clear()
+                                    winners_check_final[player_name] = current_player_hand
+                                elif kicker_four == best_score[3]:
+                                    #tie, keep checking
+                                    if kicker_five > best_score[4]:
+                                        best_score = score
+                                        winners_check_final.clear()
+                                        winners_check_final[player_name] = current_player_hand
+                                    elif kicker_five == best_score[4]:
+                                        #KICKERS ALL MATCH OTHER PLAYER IT IS A DRAW!
+                                        print("achieved a draw")
+                                        winners_check_final[player_name] = current_player_hand
+                                        print(str(winners_check_final))
+
+                                    elif kicker_five < best_score[4]:
+                                        continue
+                                elif kicker_four < best_score[3]:
+                                    continue
+                            elif kicker_three < best_score[2]:
+                                continue
+                        elif kicker_two < best_score[1]:
+                            continue
+                    elif kicker_one < best_score[0]:
+                        continue
+                else: 
+                    if score > best_score:
+                        best_score = score
+                        winners_check_final.clear()
+                        winners_check_final[player_name] = current_player_hand
+                    elif score == best_score:
+                        winners_check_final[player_name] = current_player_hand
             print("final filter")
             return list(winners_check_final.keys())
         else:
@@ -2271,27 +2405,85 @@ def evaluate_hand(player_cards, all_table_cards, player):
 
     max_score = 0
     evalutation_index = 0
-    
+    all_pair_combos = 0
     for evaluation in hand_evaluations:
         score = 0
         for combination in all_combinations:
             evaluation_result = evaluation(combination)
             if evaluation_result:
+                if evalutation_index == 7:
+                    all_pair_combos += 1
+                    print(all_pair_combos)
                 score = hand_scores[evaluation.__name__]
                 if score > max_score:
                     max_score = score
                     best_hand = {"name": player, "score": score, 
-                                    "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
+                                    "pair_value": evaluation_result[0], "hand_sum": evaluation_result[1]}
                     #adding this in to help stop full cycle through of hand evaluations added 1-3-2024, remove if needed
                     helper_score = score
                 elif score == max_score:
                     # if len(best_hand.keys()) > 0:
                     #     print("we attempted")
-                    if evaluation_result > best_hand["pair_value"]:
+                    if evaluation_result[0] > best_hand["pair_value"]:
                         
                         best_hand = {"name": player, "score": score, 
-                            "pair_value": evaluation_result, "hand_sum": sum(player_card_values)}
-    
+                            "pair_value": evaluation_result[0], "hand_sum": evaluation_result[1]}
+                    elif evaluation_result[0] == best_hand["pair_value"]:
+                        #Pair values are the same but need to check if kickers are better
+                        if max_score == 10 or max_score == 20 or max_score == 30 or max_score == 60:
+                            #In these cases evaluation results at 1 will be arrays and need to check multiple numbers for best possible hand
+                            current_best_five = best_hand["hand_sum"]
+                            new_five = evaluation_result[1]
+
+                            # print(new_five)
+                            kicker_one = new_five[0]
+                            kicker_two = new_five[1]
+                            kicker_three = new_five[2]
+                            kicker_four = new_five[3]
+                            kicker_five = new_five[4]
+
+
+                            if kicker_one > current_best_five[0]:
+                                best_hand = {"name": player, "score": score, "pair_value": evaluation_result[0], "hand_sum": new_five}
+                            elif kicker_one == current_best_five[0]:
+                                # First kicker tie, Check other values
+                                if kicker_two > current_best_five[1]:
+                                    #second kicker beats other player second kicker
+                                    best_hand = {"name": player, "score": score, "pair_value": evaluation_result[0], "hand_sum": new_five}
+                                elif kicker_two == current_best_five[1]:
+                                    #second kicker tie, Check other values
+                                    if kicker_three > current_best_five[2]:
+                                        #third kicker beats other player third kicker
+                                        best_hand = {"name": player, "score": score, "pair_value": evaluation_result[0], "hand_sum": new_five}
+                                    elif kicker_three == current_best_five[2]:
+                                        #tie, keep checking
+                                        if kicker_four > current_best_five[3]:
+                                            best_hand = {"name": player, "score": score, "pair_value": evaluation_result[0], "hand_sum": new_five}
+                                        elif kicker_four == current_best_five[3]:
+                                            #tie, keep checking
+                                            if kicker_five > current_best_five[4]:
+                                                best_hand = {"name": player, "score": score, "pair_value": evaluation_result[0], "hand_sum": new_five}
+                                            elif kicker_five == current_best_five[4]:
+                                                #KICKERS ALL MATCH OTHER PLAYER IT IS A DRAW!
+                                                continue
+
+                                            elif kicker_five < current_best_five[4]:
+                                                continue
+                                        elif kicker_four < current_best_five[3]:
+                                            continue
+                                    elif kicker_three < current_best_five[2]:
+                                        continue
+                                elif kicker_two < current_best_five[1]:
+                                    continue
+                            elif kicker_one < current_best_five[0]:
+                                continue
+                            
+                        else:
+                            current_best_kicker = best_hand["hand_sum"]
+                            new_kicker = evaluation_result[1]
+                            if new_kicker > current_best_kicker:
+                                #if kicker is better with this new 5 card hand then replace previous 5 card hand
+                                best_hand = {"name": player, "score": score, "pair_value": evaluation_result[0], "hand_sum": evaluation_result[1]}
         evalutation_index +=1
         #If scored exists at a higher hand evaluation such as a straight flush do not proceed with other evalutions
         if max_score > 0 and evalutation_index > 0:

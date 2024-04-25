@@ -227,7 +227,7 @@ function App() {
   console.log(joinCode1)
   
   return (
-  <div id="page">
+  <>
     <Switch>
       <Route path="/game">
         <Game gameData={gameData} socket={socket} restoreGameData={restoreGameData}/>
@@ -248,7 +248,7 @@ function App() {
         <Inventory loggedInUser={loggedInUser} userIcons={userIcons} userTags={userTags} userEmotes={userEmotes} onLogin={onLogin}></Inventory>
       </Route>
       <Route exact path="/play"> 
-        <Play loggedInUser={loggedInUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateGuestUserImage={updateGuestUserImage} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
+        <Play loggedInUser={loggedInUser} logoutUser={logoutUser} roomCode1={roomCode1} joinCode1={joinCode1} updateGuestUsername={updateGuestUsername} updateGuestUserId={updateGuestUserId} updateRoomCode={updateRoomCode} updateGuestUserImage={updateGuestUserImage} updateJoinCode={updateJoinCode} fillGameData={fillGameData}></Play>
       </Route>
       <Route path="/user/:id">
         <Profile></Profile>
@@ -260,9 +260,11 @@ function App() {
         <Search></Search>
       </Route>
     </Switch>
-  </div>
+    </>
   )
 }
 
 export default App;
 // userIcons={userIcons} userTags={userTags}
+
+// div id="page"
